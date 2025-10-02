@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>Debug Test</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            try {
+                // Тестируем загрузку всех вопросов
+                const response = await fetch('/api/questions');
+                const data = await response.json();
+                
+                console.log('Всего вопросов:', data.length);
+                console.log('Первые 3 вопроса:', data.slice(0, 3));
+                
+                // Проверяем категории
+                const categories = [...new Set(data.map(q => q.category))];
+                console.log('Категории:', categories);
+                
+                document.getElementById('result').innerHTML = `
+                    <p>Всего вопросов: ${data.length}</p>
+                    <p>Категорий: ${categories.length}</p>
+                    <p>Первые категории: ${categories.slice(0, 5).join(', ')}</p>
+                `;
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('result').innerHTML = 'Ошибка: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+

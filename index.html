@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyDrive - Подготовка к экзамену на права</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Показываем заставку только при самом первом заходе
+        window.addEventListener('load', function() {
+            // Проверяем, не показывали ли уже заставку в этой сессии
+            if (!sessionStorage.getItem('splashShown')) {
+                sessionStorage.setItem('splashShown', 'true');
+                window.location.href = 'splash.html';
+            }
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 380px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 2px solid #ff8c00;
+        }
+
+        .header {
+            background: #ffffff;
+            color: #ff8c00;
+            padding: 30px 20px;
+            text-align: left;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header-logo {
+            width: 100px;
+            height: 100px;
+            background-image: url('logo_gorizont1.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255, 140, 0, 0.3);
+            margin: 0;
+            color: #ff8c00;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(255, 140, 0, 0.2);
+            margin: 0;
+            color: #ff8c00;
+        }
+
+        .sections {
+            padding: 20px 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .section-block {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid #ff8c00;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.1);
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .section-block:hover {
+            border-color: #ff6b35;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.25);
+            background: #fff8f0;
+        }
+
+        .section-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 4px;
+        }
+
+        .section-description {
+            font-size: 10px;
+            color: #333333;
+            line-height: 1.3;
+        }
+
+        .tickets-icon {
+            color: #ff8c00;
+        }
+
+        .videos-icon {
+            color: #ff6b35;
+        }
+
+        .teacher-icon {
+            color: #4CAF50;
+        }
+
+        .lawyer-icon {
+            color: #2196F3;
+        }
+
+        .psychologist-icon {
+            color: #9C27B0;
+        }
+
+        .parking-icon {
+            color: #FF9800;
+        }
+
+        .translations-icon {
+            color: #E91E63;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 25px 15px;
+                min-height: 100px;
+                flex-direction: column;
+                text-align: center;
+                background: #000000;
+            }
+            
+            .header-content {
+                margin-bottom: 15px;
+            }
+            
+            .header-logo {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .header p {
+                font-size: 14px;
+            }
+            
+            .sections {
+                padding: 20px 12px;
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .section-block {
+                aspect-ratio: 2.5;
+                padding: 12px;
+            }
+            
+            .section-icon {
+                font-size: 20px;
+                margin-bottom: 6px;
+            }
+            
+            .section-title {
+                font-size: 12px;
+                margin-bottom: 3px;
+            }
+            
+            .section-description {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Разделы</h1>
+                <p>Выберите раздел для изучения</p>
+            </div>
+            <div class="header-logo"></div>
+        </div>
+        
+        <div class="sections">
+            <div class="section-block" onclick="openTickets()">
+                <div class="section-icon tickets-icon">🎫</div>
+                <div class="section-title">Билеты</div>
+                <div class="section-description">
+                    Решайте билеты ПДД и готовьтесь к теоретическому экзамену
+                </div>
+            </div>
+            
+            <div class="section-block" onclick="openVideos()">
+                <div class="section-icon videos-icon">🎥</div>
+                <div class="section-title">Видеоуроки</div>
+                <div class="section-description">
+                    Смотрите видеоразборы сложных вопросов и изучайте правила
+                </div>
+            </div>
+
+            <div class="section-block" onclick="openTeacher()">
+                <div class="section-icon teacher-icon">👨‍🏫</div>
+                <div class="section-title">Преподаватель ПДД</div>
+                <div class="section-description">
+                    Персональные консультации с опытным преподавателем
+                </div>
+            </div>
+
+            <div class="section-block" onclick="openLawyer()">
+                <div class="section-icon lawyer-icon">⚖️</div>
+                <div class="section-title">Автоюрист</div>
+                <div class="section-description">
+                    Юридическая помощь в вопросах дорожного движения
+                </div>
+            </div>
+
+            <div class="section-block" onclick="openPsychologist()">
+                <div class="section-icon psychologist-icon">🧠</div>
+                <div class="section-title">Автопсихолог</div>
+                <div class="section-description">
+                    Психологическая подготовка к экзамену и вождению
+                </div>
+            </div>
+
+            <div class="section-block" onclick="openParking()">
+                <div class="section-icon parking-icon">🅿️</div>
+                <div class="section-title">Курс по парковке</div>
+                <div class="section-description">
+                    Изучайте различные виды парковки и маневрирования
+                </div>
+            </div>
+
+            <div class="section-block" onclick="openTranslations()">
+                <div class="section-icon translations-icon">📺</div>
+                <div class="section-title">Трансляции</div>
+                <div class="section-description">
+                    Смотрите прямые трансляции уроков и разборов
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTickets() {
+            window.location.href = '1.html';
+        }
+
+        function openVideos() {
+            window.location.href = 'videos.html';
+        }
+
+        function openTeacher() {
+            alert('Раздел "Преподаватель ПДД" - в разработке');
+            // Здесь будет логика открытия раздела с преподавателем
+        }
+
+        function openLawyer() {
+            window.location.href = 'lawyer.html';
+        }
+
+        function openPsychologist() {
+            window.location.href = 'psychologist.html';
+        }
+
+        function openParking() {
+            alert('Раздел "Курс по парковке" - в разработке');
+            // Здесь будет логика открытия раздела с курсом парковки
+        }
+
+        function openTranslations() {
+            alert('Раздел "Трансляции" - в разработке');
+            // Здесь будет логика открытия раздела с трансляциями
+        }
+    </script>
+</body>
+</html>

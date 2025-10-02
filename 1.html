@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Билеты ПДД - EasyDrive</title>
+<style>
+  body {
+    margin: 0;
+    background: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+  .page {
+    width: 380px;                 /* требуемая ширина страницы */
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    overflow: hidden;
+  }
+  .road-wrap {
+    position: relative;
+    width: 100%;
+    line-height: 0;
+    user-select: none;
+    margin-top: 10px;
+  }
+  .road-wrap img {
+    display: block;
+    width: 100%;                  /* изображение на всю ширину */
+    height: auto;
+  }
+
+  /* Вариант 2: круглые кнопки при высоте 34px */
+  .node {
+    position: absolute;
+    transform: translate(-50%, -50%); /* центр по координате */
+    width: 34px;                      /* фиксируем круглый размер */
+    height: 34px;
+    padding: 0;                        /* убираем горизонтальные отступы */
+    border-radius: 50%;                /* круг */
+    border: 1px solid #b85a00;
+    background: linear-gradient(#ffa733, #ff7f0e);
+    box-shadow: 0 2px 0 #b85a00, 0 6px 14px rgba(0,0,0,.18);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;                   /* чуть меньше для двузначных чисел */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .node:active {
+    transform: translate(-50%, -50%) translateY(1px);
+    box-shadow: 0 1px 0 #b85a00, 0 3px 10px rgba(0,0,0,.20);
+  }
+
+  .header {
+    background: #ffffff;
+    color: #ff8c00;
+    padding: 25px 15px;
+    min-height: 100px;
+    flex-direction: column;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    position: relative;
+    z-index: 1000;
+  }
+
+  .header-content {
+    margin-bottom: 15px;
+  }
+
+  .header-logo {
+    width: 80px;
+    height: 80px;
+    background-image: url('logo_gorizont1.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+    color: #ff8c00;
+    text-shadow: 2px 2px 4px rgba(255, 140, 0, 0.3);
+  }
+
+  .header p {
+    font-size: 14px;
+    margin: 0;
+    color: #ff8c00;
+    opacity: 0.9;
+  }
+
+  .back-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255,140,0,.9);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    text-decoration: none;
+    z-index: 1001;
+    transition: background .25s;
+  }
+  .back-btn:hover {
+    background: rgba(255,140,0,1);
+  }
+
+  .random-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+    z-index: 1000;
+    transition: all .25s;
+  }
+  .random-btn:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="road-wrap" id="road">
+      <!-- Изображение дороги с билетами -->
+      <img id="roadImg" src="1.png" alt="Дорога с билетами ПДД" width="832" height="4584" />
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="header-content">
+      <h1>Билеты ПДД</h1>
+      <p>Выберите билет для прохождения</p>
+    </div>
+    <div class="header-logo"></div>
+  </div>
+  <a href="index.html" class="back-btn">← Назад</a>
+  <a href="#" class="random-btn" onclick="openRandomTicket()">🎲 Случайный вопрос</a>
+
+<script>
+  // Основано на вашем вводе.
+  // Оригинальный размер изображения:
+  const ORIGINAL = { w: 832, h: 4584 };
+
+  // Базовые позиции цикла из 4 кнопок (X фиксирован, Y базовый):
+  // 1: x=549, y=4441 (исправлено)
+  // 2: x=411, y=4328
+  // 3: x=299, y=4227
+  // 4: x=411, y=4121
+  const BASE = [
+    { x: 549, y: 4441 }, // тип 1: 1,5,9,13,17,21,25,29,33,37
+    { x: 411, y: 4328 }, // тип 2: 2,6,10,14,18,22,26,30,34,38
+    { x: 299, y: 4227 }, // тип 3: 3,7,11,15,19,23,27,31,35,39
+    { x: 411, y: 4121 }  // тип 4: 4,8,12,16,20,24,28,32,36,40
+  ];
+
+  // Шаг по Y между повторениями типа:
+  const STEP_Y = 438;     // уменьшение Y на 455 (по вашему требованию)
+  const TOTAL  = 40;      // всего кнопок
+
+  // Строим координаты 1–40 по правилу цикла
+  const coords = [];
+  for (let n = 1; n <= TOTAL; n++) {
+    const idx = (n - 1) % 4;               // тип 0..3 (соответствует 1..4)
+    const k   = Math.floor((n - 1) / 4);   // номер «этажа» (0..9)
+    const x   = BASE[idx].x;
+    const y   = BASE[idx].y - STEP_Y * k;  // Y уменьшается на 455*k
+    coords.push({ n, x, y });
+  }
+
+  const roadEl = document.getElementById('road');
+  const imgEl  = document.getElementById('roadImg');
+
+  // Функция для открытия случайного билета
+  function openRandomTicket() {
+    const randomTicket = Math.floor(Math.random() * 40) + 1;
+    window.location.href = 'exam.html?ticket=' + randomTicket;
+  }
+
+  function renderNodes() {
+    // очистка
+    roadEl.querySelectorAll('.node').forEach(el => el.remove());
+
+    // масштаб под 380px
+    const scale = roadEl.clientWidth / ORIGINAL.w;
+    roadEl.style.height = (ORIGINAL.h * scale) + 'px';
+
+    // снизу-вверх: больше Y — ниже
+    const sorted = [...coords].sort((a, b) => b.y - a.y);
+
+    for (const { n, x, y } of sorted) {
+      const a = document.createElement('a');
+      a.className = 'node';
+      a.textContent = String(n);
+      a.href = '#node-' + n;
+      a.style.left = (x * scale) + 'px';
+      a.style.top  = (y * scale) + 'px';
+      a.setAttribute('aria-label', 'Кнопка ' + n);
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'exam.html?ticket=' + n;
+      });
+      roadEl.appendChild(a);
+    }
+  }
+
+
+  if (imgEl.complete) renderNodes();
+  else imgEl.addEventListener('load', renderNodes);
+  window.addEventListener('resize', renderNodes);
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testAllQuestions()">Test All Questions</button>
+    <button onclick="testTicketQuestions()">Test Ticket 1 Questions</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAllQuestions() {
+            try {
+                const response = await fetch('/api/questions');
+                const data = await response.json();
+                
+                console.log('All questions loaded:', data.length);
+                console.log('First question:', data[0]);
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>All Questions (${data.length})</h3>
+                    <p>First question category: ${data[0].category}</p>
+                    <p>First question text: ${data[0].question_text.substring(0, 100)}...</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+
+        async function testTicketQuestions() {
+            try {
+                const response = await fetch('/api/questions/ticket/1');
+                const data = await response.json();
+                
+                console.log('Ticket 1 questions loaded:', data.length);
+                console.log('First question:', data[0]);
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>Ticket 1 Questions (${data.length})</h3>
+                    <p>First question category: ${data[0].category}</p>
+                    <p>First question text: ${data[0].question_text.substring(0, 100)}...</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест видео</title>
+</head>
+<body>
+    <h1>Тест открытия видео</h1>
+    <button onclick="testVideo()">Тест видео 1</button>
+    <button onclick="testVideo2()">Тест видео 2</button>
+    
+    <script>
+        // Упрощенная версия для тестирования
+        function testVideo() {
+            console.log('Тест 1: Открываем видео номер 1');
+            openVideo(1);
+        }
+        
+        function testVideo2() {
+            console.log('Тест 2: Открываем видео номер 2');
+            openVideo(2);
+        }
+        
+        // Упрощенная функция openVideo для тестирования
+        function openVideo(videoNumber) {
+            console.log('Открываем видео номер:', videoNumber);
+            
+            // Создаем простое модальное окно
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 15px;
+                    padding: 20px;
+                    max-width: 800px;
+                    width: 100%;
+                    text-align: center;
+                    position: relative;
+                ">
+                    <button onclick="this.parentElement.parentElement.remove()" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: #ff8c00;
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        width: 35px;
+                        height: 35px;
+                        cursor: pointer;
+                        font-size: 20px;
+                        font-weight: bold;
+                    ">×</button>
+                    
+                    <h2>Тест видео ${videoNumber}</h2>
+                    <p>Если вы видите это окно, значит JavaScript работает!</p>
+                    <p>RuTube ID для видео ${videoNumber}: test_id_${videoNumber}</p>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            console.log('Модальное окно добавлено в DOM');
+        }
+    </script>
+</body>
+</html>
+

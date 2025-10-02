@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Question Update</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background: #f0f0f0; padding: 20px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+        .log { background: #f9f9f9; padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Test Question Number Update</h1>
+    
+    <div class="header">
+        <h1>Билет №<span id="ticketNumber">1</span></h1>
+        <p>Вопрос <span id="currentQuestion">1</span> из 20</p>
+    </div>
+    
+    <button onclick="nextQuestion()">Следующий вопрос</button>
+    <button onclick="prevQuestion()">Предыдущий вопрос</button>
+    <button onclick="goToQuestion(5)">Перейти к вопросу 5</button>
+    <button onclick="goToQuestion(10)">Перейти к вопросу 10</button>
+    <button onclick="testAdditionalPhase()">Тест дополнительных вопросов</button>
+    
+    <div class="log" id="log"></div>
+
+    <script>
+        let examData = {
+            currentQuestion: 0,
+            isAdditionalPhase: false,
+            additionalQuestions: ['q1', 'q2', 'q3', 'q4', 'q5']
+        };
+
+        function updateQuestionNumber() {
+            const questionNumberElement = document.getElementById('currentQuestion');
+            if (questionNumberElement) {
+                const questionInfoElement = questionNumberElement.parentElement;
+                if (questionInfoElement) {
+                    if (examData.isAdditionalPhase) {
+                        questionInfoElement.textContent = `Дополнительный вопрос ${examData.currentQuestion + 1} из ${examData.additionalQuestions.length}`;
+                    } else {
+                        questionInfoElement.textContent = `Вопрос ${examData.currentQuestion + 1} из 20`;
+                    }
+                    log(`Обновлен текст: "${questionInfoElement.textContent}"`);
+                } else {
+                    log('ОШИБКА: Родительский элемент не найден');
+                }
+            } else {
+                log('ОШИБКА: Элемент currentQuestion не найден');
+            }
+        }
+
+        function nextQuestion() {
+            const totalQuestions = examData.isAdditionalPhase ? examData.additionalQuestions.length : 20;
+            log(`Переход к следующему вопросу. Текущий: ${examData.currentQuestion}, Всего: ${totalQuestions}`);
+            
+            if (examData.currentQuestion < totalQuestions - 1) {
+                examData.currentQuestion++;
+                log(`Переходим к вопросу: ${examData.currentQuestion}`);
+                updateQuestionNumber();
+            } else {
+                log('Нельзя перейти - это последний вопрос');
+            }
+        }
+
+        function prevQuestion() {
+            log(`Переход к предыдущему вопросу. Текущий: ${examData.currentQuestion}`);
+            
+            if (examData.currentQuestion > 0) {
+                examData.currentQuestion--;
+                log(`Переходим к вопросу: ${examData.currentQuestion}`);
+                updateQuestionNumber();
+            } else {
+                log('Нельзя перейти - это первый вопрос');
+            }
+        }
+
+        function goToQuestion(num) {
+            const totalQuestions = examData.isAdditionalPhase ? examData.additionalQuestions.length : 20;
+            if (num >= 1 && num <= totalQuestions) {
+                examData.currentQuestion = num - 1;
+                log(`Переходим к вопросу ${num}`);
+                updateQuestionNumber();
+            } else {
+                log(`Неверный номер вопроса: ${num} (должен быть 1-${totalQuestions})`);
+            }
+        }
+
+        function testAdditionalPhase() {
+            examData.isAdditionalPhase = !examData.isAdditionalPhase;
+            examData.currentQuestion = 0;
+            log(`Переключили фазу: ${examData.isAdditionalPhase ? 'дополнительные' : 'основные'} вопросы`);
+            updateQuestionNumber();
+        }
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+
+        // Инициализация
+        updateQuestionNumber();
+    </script>
+</body>
+</html>
+
+
+

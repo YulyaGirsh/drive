@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Navigation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; }
+        .info { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Test Navigation</h1>
+    
+    <div class="info">
+        <p>Текущий вопрос: <span id="currentQuestion">0</span></p>
+        <p>Всего вопросов: <span id="totalQuestions">20</span></p>
+        <p>Ошибок: <span id="mistakes">0</span></p>
+        <p>Дополнительных вопросов: <span id="additionalQuestions">0</span></p>
+        <p>Фаза дополнительных: <span id="isAdditionalPhase">false</span></p>
+    </div>
+    
+    <button onclick="prevQuestion()">← Предыдущий</button>
+    <button onclick="nextQuestion()">Следующий →</button>
+    <button onclick="finishExam()" id="finishBtn" style="display: none;">Завершить</button>
+    
+    <div id="log"></div>
+
+    <script>
+        // Тестовые данные
+        let examData = {
+            currentQuestion: 0,
+            mistakes: 0,
+            additionalQuestions: [],
+            isAdditionalPhase: false
+        };
+
+        function updateDisplay() {
+            document.getElementById('currentQuestion').textContent = examData.currentQuestion;
+            document.getElementById('totalQuestions').textContent = examData.isAdditionalPhase ? examData.additionalQuestions.length : 20;
+            document.getElementById('mistakes').textContent = examData.mistakes;
+            document.getElementById('additionalQuestions').textContent = examData.additionalQuestions.length;
+            document.getElementById('isAdditionalPhase').textContent = examData.isAdditionalPhase;
+            
+            updateNavigationButtons();
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.querySelector('button[onclick="prevQuestion()"]');
+            const nextBtn = document.querySelector('button[onclick="nextQuestion()"]');
+            const finishBtn = document.getElementById('finishBtn');
+            
+            const totalQuestions = examData.isAdditionalPhase ? examData.additionalQuestions.length : 20;
+            const isLastQuestion = examData.currentQuestion === totalQuestions - 1;
+            
+            log(`Обновление кнопок: вопрос ${examData.currentQuestion}/${totalQuestions-1}, последний: ${isLastQuestion}`);
+            
+            prevBtn.disabled = examData.currentQuestion === 0;
+            
+            // Если это последний вопрос основного экзамена и есть ошибки
+            if (!examData.isAdditionalPhase && examData.currentQuestion === 19 && examData.mistakes > 0) {
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'inline-block';
+                finishBtn.textContent = 'Перейти к дополнительным вопросам';
+                finishBtn.onclick = startAdditionalQuestions;
+            }
+            // Если это последний вопрос дополнительных вопросов
+            else if (examData.isAdditionalPhase && isLastQuestion) {
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'inline-block';
+                finishBtn.textContent = 'Завершить экзамен';
+                finishBtn.onclick = finishExam;
+            }
+            // Если это последний вопрос основного экзамена без ошибок
+            else if (!examData.isAdditionalPhase && examData.currentQuestion === 19 && examData.mistakes === 0) {
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'inline-block';
+                finishBtn.textContent = 'Завершить экзамен';
+                finishBtn.onclick = finishExam;
+            }
+            // Обычная навигация
+            else {
+                nextBtn.style.display = 'inline-block';
+                finishBtn.style.display = 'none';
+                nextBtn.disabled = isLastQuestion;
+            }
+        }
+
+        function prevQuestion() {
+            if (examData.currentQuestion > 0) {
+                examData.currentQuestion--;
+                log(`Переход к предыдущему вопросу: ${examData.currentQuestion}`);
+                updateDisplay();
+            }
+        }
+
+        function nextQuestion() {
+            const totalQuestions = examData.isAdditionalPhase ? examData.additionalQuestions.length : 20;
+            if (examData.currentQuestion < totalQuestions - 1) {
+                examData.currentQuestion++;
+                log(`Переход к следующему вопросу: ${examData.currentQuestion}`);
+                updateDisplay();
+            } else {
+                log(`Нельзя перейти - это последний вопрос`);
+            }
+        }
+
+        function startAdditionalQuestions() {
+            log('Переход к дополнительным вопросам');
+            examData.isAdditionalPhase = true;
+            examData.currentQuestion = 0;
+            examData.additionalQuestions = ['q1', 'q2', 'q3', 'q4', 'q5']; // Тестовые вопросы
+            updateDisplay();
+        }
+
+        function finishExam() {
+            log('Экзамен завершен');
+        }
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+
+        // Симуляция ошибки
+        function makeMistake() {
+            examData.mistakes++;
+            log(`Ошибка! Всего ошибок: ${examData.mistakes}`);
+            updateDisplay();
+        }
+
+        // Инициализация
+        updateDisplay();
+    </script>
+    
+    <hr>
+    <button onclick="makeMistake()">Симулировать ошибку</button>
+    <button onclick="examData.currentQuestion = 19; updateDisplay();">Перейти к последнему вопросу</button>
+</body>
+</html>
+
+
+

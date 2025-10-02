@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Билеты ПДД - EasyDrive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 2px solid #ff8c00;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .road-container {
+            padding: 40px 20px;
+            position: relative;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .road-svg {
+            width: 100%;
+            height: 500px;
+            position: relative;
+        }
+
+        .road-path {
+            fill: none;
+            stroke: #4a4a4a;
+            stroke-width: 8;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .road-center {
+            fill: none;
+            stroke: #ffd700;
+            stroke-width: 2;
+            stroke-dasharray: 10, 5;
+            opacity: 0.8;
+        }
+
+        .ticket-marker {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .ticket-marker:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c00 100%);
+        }
+
+        .ticket-marker.completed {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            border-color: #2E7D32;
+        }
+
+        .ticket-marker.completed:hover {
+            background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+        }
+
+        .random-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);
+            z-index: 20;
+        }
+
+        .random-btn:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 12px 30px rgba(255, 140, 0, 0.4);
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .road-container {
+                padding: 20px 10px;
+                min-height: 500px;
+            }
+            
+            .road-svg {
+                height: 400px;
+            }
+            
+            .ticket-marker {
+                width: 35px;
+                height: 35px;
+                font-size: 12px;
+            }
+            
+            .random-btn {
+                bottom: 15px;
+                padding: 12px 25px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <h1>Билеты ПДД</h1>
+            <p>Выберите билет для изучения</p>
+        </div>
+        
+        <div class="road-container">
+            <svg class="road-svg" viewBox="0 0 800 500">
+                <!-- Серпантин дороги -->
+                <path class="road-path" d="M 50 100 Q 200 50 350 100 Q 500 150 650 100 Q 750 80 750 200 Q 750 320 650 300 Q 500 350 350 300 Q 200 250 50 300 Q 10 320 10 200 Q 10 80 50 100 Z" />
+                <!-- Центральная линия -->
+                <path class="road-center" d="M 50 100 Q 200 50 350 100 Q 500 150 650 100 Q 750 80 750 200 Q 750 320 650 300 Q 500 350 350 300 Q 200 250 50 300 Q 10 320 10 200 Q 10 80 50 100 Z" />
+            </svg>
+            
+            <!-- Маркеры билетов будут добавлены через JavaScript -->
+        </div>
+        
+        <button class="random-btn" onclick="openRandomTicket()">
+            🎲 Случайный билет
+        </button>
+    </div>
+
+    <script>
+        // Координаты для 40 маркеров по серпантину
+        const markerPositions = [
+            // Верхняя часть серпантина (слева направо)
+            {x: 80, y: 90}, {x: 120, y: 70}, {x: 160, y: 60}, {x: 200, y: 55}, {x: 240, y: 60},
+            {x: 280, y: 70}, {x: 320, y: 85}, {x: 360, y: 105}, {x: 400, y: 130}, {x: 440, y: 160},
+            {x: 480, y: 190}, {x: 520, y: 220}, {x: 560, y: 250}, {x: 600, y: 280}, {x: 640, y: 300},
+            {x: 680, y: 310}, {x: 720, y: 315}, {x: 750, y: 320}, {x: 750, y: 280}, {x: 750, y: 240},
+            
+            // Правая часть серпантина (сверху вниз)
+            {x: 720, y: 200}, {x: 680, y: 180}, {x: 640, y: 160}, {x: 600, y: 140}, {x: 560, y: 120},
+            {x: 520, y: 100}, {x: 480, y: 80}, {x: 440, y: 60}, {x: 400, y: 40}, {x: 360, y: 20},
+            
+            // Нижняя часть серпантина (справа налево)
+            {x: 320, y: 10}, {x: 280, y: 5}, {x: 240, y: 10}, {x: 200, y: 20}, {x: 160, y: 35},
+            {x: 120, y: 55}, {x: 80, y: 80}, {x: 40, y: 110}, {x: 10, y: 150}, {x: 10, y: 190}
+        ];
+
+        function createTicketMarkers() {
+            const roadContainer = document.querySelector('.road-container');
+            
+            markerPositions.forEach((pos, index) => {
+                const marker = document.createElement('div');
+                marker.className = 'ticket-marker';
+                marker.textContent = index + 1;
+                marker.style.left = `${pos.x}px`;
+                marker.style.top = `${pos.y}px`;
+                marker.onclick = () => openTicket(index + 1);
+                
+                // Проверяем, пройден ли билет (из localStorage)
+                const completedTickets = JSON.parse(localStorage.getItem('completedTickets') || '[]');
+                if (completedTickets.includes(index + 1)) {
+                    marker.classList.add('completed');
+                }
+                
+                roadContainer.appendChild(marker);
+            });
+        }
+
+        function openTicket(ticketNumber) {
+            window.location.href = `exam.html?ticket=${ticketNumber}`;
+        }
+
+        function openRandomTicket() {
+            const randomTicket = Math.floor(Math.random() * 40) + 1;
+            openTicket(randomTicket);
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Создаем маркеры при загрузке страницы
+        document.addEventListener('DOMContentLoaded', createTicketMarkers);
+    </script>
+</body>
+</html>
+
+
+

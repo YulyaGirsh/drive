@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Экзамен ПДД - EasyDrive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 380px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 2px solid #ff8c00;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .header-info h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header-info p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .timer {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 700;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .timer.warning {
+            background: rgba(255, 0, 0, 0.3);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .progress-bar {
+            background: #f0f0f0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-info {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .question {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid #ff8c00;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .question-image {
+            max-width: 100%;
+            height: auto;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #ff8c00;
+        }
+
+        .question-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            background: white;
+            border: 2px solid #ff8c00;
+            color: #000;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+        }
+
+        .answer-btn:hover {
+            background: #fff8f0;
+            border-color: #ff6b35;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .answer-btn.selected {
+            background: #ff8c00;
+            color: white;
+            border-color: #ff8c00;
+        }
+
+        .answer-btn.correct {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .answer-btn.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .finish-btn {
+            background: #4CAF50;
+        }
+
+        .finish-btn:hover {
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .hint-container {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .hint-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .hint-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Модальное окно для подсказки */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 380px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: slideInModal 0.3s ease-out;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .modal-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInModal {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 15px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .question {
+                padding: 20px;
+            }
+            
+            .question-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <div class="header-info">
+                <h1>Билет №<span id="ticketNumber">1</span></h1>
+                <p>Вопрос <span id="currentQuestion">1</span> из 20</p>
+            </div>
+            <div class="timer" id="timer">20:00</div>
+        </div>
+        
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="question-info">
+                <span id="questionInfo">Выберите правильный ответ</span>
+            </div>
+            
+            <div class="question" id="questionContainer">
+                <div class="question-text" id="questionText">
+                    Загрузка вопроса...
+                </div>
+                <img class="question-image" id="questionImage" style="display: none;" alt="Изображение к вопросу">
+                <button class="hint-btn" id="hintBtn" onclick="showHintModal()" style="display: none;">
+                    💡 Подсказка
+                </button>
+                <div class="answers" id="answersContainer">
+                    <!-- Ответы будут добавлены через JavaScript -->
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-btn" id="prevBtn" onclick="previousQuestion()" disabled>← Предыдущий</button>
+                <button class="nav-btn finish-btn" id="finishBtn" onclick="finishExam()" style="display: none;">Завершить экзамен</button>
+                <button class="nav-btn" id="nextBtn" onclick="nextQuestion()" disabled>Следующий →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для подсказки -->
+    <div id="hintModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💡 Подсказка</h2>
+                <span class="close" onclick="closeHintModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="hintModalBody">
+                <!-- Содержимое подсказки будет добавлено через JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Данные экзамена
+        let examData = {
+            ticketNumber: 1,
+            currentQuestion: 0,
+            answers: [],
+            timeLeft: 20 * 60, // 20 минут в секундах
+            timer: null,
+            questions: [],
+            // Новые поля для системы дополнительных вопросов
+            mistakes: 0,
+            additionalQuestions: [],
+            currentAdditionalQuestion: 0,
+            isAdditionalPhase: false,
+            allQuestions: [], // Все вопросы из data.json для выбора дополнительных
+            originalTimeLimit: 20 * 60,
+            mainExamAnswers: [] // Сохраняем ответы основного экзамена
+        };
+
+        // Инициализация экзамена
+        async function initExam(ticketNumber) {
+            examData.ticketNumber = ticketNumber;
+            examData.currentQuestion = 0;
+            examData.answers = new Array(20).fill(null);
+            examData.timeLeft = 20 * 60;
+            examData.mistakes = 0;
+            examData.additionalQuestions = [];
+            examData.currentAdditionalQuestion = 0;
+            examData.isAdditionalPhase = false;
+            examData.originalTimeLimit = 20 * 60;
+            
+            // Показываем индикатор загрузки
+            showLoadingState();
+            
+            try {
+                // Загружаем вопросы для конкретного билета через API
+                examData.questions = await loadQuestionsForTicket(ticketNumber);
+                
+                // Загружаем все вопросы для выбора дополнительных
+                examData.allQuestions = await loadAllQuestions();
+            
+            document.getElementById('ticketNumber').textContent = ticketNumber;
+            startTimer();
+            showQuestion();
+            } catch (error) {
+                console.error('Ошибка загрузки вопросов:', error);
+                showErrorState('Ошибка загрузки вопросов. Попробуйте обновить страницу.');
+            }
+        }
+
+        // Загрузка вопросов для конкретного билета через API
+        async function loadQuestionsForTicket(ticketNumber) {
+            try {
+                const response = await fetch(`/api/questions/ticket/${ticketNumber}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const questions = await response.json();
+                
+                // Преобразуем данные в нужный формат
+                return questions.map((q, index) => ({
+                    id: q.question_number || (index + 1),
+                    text: q.question_text || '',
+                    image: q.image_path || null,
+                    answers: q.answers || [],
+                    correct: findCorrectAnswerIndex(q.answers, q.correct_answer),
+                    hint: q.hint_text || '',
+                    category: q.category || '',
+                    ticketNumber: q.ticket_number || ticketNumber
+                }));
+            } catch (error) {
+                console.error('Ошибка загрузки вопросов:', error);
+                throw error;
+            }
+        }
+
+        // Загрузка всех вопросов для выбора дополнительных
+        async function loadAllQuestions() {
+            try {
+                const response = await fetch('/api/questions');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const questions = await response.json();
+                
+                // Преобразуем данные в нужный формат
+                return questions.map((q, index) => ({
+                    id: q.question_number || (index + 1),
+                    text: q.question_text || '',
+                    image: q.image_path || null,
+                    answers: q.answers || [],
+                    correct: findCorrectAnswerIndex(q.answers, q.correct_answer),
+                    hint: q.hint_text || '',
+                    category: q.category || '',
+                    ticketNumber: q.ticket_number || 1
+                }));
+            } catch (error) {
+                console.error('Ошибка загрузки всех вопросов:', error);
+                throw error;
+            }
+        }
+
+        // Поиск индекса правильного ответа
+        function findCorrectAnswerIndex(answers, correctAnswer) {
+            if (!answers || !correctAnswer) return 0;
+            
+            for (let i = 0; i < answers.length; i++) {
+                if (answers[i] === correctAnswer) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        // Получение дополнительных вопросов по тематике
+        function getAdditionalQuestionsByCategory(category, count) {
+            console.log('Поиск вопросов по категории:', category);
+            console.log('Всего вопросов в базе:', examData.allQuestions.length);
+            
+            const categoryQuestions = examData.allQuestions.filter(q => 
+                q.category === category && q.ticketNumber !== examData.ticketNumber
+            );
+            
+            console.log('Найдено вопросов по категории:', categoryQuestions.length);
+            
+            // Если вопросов по категории недостаточно, берем любые вопросы из других билетов
+            if (categoryQuestions.length < count) {
+                const otherQuestions = examData.allQuestions.filter(q => 
+                    q.ticketNumber !== examData.ticketNumber
+                );
+                const shuffled = otherQuestions.sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, count);
+            }
+            
+            // Перемешиваем и берем нужное количество
+            const shuffled = categoryQuestions.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // Обработка ошибки в основном экзамене
+        function handleMistake(category) {
+            examData.mistakes++;
+            console.log('=== ОБРАБОТКА ОШИБКИ ===');
+            console.log('Количество ошибок:', examData.mistakes);
+            console.log('Категория:', category);
+            console.log('Всего вопросов в базе:', examData.allQuestions.length);
+            
+            if (examData.mistakes === 1) {
+                // 1 ошибка - 5 дополнительных вопросов
+                console.log('Первая ошибка - добавляем 5 дополнительных вопросов');
+                examData.additionalQuestions = getAdditionalQuestionsByCategory(category, 5);
+                examData.timeLeft += 5 * 60; // +5 минут
+                console.log('Добавлено дополнительных вопросов:', examData.additionalQuestions.length);
+                console.log('Дополнительные вопросы:', examData.additionalQuestions);
+            } else if (examData.mistakes === 2) {
+                // 2 ошибки - еще 5 дополнительных вопросов (итого 10)
+                console.log('Вторая ошибка - добавляем еще 5 дополнительных вопросов');
+                const moreQuestions = getAdditionalQuestionsByCategory(category, 5);
+                examData.additionalQuestions = [...examData.additionalQuestions, ...moreQuestions];
+                examData.timeLeft += 5 * 60; // +5 минут
+                console.log('Всего дополнительных вопросов:', examData.additionalQuestions.length);
+                console.log('Все дополнительные вопросы:', examData.additionalQuestions);
+            } else if (examData.mistakes > 2) {
+                // Более 2 ошибок - добавляем еще 5 дополнительных вопросов
+                console.log('Третья и последующие ошибки - добавляем еще 5 дополнительных вопросов');
+                const moreQuestions = getAdditionalQuestionsByCategory(category, 5);
+                examData.additionalQuestions = [...examData.additionalQuestions, ...moreQuestions];
+                examData.timeLeft += 5 * 60; // +5 минут
+                console.log('Всего дополнительных вопросов:', examData.additionalQuestions.length);
+            }
+        }
+
+        // Переход к дополнительным вопросам
+        function startAdditionalQuestions() {
+            console.log('=== ПЕРЕХОД К ДОПОЛНИТЕЛЬНЫМ ВОПРОСАМ ===');
+            console.log('Количество дополнительных вопросов:', examData.additionalQuestions.length);
+            console.log('Текущее состояние examData:', {
+                mistakes: examData.mistakes,
+                isAdditionalPhase: examData.isAdditionalPhase,
+                currentQuestion: examData.currentQuestion,
+                additionalQuestions: examData.additionalQuestions.length
+            });
+            
+            if (examData.additionalQuestions.length === 0) {
+                console.log('ОШИБКА: Нет дополнительных вопросов, завершаем экзамен');
+                finishExam();
+                return;
+            }
+            
+            // Сохраняем ответы основного экзамена
+            examData.mainExamAnswers = [...examData.answers];
+            console.log('Сохранены ответы основного экзамена:', examData.mainExamAnswers);
+            
+            // Сбрасываем состояние для дополнительных вопросов
+            examData.isAdditionalPhase = true;
+            examData.currentQuestion = 0; // Сбрасываем на первый вопрос
+            examData.answers = new Array(examData.additionalQuestions.length).fill(null);
+            
+            console.log('Состояние после сброса:', {
+                isAdditionalPhase: examData.isAdditionalPhase,
+                currentQuestion: examData.currentQuestion,
+                answersLength: examData.answers.length,
+                mainExamAnswersLength: examData.mainExamAnswers.length
+            });
+            
+            // Обновляем заголовок
+            const ticketElement = document.getElementById('ticketNumber');
+            if (ticketElement) {
+                ticketElement.textContent = `${examData.ticketNumber} (Дополнительные)`;
+                console.log('Заголовок обновлен');
+            } else {
+                console.log('ОШИБКА: Элемент ticketNumber не найден');
+            }
+            
+            // Обновляем кнопки навигации
+            updateNavigationButtons();
+            
+            // Показываем первый дополнительный вопрос
+            console.log('Показываем первый дополнительный вопрос...');
+            showQuestion();
+        }
+
+        // Завершение экзамена с провалом
+        function finishExamWithFailure() {
+            clearInterval(examData.timer);
+            
+            const result = {
+                ticketNumber: examData.ticketNumber,
+                correctAnswers: 0,
+                totalQuestions: 20,
+                timeSpent: examData.originalTimeLimit - examData.timeLeft,
+                passed: false,
+                reason: 'Слишком много ошибок в основном экзамене'
+            };
+            
+            showResults(result);
+        }
+
+        // Показ состояния загрузки
+        function showLoadingState() {
+            const questionText = document.getElementById('questionText');
+            const answersContainer = document.getElementById('answersContainer');
+            
+            questionText.textContent = 'Загрузка вопросов...';
+            answersContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">⏳ Пожалуйста, подождите...</div>';
+        }
+
+        // Показ состояния ошибки
+        function showErrorState(message) {
+            const questionText = document.getElementById('questionText');
+            const answersContainer = document.getElementById('answersContainer');
+            
+            questionText.textContent = 'Ошибка загрузки';
+            answersContainer.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #f44336;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                    <div style="margin-bottom: 20px;">${message}</div>
+                    <button class="nav-btn" onclick="location.reload()">🔄 Обновить страницу</button>
+                </div>
+            `;
+        }
+
+        // Таймер
+        function startTimer() {
+            examData.timer = setInterval(() => {
+                examData.timeLeft--;
+                updateTimerDisplay();
+                
+                if (examData.timeLeft <= 0) {
+                    finishExam();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(examData.timeLeft / 60);
+            const seconds = examData.timeLeft % 60;
+            const timerElement = document.getElementById('timer');
+            
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (examData.timeLeft <= 300) { // 5 минут
+                timerElement.classList.add('warning');
+            }
+        }
+
+        // Показ вопроса
+        function showQuestion() {
+            const questions = examData.isAdditionalPhase ? examData.additionalQuestions : examData.questions;
+            const question = questions[examData.currentQuestion];
+            const totalQuestions = examData.isAdditionalPhase ? examData.additionalQuestions.length : 20;
+            const progress = ((examData.currentQuestion + 1) / totalQuestions) * 100;
+            
+            console.log('=== ПОКАЗ ВОПРОСА ===');
+            console.log('- Фаза дополнительных:', examData.isAdditionalPhase);
+            console.log('- Текущий вопрос:', examData.currentQuestion);
+            console.log('- Всего вопросов:', totalQuestions);
+            console.log('- Массив вопросов:', questions);
+            console.log('- Вопрос существует:', !!question);
+            console.log('- Текст вопроса:', question ? question.text.substring(0, 50) + '...' : 'НЕТ ВОПРОСА');
+            console.log('- Ожидаемый номер вопроса:', examData.currentQuestion + 1);
+            
+            // Проверяем, что вопрос существует
+            if (!question) {
+                console.error('ОШИБКА: Вопрос не найден!');
+                console.error('Индекс:', examData.currentQuestion);
+                console.error('Длина массива:', questions.length);
+                console.error('Массив:', questions);
+                return;
+            }
+            
+            // Обновляем номер вопроса
+            console.log('=== ОБНОВЛЕНИЕ НОМЕРА ВОПРОСА ===');
+            console.log('- examData.currentQuestion:', examData.currentQuestion);
+            console.log('- examData.isAdditionalPhase:', examData.isAdditionalPhase);
+            console.log('- totalQuestions:', totalQuestions);
+            
+            const questionNumberElement = document.getElementById('currentQuestion');
+            console.log('- questionNumberElement найден:', !!questionNumberElement);
+            
+            if (questionNumberElement) {
+                // Обновляем только номер в span
+                questionNumberElement.textContent = examData.currentQuestion + 1;
+                console.log('- Номер обновлен на:', examData.currentQuestion + 1);
+                
+                // Обновляем текст "из 20" или "из X" для дополнительных вопросов
+                const questionInfoElement = questionNumberElement.parentElement;
+                if (questionInfoElement) {
+                    if (examData.isAdditionalPhase) {
+                        questionInfoElement.innerHTML = `Дополнительный вопрос <span id="currentQuestion">${examData.currentQuestion + 1}</span> из ${totalQuestions}`;
+                    } else {
+                        questionInfoElement.innerHTML = `Вопрос <span id="currentQuestion">${examData.currentQuestion + 1}</span> из 20`;
+                    }
+                    console.log('- Текст обновлен:', questionInfoElement.textContent);
+                } else {
+                    console.log('ОШИБКА: Родительский элемент не найден');
+                }
+            } else {
+                console.log('ОШИБКА: Элемент currentQuestion не найден');
+            }
+            
+            // Обновляем прогресс-бар
+            const progressFillElement = document.getElementById('progressFill');
+            if (progressFillElement) {
+                progressFillElement.style.width = progress + '%';
+            }
+            
+            // Обновляем текст вопроса
+            const questionTextElement = document.getElementById('questionText');
+            if (questionTextElement) {
+                questionTextElement.textContent = question.text;
+            }
+            
+            // Очищаем контейнер ответов и подсказки
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+            
+            // Удаляем предыдущую подсказку если есть
+            const existingHint = document.querySelector('.hint-container');
+            if (existingHint) {
+                existingHint.remove();
+            }
+            
+            // Добавляем изображение вопроса если есть
+            const questionImage = document.getElementById('questionImage');
+            if (question.image) {
+                questionImage.src = question.image;
+                questionImage.style.display = 'block';
+                questionImage.onerror = function() {
+                    // Если изображение не загрузилось, показываем заглушку
+                    this.style.display = 'none';
+                };
+            } else {
+                questionImage.style.display = 'none';
+            }
+            
+            // Показываем кнопку подсказки
+            const hintBtn = document.getElementById('hintBtn');
+            if (question.hint && question.hint.trim() !== '') {
+                hintBtn.style.display = 'block';
+                hintBtn.disabled = false;
+            } else {
+                hintBtn.style.display = 'none';
+            }
+            
+            // Добавляем ответы
+            question.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = answer;
+                button.onclick = () => selectAnswer(index);
+                
+                // Если ответ уже выбран, выделяем его
+                if (examData.answers[examData.currentQuestion] === index) {
+                    button.classList.add('selected');
+                }
+                
+                answersContainer.appendChild(button);
+            });
+            
+            // Если вопрос уже отвечен, показываем результат
+            if (examData.answers[examData.currentQuestion] !== null) {
+                showAnswerResult(examData.answers[examData.currentQuestion]);
+            }
+            
+            // Обновляем кнопки навигации
+            updateNavigationButtons();
+        }
+
+        // Выбор ответа
+        function selectAnswer(answerIndex) {
+            examData.answers[examData.currentQuestion] = answerIndex;
+            
+            // Убираем выделение с всех кнопок
+            document.querySelectorAll('.answer-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Выделяем выбранную кнопку
+            event.target.classList.add('selected');
+            
+            // Показываем результат ответа
+            showAnswerResult(answerIndex);
+            
+            // Обрабатываем ошибки в основном экзамене
+            if (!examData.isAdditionalPhase) {
+                const question = examData.questions[examData.currentQuestion];
+                const isCorrect = answerIndex === question.correct;
+                
+                if (!isCorrect) {
+                    handleMistake(question.category);
+                    // Обновляем кнопки навигации после обработки ошибки
+                    updateNavigationButtons();
+                }
+            }
+            
+            // Обновляем кнопки навигации
+            updateNavigationButtons();
+        }
+
+        // Показ результата ответа
+        function showAnswerResult(selectedAnswer) {
+            const questions = examData.isAdditionalPhase ? examData.additionalQuestions : examData.questions;
+            const question = questions[examData.currentQuestion];
+            const isCorrect = selectedAnswer === question.correct;
+            
+            // Убираем все классы с кнопок
+            document.querySelectorAll('.answer-btn').forEach(btn => {
+                btn.classList.remove('correct', 'incorrect');
+            });
+            
+            // Выделяем правильный ответ зеленым
+            const correctBtn = document.querySelectorAll('.answer-btn')[question.correct];
+            correctBtn.classList.add('correct');
+            
+            // Если ответ неправильный, выделяем выбранный ответ красным
+            if (!isCorrect) {
+                const selectedBtn = document.querySelectorAll('.answer-btn')[selectedAnswer];
+                selectedBtn.classList.add('incorrect');
+            }
+            
+            // Показываем подсказку
+            showHint(isCorrect);
+            
+            // Блокируем кнопки ответов
+            document.querySelectorAll('.answer-btn').forEach(btn => {
+                btn.style.pointerEvents = 'none';
+            });
+        }
+
+        // Показ подсказки
+        function showHint(isCorrect) {
+            const question = examData.questions[examData.currentQuestion];
+            const hintContainer = document.createElement('div');
+            hintContainer.className = 'hint-container';
+            hintContainer.style.cssText = `
+                margin-top: 20px;
+                padding: 15px;
+                border-radius: 10px;
+                background: ${isCorrect ? '#e8f5e8' : '#ffeaea'};
+                border: 2px solid ${isCorrect ? '#4CAF50' : '#f44336'};
+                color: ${isCorrect ? '#2e7d32' : '#c62828'};
+                font-size: 14px;
+                line-height: 1.5;
+            `;
+            
+            const resultText = isCorrect ? '✅ Правильно!' : '❌ Неправильно!';
+            const hintText = question.hint || "Подробное объяснение правил дорожного движения для данного вопроса. Обратите внимание на знаки, разметку и приоритет движения. Помните: безопасность превыше всего!";
+            
+            hintContainer.innerHTML = `
+                <div style="font-weight: 600; margin-bottom: 10px;">${resultText}</div>
+                <div><strong>Объяснение:</strong> ${hintText}</div>
+            `;
+            
+            // Удаляем предыдущую подсказку если есть
+            const existingHint = document.querySelector('.hint-container');
+            if (existingHint) {
+                existingHint.remove();
+            }
+            
+            // Добавляем подсказку после контейнера ответов
+            document.getElementById('answersContainer').parentNode.appendChild(hintContainer);
+            
+            // Скрываем кнопку подсказки после ответа
+            const hintBtn = document.getElementById('hintBtn');
+            hintBtn.style.display = 'none';
+        }
+
+        // Показ модального окна с подсказкой
+        function showHintModal() {
+            const question = examData.questions[examData.currentQuestion];
+            const modal = document.getElementById('hintModal');
+            const modalBody = document.getElementById('hintModalBody');
+            
+            if (question.hint && question.hint.trim() !== '') {
+                modalBody.innerHTML = question.hint;
+                modal.style.display = 'block';
+                
+                // Блокируем кнопку подсказки после использования
+                const hintBtn = document.getElementById('hintBtn');
+                hintBtn.disabled = true;
+                hintBtn.textContent = '💡 Подсказка';
+            }
+        }
+
+        // Закрытие модального окна
+        function closeHintModal() {
+            const modal = document.getElementById('hintModal');
+            modal.style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('hintModal');
+            if (event.target === modal) {
+                closeHintModal();
+            }
+        }
+
+        // Обновление кнопок навигации
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+            
+            const totalQuestions = examData.isAdditionalPhase ? examData.additionalQuestions.length : 20;
+            const isLastQuestion = examData.currentQuestion === totalQuestions - 1;
+            
+            console.log('Обновление кнопок навигации:');
+            console.log('- Текущий вопрос:', examData.currentQuestion);
+            console.log('- Всего вопросов:', totalQuestions);
+            console.log('- Последний вопрос:', isLastQuestion);
+            console.log('- Ошибок:', examData.mistakes);
+            console.log('- Дополнительных вопросов:', examData.additionalQuestions.length);
+            console.log('- Фаза дополнительных:', examData.isAdditionalPhase);
+            
+            // Всегда показываем кнопку "Предыдущий" если не первый вопрос
+            prevBtn.disabled = examData.currentQuestion === 0;
+            
+            // Проверяем, выбран ли ответ на текущий вопрос
+            const currentAnswerSelected = examData.answers[examData.currentQuestion] !== null;
+            
+            // Если это последний вопрос основного экзамена и есть ошибки
+            if (!examData.isAdditionalPhase && examData.currentQuestion === 19 && examData.mistakes > 0) {
+                console.log('Последний вопрос основного экзамена с ошибками - показываем кнопку перехода');
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'inline-block';
+                finishBtn.textContent = 'Перейти к дополнительным вопросам';
+                finishBtn.onclick = startAdditionalQuestions;
+                finishBtn.disabled = !currentAnswerSelected;
+            }
+            // Если это последний вопрос дополнительных вопросов
+            else if (examData.isAdditionalPhase && isLastQuestion) {
+                console.log('Последний дополнительный вопрос - показываем кнопку завершения');
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'inline-block';
+                finishBtn.textContent = 'Завершить экзамен';
+                finishBtn.onclick = finishExam;
+                finishBtn.disabled = !currentAnswerSelected;
+            }
+            // Если это последний вопрос основного экзамена без ошибок
+            else if (!examData.isAdditionalPhase && examData.currentQuestion === 19 && examData.mistakes === 0) {
+                console.log('Последний вопрос основного экзамена без ошибок - показываем кнопку завершения');
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'inline-block';
+                finishBtn.textContent = 'Завершить экзамен';
+                finishBtn.onclick = finishExam;
+                finishBtn.disabled = !currentAnswerSelected;
+            }
+            // Обычная навигация
+            else {
+                console.log('Обычная навигация');
+                nextBtn.style.display = 'inline-block';
+                finishBtn.style.display = 'none';
+                nextBtn.disabled = isLastQuestion || !currentAnswerSelected;
+            }
+        }
+
+        // Навигация
+        function previousQuestion() {
+            console.log('=== ПЕРЕХОД К ПРЕДЫДУЩЕМУ ВОПРОСУ ===');
+            console.log('- Текущий вопрос:', examData.currentQuestion);
+            
+            if (examData.currentQuestion > 0) {
+                examData.currentQuestion--;
+                console.log('Переходим к вопросу:', examData.currentQuestion);
+                console.log('Вызываем showQuestion()...');
+                showQuestion();
+            } else {
+                console.log('Нельзя перейти - это первый вопрос');
+            }
+        }
+
+        function nextQuestion() {
+            const totalQuestions = examData.isAdditionalPhase ? examData.additionalQuestions.length : 20;
+            console.log('=== ПЕРЕХОД К СЛЕДУЮЩЕМУ ВОПРОСУ ===');
+            console.log('- Текущий вопрос:', examData.currentQuestion);
+            console.log('- Всего вопросов:', totalQuestions);
+            console.log('- Можно перейти:', examData.currentQuestion < totalQuestions - 1);
+            
+            if (examData.currentQuestion < totalQuestions - 1) {
+                examData.currentQuestion++;
+                console.log('Переходим к вопросу:', examData.currentQuestion);
+                console.log('Вызываем showQuestion()...');
+                showQuestion();
+            } else {
+                console.log('Нельзя перейти - это последний вопрос');
+            }
+        }
+
+        // Завершение экзамена
+        function finishExam() {
+            clearInterval(examData.timer);
+            
+            console.log('=== ЗАВЕРШЕНИЕ ЭКЗАМЕНА ===');
+            console.log('Фаза дополнительных:', examData.isAdditionalPhase);
+            console.log('Ошибок в основном экзамене:', examData.mistakes);
+            
+            // Подсчитываем результаты основного экзамена
+            let correctMainAnswers = 0;
+            const mainAnswers = examData.mainExamAnswers || examData.answers;
+            
+            console.log('Ответы основного экзамена:', mainAnswers);
+            console.log('Вопросы основного экзамена:', examData.questions.length);
+            
+            mainAnswers.forEach((answer, index) => {
+                if (answer !== null && answer === examData.questions[index].correct) {
+                    correctMainAnswers++;
+                }
+            });
+            
+            console.log('Правильных ответов в основном экзамене:', correctMainAnswers);
+            
+            if (examData.isAdditionalPhase) {
+                // Проверяем дополнительные вопросы
+                let correctAdditionalAnswers = 0;
+                examData.answers.forEach((answer, index) => {
+                    if (answer !== null && answer === examData.additionalQuestions[index].correct) {
+                        correctAdditionalAnswers++;
+                    }
+                });
+                
+                console.log('Правильных ответов в дополнительных вопросах:', correctAdditionalAnswers);
+                console.log('Всего дополнительных вопросов:', examData.additionalQuestions.length);
+                
+                // Если не все дополнительные вопросы отвечены правильно - экзамен не сдан
+                if (correctAdditionalAnswers < examData.additionalQuestions.length) {
+                    const result = {
+                        ticketNumber: examData.ticketNumber,
+                        correctAnswers: correctMainAnswers,
+                        totalQuestions: 20,
+                        timeSpent: examData.originalTimeLimit - examData.timeLeft,
+                        passed: false,
+                        reason: `Не все дополнительные вопросы отвечены правильно (${correctAdditionalAnswers}/${examData.additionalQuestions.length})`,
+                        mistakes: examData.mistakes,
+                        additionalQuestions: examData.additionalQuestions.length,
+                        correctAdditionalAnswers: correctAdditionalAnswers
+                    };
+                    showResults(result);
+                    return;
+                }
+            }
+            
+            // Определяем, сдан ли экзамен
+            const passed = correctMainAnswers >= 18; // Нужно 18 из 20 для сдачи
+            
+            const result = {
+                ticketNumber: examData.ticketNumber,
+                correctAnswers: correctMainAnswers,
+                totalQuestions: 20,
+                timeSpent: examData.originalTimeLimit - examData.timeLeft,
+                passed: passed,
+                mistakes: examData.mistakes,
+                additionalQuestions: examData.additionalQuestions.length,
+                correctAdditionalAnswers: examData.isAdditionalPhase ? examData.answers.filter((answer, index) => 
+                    answer !== null && answer === examData.additionalQuestions[index].correct
+                ).length : 0
+            };
+            
+            console.log('Итоговый результат:', result);
+            
+            // Показываем результаты
+            showResults(result);
+        }
+
+        // Показ результатов
+        function showResults(result) {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="header">
+                    <button class="back-btn" onclick="goBack()">←</button>
+                    <div class="header-info">
+                        <h1>Результаты экзамена</h1>
+                        <p>Билет №${result.ticketNumber}</p>
+                    </div>
+                    <div class="timer">${Math.floor(result.timeSpent / 60)}:${(result.timeSpent % 60).toString().padStart(2, '0')}</div>
+                </div>
+                <div class="content" style="text-align: center;">
+                    <div style="font-size: 48px; margin: 20px 0; color: ${result.passed ? '#4CAF50' : '#f44336'};">
+                        ${result.passed ? '✅' : '❌'}
+                    </div>
+                    <h2 style="color: ${result.passed ? '#4CAF50' : '#f44336'}; margin-bottom: 20px;">
+                        ${result.passed ? 'ЭКЗАМЕН СДАН!' : 'ЭКЗАМЕН НЕ СДАН'}
+                    </h2>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 15px; margin: 20px 0; border: 2px solid #ff8c00;">
+                        <p style="font-size: 18px; margin-bottom: 10px;"><strong>Правильных ответов: ${result.correctAnswers} из ${result.totalQuestions}</strong></p>
+                        <p style="color: #666;">Время выполнения: ${Math.floor(result.timeSpent / 60)} мин ${(result.timeSpent % 60).toString().padStart(2, '0')} сек</p>
+                        <p style="color: #666; margin-top: 10px;">Для сдачи нужно: 18 из 20</p>
+                        ${result.mistakes > 0 ? `<p style="color: #ff6b35; margin-top: 10px;"><strong>Ошибок в основном экзамене: ${result.mistakes}</strong></p>` : ''}
+                        ${result.additionalQuestions > 0 ? `
+                            <div style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 8px; border: 1px solid #4CAF50;">
+                                <p style="color: #2e7d32; margin: 0;"><strong>Дополнительные вопросы: ${result.correctAdditionalAnswers || 0} из ${result.additionalQuestions}</strong></p>
+                                <p style="color: #2e7d32; margin: 5px 0 0 0; font-size: 14px;">Требуется: все ${result.additionalQuestions} правильно</p>
+                            </div>
+                        ` : ''}
+                        ${result.reason ? `<p style="color: #f44336; margin-top: 10px;"><strong>Причина: ${result.reason}</strong></p>` : ''}
+                    </div>
+                    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+                        <button class="nav-btn" onclick="goBack()">← К билетам</button>
+                        <button class="nav-btn" onclick="retakeExam()">🔄 Повторить</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Повторная сдача
+        function retakeExam() {
+            location.reload();
+        }
+
+        // Возврат назад
+        function goBack() {
+            window.location.href = '1.html';
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Получаем номер билета из URL параметров
+            const urlParams = new URLSearchParams(window.location.search);
+            const ticketNumber = parseInt(urlParams.get('ticket')) || 1;
+            
+            await initExam(ticketNumber);
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyDrive - Видеоуроки</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 380px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid #ff8c00;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            margin-top: 40px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        .videos-container {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .video-button {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.2);
+            min-height: 60px;
+        }
+
+        .video-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
+        }
+
+        .video-button:active {
+            transform: translateY(0);
+        }
+
+        .video-title {
+            flex: 1;
+            line-height: 1.3;
+            font-size: 13px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+                margin-top: 35px;
+            }
+            
+            .back-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            
+            .video-button {
+                padding: 14px 16px;
+                font-size: 12px;
+                min-height: 55px;
+            }
+            
+            .video-title {
+                font-size: 11px;
+            }
+            
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Назад к разделам</a>
+            
+            <h1>🎥 Видеоуроки</h1>
+        </div>
+        
+        <div class="videos-container">
+            <button class="video-button" onclick="openVideo(1)">
+                <div class="video-title">Тема 01. Общие положения</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(2)">
+                <div class="video-title">Тема 02. Общие обязанности участников дорожного движения</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(3)">
+                <div class="video-title">Тема 03. Дорожные знаки</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(4)">
+                <div class="video-title">Тема 04. Дорожная разметка</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(5)">
+                <div class="video-title">Тема 05. Применение спецсигналов</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(6)">
+                <div class="video-title">Тема 06. Сигналы светофора и регулировщика</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(7)">
+                <div class="video-title">Тема 07. Применение аварийной световой сигнализации</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(8)">
+                <div class="video-title">Тема 08. Начало движения и Маневрирование</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(9)">
+                <div class="video-title">Тема 09. Расположение транспортных средств на проезжей части</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(10)">
+                <div class="video-title">Тема 10. Скорость движения</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(11)">
+                <div class="video-title">Тема 11. Обгон, опережение, встречный разъезд</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(12)">
+                <div class="video-title">Тема 12. Остановка и стоянка</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(13)">
+                <div class="video-title">Тема 13. Проезд перекрестков</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(14)">
+                <div class="video-title">Тема 14. Пешеходные переходы и места остановок</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(15)">
+                <div class="video-title">Тема 15. Движение через железнодорожные пути</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(16)">
+                <div class="video-title">Тема 16. Движение по автомагистралям</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(17)">
+                <div class="video-title">Тема 17. Движение в жилых зонах</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(18)">
+                <div class="video-title">Тема 18-23. Специальные темы</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(19)">
+                <div class="video-title">Тема 24. Первая помощь пострадавшим</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(20)">
+                <div class="video-title">Тема 25. Ответственность водителя</div>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Тестовая функция для проверки JavaScript
+        function testJS() {
+            alert('JavaScript работает!');
+            console.log('JavaScript работает!');
+        }
+        
+        // Вызываем тест при загрузке страницы
+        window.addEventListener('load', function() {
+            console.log('Страница загружена, JavaScript работает');
+        });
+        
+        // Массив с данными о видеоуроках
+        const videos = [
+            {
+                title: "Тема 01. Общие положения",
+                description: "Изучаем основные понятия и терминов Правил дорожного движения",
+                duration: "15:30",
+                videoId: "82052d605c49cb15cf1c07a6eb26ef1c",
+                embedUrl: "https://rutube.ru/play/embed/82052d605c49cb15cf1c07a6eb26ef1c/?p=mhn9c5ePWS8I_7JOc0ZcSg",
+                rutubeId: "82052d605c49cb15cf1c07a6eb26ef1c",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 02. Общие обязанности участников дорожного движения", 
+                description: "Разбираем обязанности водителей, пешеходов и пассажиров",
+                duration: "18:45",
+                videoId: "459a76e7bf7c434b5957ccdc2420a33e",
+                embedUrl: "https://rutube.ru/play/embed/459a76e7bf7c434b5957ccdc2420a33e/?p=tr-c2pHZ12d5m1SWP1dBhA",
+                rutubeId: "459a76e7bf7c434b5957ccdc2420a33e",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 03. Дорожные знаки",
+                description: "Изучаем все группы дорожных знаков и их значение",
+                duration: "25:20",
+                videoId: "730ba0f94a793deab080a0650a5debac",
+                embedUrl: "https://rutube.ru/play/embed/730ba0f94a793deab080a0650a5debac/?p=LfIBxg0_V1d_e9cmWmfWlA",
+                rutubeId: "730ba0f94a793deab080a0650a5debac",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 04. Дорожная разметка",
+                description: "Разбираем горизонтальную и вертикальную разметку",
+                duration: "12:15",
+                videoId: "ee99911fe364d705278b47c988c4989a",
+                embedUrl: "https://rutube.ru/play/embed/ee99911fe364d705278b47c988c4989a/?p=iefY0oA9JWqUnr10NXTQ7w",
+                rutubeId: "ee99911fe364d705278b47c988c4989a",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 05. Применение спецсигналов",
+                description: "Изучаем правила применения специальных сигналов",
+                duration: "14:30",
+                videoId: "4a9e3aa42cddf3e3e9127c492f853417",
+                embedUrl: "https://rutube.ru/play/embed/4a9e3aa42cddf3e3e9127c492f853417/?p=2Ws2ACqE1_vuZL94urSBOA",
+                rutubeId: "4a9e3aa42cddf3e3e9127c492f853417",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 06. Сигналы светофора и регулировщика",
+                description: "Разбираем сигналы светофора и жесты регулировщика",
+                duration: "20:10",
+                videoId: "ff86b0f575efb5b188b7cffb2f1468af",
+                embedUrl: "https://rutube.ru/play/embed/ff86b0f575efb5b188b7cffb2f1468af/?p=eNUjZmguHPUEEIy-luV2CA",
+                rutubeId: "ff86b0f575efb5b188b7cffb2f1468af",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 07. Применение аварийной световой сигнализации",
+                description: "Изучаем правила использования аварийной сигнализации",
+                duration: "16:25",
+                videoId: "9eedf300068a6acdb612f538fa4799fc",
+                embedUrl: "https://rutube.ru/play/embed/9eedf300068a6acdb612f538fa4799fc/?p=v7ofMolNyGbxd72jMQf8EA",
+                rutubeId: "9eedf300068a6acdb612f538fa4799fc",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 08. Начало движения и Маневрирование",
+                description: "Разбираем правила начала движения и выполнения маневров",
+                duration: "22:40",
+                videoId: "60fed5330d43f51ca835b2a2d5f7fcba",
+                embedUrl: "https://rutube.ru/play/embed/60fed5330d43f51ca835b2a2d5f7fcba/?p=5BnijiGEVwdFIRFLRB2-1g",
+                rutubeId: "60fed5330d43f51ca835b2a2d5f7fcba",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 09. Расположение транспортных средств на проезжей части",
+                description: "Изучаем правила расположения ТС на дороге",
+                duration: "19:55",
+                videoId: "c7dfadab724cc26b8f6c9f3ffb3996f4",
+                embedUrl: "https://rutube.ru/play/embed/c7dfadab724cc26b8f6c9f3ffb3996f4/?p=ORpYvq37kbEry12He9XxCg",
+                rutubeId: "c7dfadab724cc26b8f6c9f3ffb3996f4",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 10. Скорость движения",
+                description: "Разбираем ограничения скорости и правила выбора скорости",
+                duration: "17:20",
+                videoId: "2ef4dfa4afe62713ac762f4dd70eed69",
+                embedUrl: "https://rutube.ru/play/embed/2ef4dfa4afe62713ac762f4dd70eed69/?p=EArbX0zw4UfHNCzY8hugJA",
+                rutubeId: "2ef4dfa4afe62713ac762f4dd70eed69",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 11. Обгон, опережение, встречный разъезд",
+                description: "Изучаем правила обгона и встречного разъезда",
+                duration: "24:15",
+                videoId: "3e424066dd8fbe6267d5baa839681846",
+                embedUrl: "https://rutube.ru/play/embed/3e424066dd8fbe6267d5baa839681846/?p=ZihMslw-W-_2AiJsxyeRuw",
+                rutubeId: "3e424066dd8fbe6267d5baa839681846",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 12. Остановка и стоянка",
+                description: "Разбираем правила остановки и стоянки ТС",
+                duration: "21:30",
+                videoId: "6facc117263c1479360094e6c9f6a408",
+                embedUrl: "https://rutube.ru/play/embed/6facc117263c1479360094e6c9f6a408/?p=LNAwQKVcW_ruU-5qnOtVuQ",
+                rutubeId: "6facc117263c1479360094e6c9f6a408",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 13. Проезд перекрестков",
+                description: "Изучаем правила проезда различных типов перекрестков",
+                duration: "28:45",
+                videoId: "04a70704c5c859aaa0d25204d5aec73f",
+                embedUrl: "https://rutube.ru/play/embed/04a70704c5c859aaa0d25204d5aec73f/?p=P2JjxaxsU08PM9UJ4XF35Q",
+                rutubeId: "04a70704c5c859aaa0d25204d5aec73f",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 14. Пешеходные переходы и места остановок",
+                description: "Разбираем правила проезда пешеходных переходов",
+                duration: "15:50",
+                videoId: "a26842bbf19e1ade3bcc1c15fbd5201d",
+                embedUrl: "https://rutube.ru/play/embed/a26842bbf19e1ade3bcc1c15fbd5201d/?p=3n-mixWjdcaEuux3sRQdCw",
+                rutubeId: "a26842bbf19e1ade3bcc1c15fbd5201d",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 15. Движение через железнодорожные пути",
+                description: "Изучаем правила пересечения железнодорожных переездов",
+                duration: "13:25",
+                videoId: "815e040eeb1369ef333bbade71bab028",
+                embedUrl: "https://rutube.ru/play/embed/815e040eeb1369ef333bbade71bab028/?p=85Xh6hKhnZ1e8wZfZP3mhw",
+                rutubeId: "815e040eeb1369ef333bbade71bab028",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 16. Движение по автомагистралям",
+                description: "Разбираем особенности движения по автомагистралям",
+                duration: "11:40",
+                videoId: "3667d327537bd2e73f2f86906526d017",
+                embedUrl: "https://rutube.ru/play/embed/3667d327537bd2e73f2f86906526d017/?p=ACn3AZ78_Ds5TYVgPqbiAQ",
+                rutubeId: "3667d327537bd2e73f2f86906526d017",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 17. Движение в жилых зонах",
+                description: "Изучаем правила движения в жилых зонах и дворовых территориях",
+                duration: "14:15",
+                videoId: "7d1fdc8e7607b1a5f50b1f4804de18b4",
+                embedUrl: "https://rutube.ru/play/embed/7d1fdc8e7607b1a5f50b1f4804de18b4/?p=0AqNh9pD9BN5VgKCK1rHLQ",
+                rutubeId: "7d1fdc8e7607b1a5f50b1f4804de18b4",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 18-23. Специальные темы",
+                description: "Комплексный разбор тем 18-23: приоритет маршрутных ТС, световые приборы, буксировка, учебная езда, перевозка людей и грузов",
+                duration: "45:30",
+                videoId: "6c470063132371aee3071671b4f2490c",
+                embedUrl: "https://rutube.ru/play/embed/6c470063132371aee3071671b4f2490c/?p=aJzpnZtbELF11ZuZJSdxew",
+                rutubeId: "6c470063132371aee3071671b4f2490c",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 24. Первая помощь пострадавшим",
+                description: "Изучаем основы оказания первой помощи при ДТП",
+                duration: "32:20",
+                videoId: "f48c3289427bc1b41179ede88bac342b",
+                embedUrl: "https://rutube.ru/play/embed/f48c3289427bc1b41179ede88bac342b/?p=WUu3txImGdHY5AYbicCGAQ",
+                rutubeId: "f48c3289427bc1b41179ede88bac342b",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Тема 25. Ответственность водителя",
+                description: "Разбираем виды ответственности и наказания за нарушения ПДД",
+                duration: "26:10",
+                videoId: "c43836129ef1982e9fe7edddbd0ba43c",
+                embedUrl: "https://rutube.ru/play/embed/c43836129ef1982e9fe7edddbd0ba43c/?p=qGm8h0dT1H6SOM554a-3FQ",
+                rutubeId: "c43836129ef1982e9fe7edddbd0ba43c",
+                vkId: null,
+                host: "rutube",
+                isPrivate: true
+            }
+        ];
+        
+        // Массив с конспектами
+        const conspects = {
+            1: "Тема 01. Общие положения.pdf",
+            2: "Тема 02. Общие обязанности участников дорожного движения.pdf",
+            3: "Тема 03. Дорожные знаки.pdf",
+            4: "Тема 04. Дорожная разметка.pdf",
+            5: "Тема 05. Применение спецсигналов.pdf",
+            6: "Тема 06. Сигналы светофора и регулировщика.pdf",
+            7: "Тема 07. Применение аварийной световой сигнализации и знака аварийной остановки.pdf",
+            8: "Тема 08. Начало движения и Маневрирование.pdf",
+            9: "Тема 09. Расположение транспортных средств на проезжей части.pdf",
+            10: "Тема 10. Скорость движения.pdf",
+            11: "Тема 11. Обгон, опережение, встречный разъезд.pdf",
+            12: "Тема 12. Остановка и стоянка.pdf",
+            13: "Тема 13. Проезд перекрестков.pdf",
+            14: "Тема 14. Пешеходные переходы и места остановок маршрутных транспортных средств.pdf",
+            15: "Тема 15. Движение через железнодорожные пути.pdf",
+            16: "Тема 16. Движение по автомагистралям.pdf",
+            17: "Тема 17. Движение в жилых зонах.pdf",
+            18: [
+                "Тема 18. Приоритет маршрутных транспортных средств.pdf",
+                "Тема 19. Пользование внешними световыми приборами и звуковыми сигналами.pdf",
+                "Тема 20. Буксировка механических транспортных средств.pdf",
+                "Тема 21. Учебная езда.pdf",
+                "Тема 22. Перевозка людей.pdf",
+                "Тема 23. Перевозка грузов.pdf"
+            ],
+            19: "Тема 24. Дополнительные требования к движению велосипедистов и водителей мопедов.pdf",
+            20: "Тема 28. Ответственность водителя.pdf"
+        };
+
+        function openVideo(videoNumber) {
+            console.log('Открываем видео номер:', videoNumber);
+            
+            // Простая проверка
+            if (!videoNumber || videoNumber < 1 || videoNumber > 20) {
+                alert('Неверный номер видео!');
+                return;
+            }
+            
+            const videoIndex = videoNumber - 1;
+            const video = videos[videoIndex];
+            
+            if (!video) {
+                console.error('Видео не найдено для номера:', videoNumber);
+                alert('Видео не найдено!');
+                return;
+            }
+            
+            console.log('Видео найдено:', video.title);
+            
+            // Используем RuTube embed URL
+            const embedUrl = video.embedUrl;
+            console.log('Используем RuTube:', embedUrl);
+            
+            // Создаем простое модальное окно
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                    background: white;
+                border-radius: 10px;
+                    padding: 20px;
+                    max-width: 800px;
+                    width: 100%;
+                    text-align: center;
+                    position: relative;
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                        position: absolute;
+                top: 10px;
+                        right: 15px;
+                background: #ff6b6b;
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                        cursor: pointer;
+                font-size: 18px;
+                        font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const title = document.createElement('h2');
+            title.textContent = video.title;
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const description = document.createElement('p');
+            description.textContent = video.description;
+            description.style.cssText = 'color: #666; margin-bottom: 15px; font-size: 14px;';
+            
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = embedUrl;
+            iframe.width = '100%';
+            iframe.height = '400';
+            iframe.frameBorder = '0';
+            iframe.allowFullscreen = true;
+            iframe.style.cssText = 'border-radius: 8px; margin-bottom: 15px;';
+            
+            const conspectBtn = document.createElement('button');
+            conspectBtn.innerHTML = '📄 Открыть конспект';
+            conspectBtn.style.cssText = `
+                background: #4CAF50;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+                margin-top: 10px;
+            `;
+            conspectBtn.onclick = function() {
+                openConspect(videoNumber);
+            };
+            
+            content.appendChild(closeBtn);
+            content.appendChild(title);
+            content.appendChild(description);
+            content.appendChild(iframe);
+            content.appendChild(conspectBtn);
+            modal.appendChild(content);
+            
+            // Добавляем модальное окно в DOM
+            console.log('Добавляем модальное окно в DOM...');
+            document.body.appendChild(modal);
+            console.log('Модальное окно добавлено в DOM');
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Закрытие по Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                }
+            });
+        }
+        
+        function openConspect(videoNumber) {
+            const pdfFile = conspects[videoNumber];
+            if (Array.isArray(pdfFile)) {
+                // Для темы 18-23 показываем все конспекты
+                alert('Для этого видео доступно несколько конспектов. Выберите нужный из списка.');
+            } else if (pdfFile) {
+                window.open(`conspects/${pdfFile}`, '_blank');
+            } else {
+                alert('Конспект для данного видеоурока не найден');
+            }
+        }
+        
+        function openConspectByFile(pdfFile) {
+            window.open(`conspects/${pdfFile}`, '_blank');
+        }
+    </script>
+</body>
+</html>

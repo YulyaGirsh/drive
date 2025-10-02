@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test DOM Update</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background: #f0f0f0; padding: 20px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+        .log { background: #f9f9f9; padding: 10px; margin: 10px 0; border: 1px solid #ccc; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>Test DOM Update</h1>
+    
+    <div class="header">
+        <h1>Билет №<span id="ticketNumber">1</span></h1>
+        <p>Вопрос <span id="currentQuestion">1</span> из 20</p>
+    </div>
+    
+    <button onclick="testUpdate()">Test Update</button>
+    <button onclick="clearLog()">Clear Log</button>
+    
+    <div class="log" id="log"></div>
+
+    <script>
+        let currentQuestion = 0;
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += '<div>' + time + ': ' + message + '</div>';
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function testUpdate() {
+            currentQuestion++;
+            log('=== ТЕСТ ОБНОВЛЕНИЯ ===');
+            log('currentQuestion: ' + currentQuestion);
+            
+            const questionNumberElement = document.getElementById('currentQuestion');
+            log('questionNumberElement найден: ' + !!questionNumberElement);
+            
+            if (questionNumberElement) {
+                // Обновляем только номер в span
+                questionNumberElement.textContent = currentQuestion;
+                log('Номер обновлен на: ' + currentQuestion);
+                
+                // Обновляем весь текст с правильной структурой
+                const questionInfoElement = questionNumberElement.parentElement;
+                if (questionInfoElement) {
+                    log('Текущий текст: "' + questionInfoElement.textContent + '"');
+                    
+                    questionInfoElement.innerHTML = `Вопрос <span id="currentQuestion">${currentQuestion}</span> из 20`;
+                    
+                    log('Текст после обновления: "' + questionInfoElement.textContent + '"');
+                    log('=== УСПЕШНО ===');
+                } else {
+                    log('ОШИБКА: Родительский элемент не найден');
+                }
+            } else {
+                log('ОШИБКА: Элемент currentQuestion не найден');
+            }
+        }
+
+        // Инициализация
+        log('Страница загружена');
+        log('Исходный текст: "' + document.getElementById('currentQuestion').parentElement.textContent + '"');
+    </script>
+</body>
+</html>

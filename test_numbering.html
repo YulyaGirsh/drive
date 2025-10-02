@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Numbering</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .question { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Test Question Numbering</h1>
+    
+    <div class="question">
+        <h3>Вопрос <span id="currentQuestion">1</span> из 20</h3>
+        <p>Текст вопроса...</p>
+    </div>
+    
+    <button onclick="nextQuestion()">Следующий вопрос</button>
+    <button onclick="prevQuestion()">Предыдущий вопрос</button>
+    <button onclick="goToQuestion(5)">Перейти к вопросу 5</button>
+    <button onclick="goToQuestion(10)">Перейти к вопросу 10</button>
+    
+    <div id="log"></div>
+
+    <script>
+        let currentQuestion = 0;
+        const totalQuestions = 20;
+
+        function updateQuestionNumber() {
+            const element = document.getElementById('currentQuestion');
+            if (element) {
+                // Обновляем только номер вопроса
+                element.textContent = currentQuestion + 1;
+                log(`Обновлен номер вопроса: ${currentQuestion + 1}`);
+                
+                // Обновляем весь текст
+                const parentElement = element.parentElement;
+                if (parentElement) {
+                    parentElement.textContent = `Вопрос ${currentQuestion + 1} из 20`;
+                    log(`Обновлен текст: ${parentElement.textContent}`);
+                }
+            } else {
+                log('ОШИБКА: Элемент currentQuestion не найден');
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions - 1) {
+                currentQuestion++;
+                updateQuestionNumber();
+            } else {
+                log('Это последний вопрос');
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                updateQuestionNumber();
+            } else {
+                log('Это первый вопрос');
+            }
+        }
+
+        function goToQuestion(num) {
+            if (num >= 1 && num <= totalQuestions) {
+                currentQuestion = num - 1;
+                updateQuestionNumber();
+            } else {
+                log('Неверный номер вопроса');
+            }
+        }
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+
+        // Инициализация
+        updateQuestionNumber();
+    </script>
+</body>
+</html>

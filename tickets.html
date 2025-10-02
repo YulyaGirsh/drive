@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Билеты ПДД - EasyDrive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 380px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 2px solid #ff8c00;
+        }
+
+        .header {
+            background: #ffffff;
+            color: #ff8c00;
+            padding: 30px 20px;
+            text-align: left;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ff8c00;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #ff6b35;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .header-content {
+            flex: 1;
+            margin-left: 60px;
+        }
+
+        .header-logo {
+            width: 100px;
+            height: 100px;
+            background-image: url('logo_gorizont1.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255, 140, 0, 0.3);
+            margin: 0;
+            color: #ff8c00;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(255, 140, 0, 0.2);
+            margin: 0;
+            color: #ff8c00;
+        }
+
+        .content {
+            padding: 20px;
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            position: relative;
+        }
+
+        .content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 20px,
+                    rgba(255,255,255,0.1) 20px,
+                    rgba(255,255,255,0.1) 22px
+                );
+            pointer-events: none;
+        }
+
+        .random-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .random-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+        }
+
+        .tickets-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ticket-btn {
+            background: #ffffff;
+            border: 2px solid #ff8c00;
+            color: #000000;
+            padding: 12px 8px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .ticket-btn:hover {
+            background: #fff8f0;
+            border-color: #ff6b35;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .ticket-btn.selected {
+            background: #ff8c00;
+            color: white;
+            border-color: #ff8c00;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+        }
+
+        .info-text {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin-top: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 25px 15px;
+                min-height: 100px;
+                flex-direction: column;
+                text-align: center;
+                background: #000000;
+            }
+            
+            .header-content {
+                margin-left: 0;
+                margin-bottom: 15px;
+            }
+            
+            .header-logo {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .header p {
+                font-size: 14px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .tickets-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .ticket-btn {
+                padding: 10px 6px;
+                font-size: 13px;
+                min-height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <div class="header-content">
+                <h1>Билеты ПДД</h1>
+                <p>Выберите номер билета для решения</p>
+            </div>
+            <div class="header-logo"></div>
+        </div>
+        
+        <div class="content">
+            <button class="random-btn" onclick="selectRandomTicket()">
+                🎲 Случайный билет
+            </button>
+            
+            <div class="tickets-grid" id="ticketsGrid">
+                <!-- Билеты будут добавлены через JavaScript -->
+            </div>
+            
+            <div class="info-text">
+                Всего билетов: 40 | В каждом билете 20 вопросов
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Создаем кнопки для билетов 1-40
+        function createTicketButtons() {
+            const grid = document.getElementById('ticketsGrid');
+            
+            for (let i = 1; i <= 40; i++) {
+                const button = document.createElement('button');
+                button.className = 'ticket-btn';
+                button.textContent = i;
+                button.onclick = () => selectTicket(i);
+                grid.appendChild(button);
+            }
+        }
+
+        // Выбор конкретного билета
+        function selectTicket(ticketNumber) {
+            // Убираем выделение с предыдущего билета
+            document.querySelectorAll('.ticket-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Выделяем выбранный билет
+            event.target.classList.add('selected');
+            
+            // Переходим к экзамену
+            window.location.href = `exam.html?ticket=${ticketNumber}`;
+        }
+
+        // Случайный билет
+        function selectRandomTicket() {
+            const randomNumber = Math.floor(Math.random() * 40) + 1;
+            
+            // Убираем выделение с всех билетов
+            document.querySelectorAll('.ticket-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Выделяем случайный билет
+            const randomButton = document.querySelector(`.ticket-btn:nth-child(${randomNumber})`);
+            if (randomButton) {
+                randomButton.classList.add('selected');
+                randomButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Переходим к экзамену
+            setTimeout(() => {
+                window.location.href = `exam.html?ticket=${randomNumber}`;
+            }, 500);
+        }
+
+        // Возврат назад
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            createTicketButtons();
+        });
+    </script>
+</body>
+</html>
