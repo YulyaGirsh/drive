@@ -219,6 +219,7 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
         document.getElementById('lawyerForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -300,7 +301,7 @@
         
         async function sendDataToBot(data) {
             try {
-                const response = await fetch('https://api.telegram.org/bot8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0/sendMessage', {
+                const response = await fetch(`https://api.telegram.org/bot${BOT_CONFIG.token}/sendMessage`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

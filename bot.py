@@ -1,19 +1,26 @@
 import asyncio
 import logging
 import json
+import os
+from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import Command
 
+# Загружаем переменные окружения
+load_dotenv('config.env')
+
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
 
-# Токен бота
-BOT_TOKEN = "8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0"
+# Токен бота из переменных окружения
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN не найден в переменных окружения!")
 
 # ID получателя для отправки данных форм
-RECIPIENT_ID = 7644513746
+RECIPIENT_ID = int(os.getenv('RECIPIENT_ID', '7644513746'))
 
 # Создание экземпляров бота и диспетчера
 bot = Bot(token=BOT_TOKEN)

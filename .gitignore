@@ -48,6 +48,7 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+config.env
 
 # Temporary files
 *.tmp
