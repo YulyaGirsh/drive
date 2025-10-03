@@ -10,7 +10,7 @@ from aiogram.filters import Command
 logging.basicConfig(level=logging.INFO)
 
 # Токен бота
-BOT_TOKEN = "8396554677:AAFIueItKdKENDA0_TeNviTsTawPBTkqV7A"
+BOT_TOKEN = "8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0"
 
 # ID получателя для отправки данных форм
 RECIPIENT_ID = 7644513746
