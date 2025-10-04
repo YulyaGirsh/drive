@@ -17,7 +17,7 @@ pip install -r requirements.txt >nul 2>&1
 
 REM Запускаем деплой
 echo 🚀 Запуск деплоя...
-python deploy_windows.py
+python deploy_final.py
 
 if errorlevel 1 (
     echo.
