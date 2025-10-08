@@ -69,8 +69,8 @@
             overflow: hidden;
         }
 
-        /* Скрываем любые точки в области заголовка */
-        .header * {
+        /* Скрываем любые точки в области заголовка, кроме логотипа */
+        .header *:not(.header-logo) {
             background-image: none !important;
         }
 
@@ -86,11 +86,12 @@
         .header-logo {
             width: 100px;
             height: 100px;
-            background-image: url('logo_gorizont1.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+            background-image: url('logo_gorizont1.png') !important;
+            background-size: contain !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
             flex-shrink: 0;
+            display: block !important;
         }
 
         .header h1 {
