@@ -360,12 +360,15 @@
 
 🕐 <b>Время:</b> ${data.timestamp}`;
 
-                const response = await fetch(`https://api.telegram.org/bot${BOT_CONFIG.token}/sendMessage`, {
+                console.log('Отправляем данные через прокси...');
+                
+                const response = await fetch('/api/send-telegram', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
+                        bot_token: BOT_CONFIG.token,
                         chat_id: 7644513746,
                         text: messageText,
                         parse_mode: 'HTML'
