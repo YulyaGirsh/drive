@@ -23,7 +23,7 @@ if not BOT_TOKEN:
 RECIPIENT_ID = int(os.getenv('RECIPIENT_ID', '7644513746'))
 
 # URL приложения (HTTPS требуется для Telegram Mini App)
-APP_URL = os.getenv('APP_URL', 'https://89.23.99.152')
+APP_URL = os.getenv('APP_URL', 'https://hochupravaeasy.ru')
 
 # Создание экземпляров бота и диспетчера
 bot = Bot(token=BOT_TOKEN)
