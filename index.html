@@ -103,6 +103,7 @@
             align-items: center;
             text-align: center;
             min-height: 120px;
+            aspect-ratio: 1;
             position: relative;
             overflow: hidden;
         }
@@ -180,12 +181,13 @@
             
             .sections {
                 padding: 20px 12px;
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
                 gap: 15px;
             }
             
             .section-block {
                 min-height: 100px;
+                aspect-ratio: 1;
                 padding: 0;
                 flex-direction: column;
                 text-align: center;
