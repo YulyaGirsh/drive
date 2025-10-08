@@ -85,31 +85,32 @@
         .sections {
             padding: 20px 15px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
         }
 
         .section-block {
             background: #ffffff;
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 20px;
+            padding: 0;
             border: 2px solid #ff8c00;
             transition: all 0.3s ease;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(255, 140, 0, 0.1);
-            aspect-ratio: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-end;
             align-items: center;
             text-align: center;
+            min-height: 120px;
+            position: relative;
+            overflow: hidden;
         }
 
         .section-block:hover {
             border-color: #ff6b35;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(255, 107, 53, 0.25);
-            background: #fff8f0;
         }
 
         .section-block:last-child {
@@ -117,50 +118,32 @@
         }
 
         .section-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 18px;
         }
 
         .section-title {
             font-size: 14px;
             font-weight: 600;
             color: #000000;
-            margin-bottom: 4px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin: 8px;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .section-description {
-            font-size: 10px;
-            color: #333333;
-            line-height: 1.3;
-        }
 
-        .tickets-icon {
-            color: #ff8c00;
-        }
-
-        .videos-icon {
-            color: #ff6b35;
-        }
-
-        .teacher-icon {
-            color: #4CAF50;
-        }
-
-        .lawyer-icon {
-            color: #2196F3;
-        }
-
-        .psychologist-icon {
-            color: #9C27B0;
-        }
-
-        .parking-icon {
-            color: #FF9800;
-        }
-
-        .translations-icon {
-            color: #E91E63;
-        }
 
         @media (max-width: 480px) {
             .container {
@@ -198,26 +181,30 @@
             .sections {
                 padding: 20px 12px;
                 grid-template-columns: 1fr;
-                gap: 10px;
+                gap: 15px;
             }
             
             .section-block {
-                aspect-ratio: 2.5;
-                padding: 12px;
+                min-height: 100px;
+                padding: 0;
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+                justify-content: flex-end;
             }
             
             .section-icon {
-                font-size: 20px;
-                margin-bottom: 6px;
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
             }
             
             .section-title {
-                font-size: 12px;
-                margin-bottom: 3px;
-            }
-            
-            .section-description {
-                font-size: 9px;
+                font-size: 14px;
+                margin: 6px;
+                padding: 6px 10px;
             }
         }
     </style>
@@ -234,59 +221,38 @@
         
         <div class="sections">
             <div class="section-block" onclick="openTickets()">
-                <div class="section-icon tickets-icon">🎫</div>
+                <div class="section-icon" style="background-image: url('images/icons/1.jpg');"></div>
                 <div class="section-title">Билеты</div>
-                <div class="section-description">
-                    Решайте билеты ПДД и готовьтесь к теоретическому экзамену
-                </div>
             </div>
             
             <div class="section-block" onclick="openVideos()">
-                <div class="section-icon videos-icon">🎥</div>
+                <div class="section-icon" style="background-image: url('images/icons/2.jpg');"></div>
                 <div class="section-title">Видеоуроки</div>
-                <div class="section-description">
-                    Смотрите видеоразборы сложных вопросов и изучайте правила
-                </div>
             </div>
 
             <div class="section-block" onclick="openTeacher()">
-                <div class="section-icon teacher-icon">👨‍🏫</div>
+                <div class="section-icon" style="background-image: url('images/icons/3.jpg');"></div>
                 <div class="section-title">Преподаватель ПДД</div>
-                <div class="section-description">
-                    Персональные консультации с опытным преподавателем
-                </div>
             </div>
 
             <div class="section-block" onclick="openLawyer()">
-                <div class="section-icon lawyer-icon">⚖️</div>
+                <div class="section-icon" style="background-image: url('images/icons/4.jpg');"></div>
                 <div class="section-title">Автоюрист</div>
-                <div class="section-description">
-                    Юридическая помощь в вопросах дорожного движения
-                </div>
             </div>
 
             <div class="section-block" onclick="openPsychologist()">
-                <div class="section-icon psychologist-icon">🧠</div>
+                <div class="section-icon" style="background-image: url('images/icons/5.jpg');"></div>
                 <div class="section-title">Автопсихолог</div>
-                <div class="section-description">
-                    Психологическая подготовка к экзамену и вождению
-                </div>
             </div>
 
             <div class="section-block" onclick="openParking()">
-                <div class="section-icon parking-icon">🅿️</div>
+                <div class="section-icon" style="background-image: url('images/icons/6.jpg');"></div>
                 <div class="section-title">Курс по парковке</div>
-                <div class="section-description">
-                    Изучайте различные виды парковки и маневрирования
-                </div>
             </div>
 
             <div class="section-block" onclick="openTranslations()">
-                <div class="section-icon translations-icon">📺</div>
+                <div class="section-icon" style="background-image: url('images/icons/7.jpg');"></div>
                 <div class="section-title">Трансляции</div>
-                <div class="section-description">
-                    Смотрите прямые трансляции уроков и разборов
-                </div>
             </div>
         </div>
     </div>
