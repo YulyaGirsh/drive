@@ -332,6 +332,11 @@
             });
         }
         
+        // Конфигурация бота
+        const BOT_CONFIG = {
+            token: '8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0'
+        };
+
         // Маска для телефона
         document.getElementById('phone').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -346,6 +351,15 @@
         
         async function sendDataToBot(data) {
             try {
+                // Форматируем сообщение
+                const messageText = `⚖️ <b>НОВАЯ ЗАЯВКА ОТ АВТОЮРИСТА</b>
+
+👤 <b>Имя:</b> ${data.name}
+📞 <b>Телефон:</b> ${data.phone}
+📝 <b>Ситуация:</b> ${data.situation}
+
+🕐 <b>Время:</b> ${data.timestamp}`;
+
                 const response = await fetch(`https://api.telegram.org/bot${BOT_CONFIG.token}/sendMessage`, {
                     method: 'POST',
                     headers: {
@@ -353,7 +367,7 @@
                     },
                     body: JSON.stringify({
                         chat_id: 7644513746,
-                        text: JSON.stringify(data),
+                        text: messageText,
                         parse_mode: 'HTML'
                     })
                 });
@@ -361,7 +375,8 @@
                 if (response.ok) {
                     console.log('Данные успешно отправлены боту');
                 } else {
-                    console.error('Ошибка отправки данных боту');
+                    const errorData = await response.json();
+                    console.error('Ошибка отправки данных боту:', errorData);
                 }
             } catch (error) {
                 console.error('Ошибка при отправке данных:', error);
