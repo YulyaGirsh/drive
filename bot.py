@@ -22,6 +22,9 @@ if not BOT_TOKEN:
 # ID получателя для отправки данных форм
 RECIPIENT_ID = int(os.getenv('RECIPIENT_ID', '7644513746'))
 
+# URL приложения
+APP_URL = os.getenv('APP_URL', 'http://89.23.99.152')
+
 # Создание экземпляров бота и диспетчера
 bot = Bot(token=BOT_TOKEN)
 storage = MemoryStorage()
@@ -34,10 +37,16 @@ async def cmd_start(message: types.Message):
     username = message.from_user.first_name or "Пользователь"
     
     # Отправляем приветственное сообщение
-    welcome_text = f"{username}, привет 👋\n\n📲 Это приложение EasyDrive. Здесь собраны онлайн-курсы, решение билетов и видеоразборы — всё для быстрой и уверенной сдачи на права.\n\n🌐 Откройте приложение по адресу: http://localhost:3000"
+    welcome_text = f"{username}, привет 👋\n\n📲 Это приложение EasyDrive. Здесь собраны онлайн-курсы, решение билетов и видеоразборы — всё для быстрой и уверенной сдачи на права."
+
+    # Создаем кнопку для открытия приложения
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🌐 Открыть приложение", url=APP_URL)]
+    ])
 
     await message.answer(
-        text=welcome_text
+        text=welcome_text,
+        reply_markup=keyboard
     )
 
 @dp.message()
