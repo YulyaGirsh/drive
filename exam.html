@@ -501,9 +501,10 @@
             }
         }
 
-        // Загрузка вопросов для конкретного билета через API
+        // Загрузка вопросов для конкретного билета через API или локально
         async function loadQuestionsForTicket(ticketNumber) {
             try {
+                // Сначала пытаемся загрузить через API
                 const response = await fetch(`/api/questions/ticket/${ticketNumber}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -522,14 +523,44 @@
                     ticketNumber: q.ticket_number || ticketNumber
                 }));
             } catch (error) {
-                console.error('Ошибка загрузки вопросов:', error);
-                throw error;
+                console.warn('API недоступен, загружаем данные локально:', error);
+                // Fallback: загружаем все данные локально и фильтруем по билету
+                try {
+                    const response = await fetch('data.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const allQuestions = await response.json();
+                    
+                    // Фильтруем вопросы по номеру билета
+                    const ticketQuestions = allQuestions.filter(q => q.ticket_number === ticketNumber);
+                    
+                    if (ticketQuestions.length === 0) {
+                        throw new Error(`Вопросы для билета ${ticketNumber} не найдены`);
+                    }
+                    
+                    // Преобразуем данные в нужный формат
+                    return ticketQuestions.map((q, index) => ({
+                        id: q.question_number || (index + 1),
+                        text: q.question_text || '',
+                        image: q.image_path || null,
+                        answers: q.answers || [],
+                        correct: findCorrectAnswerIndex(q.answers, q.correct_answer),
+                        hint: q.hint_text || '',
+                        category: q.category || '',
+                        ticketNumber: q.ticket_number || ticketNumber
+                    }));
+                } catch (fallbackError) {
+                    console.error('Ошибка загрузки локальных данных:', fallbackError);
+                    throw new Error('Не удалось загрузить вопросы. Проверьте подключение к интернету или запустите локальный сервер.');
+                }
             }
         }
 
         // Загрузка всех вопросов для выбора дополнительных
         async function loadAllQuestions() {
             try {
+                // Сначала пытаемся загрузить через API
                 const response = await fetch('/api/questions');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -548,8 +579,30 @@
                     ticketNumber: q.ticket_number || 1
                 }));
             } catch (error) {
-                console.error('Ошибка загрузки всех вопросов:', error);
-                throw error;
+                console.warn('API недоступен, загружаем данные локально:', error);
+                // Fallback: загружаем данные локально
+                try {
+                    const response = await fetch('data.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const allQuestions = await response.json();
+                    
+                    // Преобразуем данные в нужный формат
+                    return allQuestions.map((q, index) => ({
+                        id: q.question_number || (index + 1),
+                        text: q.question_text || '',
+                        image: q.image_path || null,
+                        answers: q.answers || [],
+                        correct: findCorrectAnswerIndex(q.answers, q.correct_answer),
+                        hint: q.hint_text || '',
+                        category: q.category || '',
+                        ticketNumber: q.ticket_number || 1
+                    }));
+                } catch (fallbackError) {
+                    console.error('Ошибка загрузки локальных данных:', fallbackError);
+                    throw new Error('Не удалось загрузить вопросы. Проверьте подключение к интернету или запустите локальный сервер.');
+                }
             }
         }
 
