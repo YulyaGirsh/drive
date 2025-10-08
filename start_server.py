@@ -1,17 +1,18 @@
+#!/usr/bin/env python3
+"""
+Скрипт для запуска сервера на правильном порту
+"""
 import http.server
 import socketserver
-import webbrowser
 import os
-import json
-import urllib.parse
-import urllib.request
-from pathlib import Path
+import sys
 
+# Порт для сервера (обычно 8000 для nginx proxy)
 PORT = 8000
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
-        # Добавляем CORS заголовки для работы с Telegram
+        # Добавляем CORS заголовки
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
@@ -61,6 +62,9 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def send_telegram_message(self):
         """Отправляет сообщение в Telegram"""
         try:
+            import json
+            import urllib.request
+            
             # Читаем данные запроса
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
@@ -121,8 +125,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(questions, ensure_ascii=False).encode('utf-8'))
         except FileNotFoundError:
             self.send_error(404, "Questions file not found")
-        except json.JSONDecodeError:
-            self.send_error(500, "Invalid JSON format")
+        except Exception as e:
+            self.send_error(500, f"Error loading questions: {str(e)}")
 
     def send_questions_for_ticket(self, ticket_number):
         """Отправляет вопросы для конкретного билета"""
@@ -133,9 +137,9 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Фильтруем вопросы по номеру билета
             ticket_questions = [q for q in all_questions if q.get('ticket_number') == ticket_number]
             
-            # Добавляем информацию об изображениях
-            for question in ticket_questions:
-                question['image_path'] = self.find_image_for_question(ticket_number, question.get('question_number', 1))
+            if not ticket_questions:
+                self.send_error(404, f"Questions for ticket {ticket_number} not found")
+                return
             
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -143,42 +147,17 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(ticket_questions, ensure_ascii=False).encode('utf-8'))
         except FileNotFoundError:
             self.send_error(404, "Questions file not found")
-        except json.JSONDecodeError:
-            self.send_error(500, "Invalid JSON format")
+        except Exception as e:
+            self.send_error(500, f"Error loading questions: {str(e)}")
 
-    def find_image_for_question(self, ticket_number, question_number):
-        """Находит изображение для вопроса по схеме ticket{номер}_q{номер}_{рандом}"""
-        images_dir = Path('images')
-        if not images_dir.exists():
-            return None
-        
-        # Ищем файлы по паттерну ticket{ticket_number}_q{question_number}_*
-        pattern = f"ticket{ticket_number}_q{question_number}_"
-        matching_files = list(images_dir.glob(f"{pattern}*.jpg"))
-        
-        if matching_files:
-            # Возвращаем первый найденный файл
-            return f"images/{matching_files[0].name}"
-        
-        return None
-
-def start_server():
-    # Переходим в директорию с файлами
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    
+if __name__ == "__main__":
     with socketserver.TCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
-        print(f"Сервер запущен на http://localhost:{PORT}")
-        print(f"Откройте приложение в браузере: http://localhost:{PORT}")
+        print(f"🌐 Сервер запущен на порту {PORT}")
+        print(f"📡 Доступен по адресу: http://localhost:{PORT}")
+        print(f"🔗 Внешний адрес: https://hochupravaeasy.ru")
         print("Для остановки нажмите Ctrl+C")
-        
-        # Автоматически открываем браузер
-        webbrowser.open(f'http://localhost:{PORT}')
         
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
-            print("\nСервер остановлен")
-
-if __name__ == "__main__":
-    start_server()
-
+            print("\n🛑 Сервер остановлен")
