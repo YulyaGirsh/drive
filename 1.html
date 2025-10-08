@@ -91,12 +91,26 @@
     box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
     z-index: 1000;
     transition: all .25s;
-    width: auto;
-    max-width: 300px;
-    min-width: 200px;
-    white-space: nowrap;
-    display: inline-block;
+    width: 400px;
+    max-width: 400px;
+    min-width: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     box-sizing: border-box;
+  }
+
+  .btn-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .btn-line {
+    display: block;
+    line-height: 1.2;
   }
   .random-btn:hover {
     transform: translateX(-50%) translateY(-2px);
@@ -112,11 +126,12 @@
       left: auto !important;
       bottom: auto !important;
       transform: none !important;
-      width: auto !important;
-      max-width: 180px !important;
-      min-width: auto !important;
-      white-space: nowrap;
-      display: inline-block !important;
+      width: 200px !important;
+      max-width: 200px !important;
+      min-width: 200px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       flex-shrink: 0;
       margin: 0 !important;
       padding: 10px 15px !important;
@@ -162,10 +177,12 @@
       top: 20px !important;
       right: 20px !important;
       z-index: 1001;
-      width: auto !important;
-      max-width: 180px !important;
-      white-space: nowrap;
-      display: inline-block !important;
+      width: 200px !important;
+      max-width: 200px !important;
+      min-width: 200px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       flex-shrink: 0;
       margin: 0 !important;
       padding: 10px 15px !important;
@@ -187,10 +204,12 @@
       transform: none !important;
       padding: 8px 12px !important;
       font-size: 14px;
-      max-width: 140px !important;
-      width: auto !important;
-      min-width: auto !important;
-      display: inline-block !important;
+      width: 160px !important;
+      max-width: 160px !important;
+      min-width: 160px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       margin: 0 !important;
       box-sizing: border-box !important;
     }
@@ -207,10 +226,12 @@
       transform: none !important;
       padding: 6px 10px !important;
       font-size: 12px;
-      max-width: 120px !important;
-      width: auto !important;
-      min-width: auto !important;
-      display: inline-block !important;
+      width: 140px !important;
+      max-width: 140px !important;
+      min-width: 140px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       margin: 0 !important;
       box-sizing: border-box !important;
     }
@@ -226,7 +247,12 @@
   </div>
 
   <a href="index.html" class="back-btn">← Назад</a>
-  <a href="#" class="random-btn" onclick="openRandomTicket()">🎲 Случайный вопрос</a>
+  <a href="#" class="random-btn" onclick="openRandomTicket()">
+    <span class="btn-text">
+      <span class="btn-line">🎲 Случайный</span>
+      <span class="btn-line">вопрос</span>
+    </span>
+  </a>
 
 <script>
   // Основано на вашем вводе.
