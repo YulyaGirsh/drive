@@ -22,8 +22,8 @@ if not BOT_TOKEN:
 # ID получателя для отправки данных форм
 RECIPIENT_ID = int(os.getenv('RECIPIENT_ID', '7644513746'))
 
-# URL приложения
-APP_URL = os.getenv('APP_URL', 'http://89.23.99.152')
+# URL приложения (HTTPS требуется для Telegram Mini App)
+APP_URL = os.getenv('APP_URL', 'https://89.23.99.152')
 
 # Создание экземпляров бота и диспетчера
 bot = Bot(token=BOT_TOKEN)
@@ -39,9 +39,9 @@ async def cmd_start(message: types.Message):
     # Отправляем приветственное сообщение
     welcome_text = f"{username}, привет 👋\n\n📲 Это приложение EasyDrive. Здесь собраны онлайн-курсы, решение билетов и видеоразборы — всё для быстрой и уверенной сдачи на права."
 
-    # Создаем кнопку для открытия приложения
+    # Создаем кнопку для открытия мини-приложения
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🌐 Открыть приложение", url=APP_URL)]
+        [InlineKeyboardButton(text="🌐 Открыть приложение", web_app={"url": APP_URL})]
     ])
 
     await message.answer(
