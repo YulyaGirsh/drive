@@ -93,12 +93,35 @@
     transition: all .25s;
     width: auto;
     max-width: 300px;
+    min-width: 200px;
     white-space: nowrap;
     display: inline-block;
+    box-sizing: border-box;
   }
   .random-btn:hover {
     transform: translateX(-50%) translateY(-2px);
     box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+  }
+
+  /* Вертикальный режим (высота больше ширины) */
+  @media (max-height: 900px) and (orientation: portrait) {
+    .random-btn {
+      position: absolute !important;
+      top: 20px !important;
+      right: 20px !important;
+      left: auto !important;
+      bottom: auto !important;
+      transform: none !important;
+      width: auto !important;
+      max-width: 180px !important;
+      min-width: auto !important;
+      white-space: nowrap;
+      display: inline-block !important;
+      flex-shrink: 0;
+      margin: 0 !important;
+      padding: 10px 15px !important;
+      box-sizing: border-box !important;
+    }
   }
 
   /* Мобильные стили */
@@ -159,12 +182,37 @@
       position: absolute !important;
       top: 15px !important;
       right: 15px !important;
+      left: auto !important;
+      bottom: auto !important;
+      transform: none !important;
       padding: 8px 12px !important;
       font-size: 14px;
       max-width: 140px !important;
       width: auto !important;
+      min-width: auto !important;
       display: inline-block !important;
       margin: 0 !important;
+      box-sizing: border-box !important;
+    }
+  }
+
+  /* Дополнительный медиа-запрос для очень маленьких экранов в вертикальном режиме */
+  @media (max-height: 600px) and (orientation: portrait) {
+    .random-btn {
+      position: absolute !important;
+      top: 10px !important;
+      right: 10px !important;
+      left: auto !important;
+      bottom: auto !important;
+      transform: none !important;
+      padding: 6px 10px !important;
+      font-size: 12px;
+      max-width: 120px !important;
+      width: auto !important;
+      min-width: auto !important;
+      display: inline-block !important;
+      margin: 0 !important;
+      box-sizing: border-box !important;
     }
   }
 </style>
