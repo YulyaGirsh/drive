@@ -30,6 +30,22 @@
             padding: 0;
         }
 
+        /* Скрываем любые возможные точки загрузки */
+        body::before,
+        body::after,
+        *::before,
+        *::after {
+            content: none !important;
+        }
+
+        /* Скрываем элементы с белыми точками */
+        [class*="dot"],
+        [class*="particle"],
+        [class*="loading"],
+        [class*="indicator"] {
+            display: none !important;
+        }
+
         .container {
             width: 100%;
             height: 100vh;
@@ -50,6 +66,17 @@
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        /* Скрываем любые точки в области заголовка */
+        .header * {
+            background-image: none !important;
+        }
+
+        .header::before,
+        .header::after {
+            display: none !important;
         }
 
         .header-content {
