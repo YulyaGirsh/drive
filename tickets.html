@@ -35,7 +35,7 @@
             padding: 20px;
             text-align: left;
             position: relative;
-            min-height: 100px;
+            min-height: 80px;
             display: flex;
             align-items: center;
             flex-shrink: 0;
@@ -70,16 +70,6 @@
             margin-left: 60px;
         }
 
-        .header-logo {
-            width: 100px;
-            height: 100px;
-            background-image: url('logo_gorizont1.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            flex-shrink: 0;
-        }
-
         .header h1 {
             font-size: 28px;
             font-weight: 700;
@@ -103,6 +93,7 @@
             position: relative;
             flex: 1;
             overflow-y: auto;
+            width: 100%;
         }
 
         .content::before {
@@ -186,13 +177,25 @@
             box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
         }
 
-        .info-text {
+        .footer {
+            background: white;
+            padding: 20px;
             text-align: center;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 14px;
-            margin-top: 15px;
-            position: relative;
-            z-index: 1;
+            flex-shrink: 0;
+            border-top: 2px solid #ff8c00;
+        }
+
+        .footer h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff8c00;
+            margin-bottom: 8px;
+        }
+
+        .footer p {
+            font-size: 16px;
+            color: #666666;
+            margin: 0;
         }
 
         @media (max-width: 480px) {
@@ -203,27 +206,30 @@
             
             .header {
                 padding: 15px;
-                min-height: 80px;
+                min-height: 60px;
                 flex-direction: row;
                 text-align: left;
                 background: #ffffff;
             }
             
             .header-content {
-                margin-left: 0;
-                margin-bottom: 15px;
-            }
-            
-            .header-logo {
-                width: 60px;
-                height: 60px;
+                margin-left: 60px;
+                margin-bottom: 0;
             }
             
             .header h1 {
-                font-size: 24px;
+                font-size: 20px;
             }
-            
-            .header p {
+
+            .footer {
+                padding: 15px;
+            }
+
+            .footer h2 {
+                font-size: 20px;
+            }
+
+            .footer p {
                 font-size: 14px;
             }
             
@@ -249,10 +255,8 @@
         <div class="header">
             <button class="back-btn" onclick="goBack()">←</button>
             <div class="header-content">
-                <h1>Билеты ПДД</h1>
-                <p>Выберите номер билета для решения</p>
+                <h1>Билеты</h1>
             </div>
-            <div class="header-logo"></div>
         </div>
         
         <div class="content">
@@ -263,10 +267,11 @@
             <div class="tickets-grid" id="ticketsGrid">
                 <!-- Билеты будут добавлены через JavaScript -->
             </div>
-            
-            <div class="info-text">
-                Всего билетов: 40 | В каждом билете 20 вопросов
-            </div>
+        </div>
+
+        <div class="footer">
+            <h2>Билеты ПДД</h2>
+            <p>Выберите билет для прохождения</p>
         </div>
     </div>
 
