@@ -95,6 +95,59 @@
     transform: translateX(-50%) translateY(-2px);
     box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
   }
+
+  /* Мобильные стили */
+  @media (max-width: 768px) {
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    
+    .page {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+    }
+    
+    .road-wrap {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .road-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .back-btn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1001;
+    }
+    
+    .random-btn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1001;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .back-btn {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+    
+    .random-btn {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+  }
 </style>
 </head>
 <body>
