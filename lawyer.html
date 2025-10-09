@@ -174,15 +174,6 @@
             justify-content: center;
         }
 
-        .telegram-info {
-            background: #f0f8ff;
-            border: 1px solid #007AFF;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #007AFF;
-        }
 
         /* Мобильные стили */
         @media (max-width: 480px) {
@@ -206,12 +197,12 @@
                 left: 0;
                 top: 0;
             }
-
+            
             .header {
                 padding: 15px;
                 min-height: 60px;
             }
-
+            
             .form-container {
                 padding: 15px;
             }
@@ -238,9 +229,6 @@
             <h1 class="form-title">Автоюрист</h1>
             <p class="form-subtitle">Получите профессиональную юридическую помощь по вопросам автомобильного права</p>
             
-            <div class="telegram-info" id="telegramInfo" style="display: none;">
-                📱 Данные заполнены автоматически из Telegram
-            </div>
             
             <div class="success-message" id="successMessage">
                 ✅ Заявка отправлена успешно! Мы свяжемся с вами в ближайшее время.
@@ -259,10 +247,6 @@
                     <div class="error-message" id="phoneError">Пожалуйста, введите корректный номер телефона</div>
                 </div>
                 
-                <div class="form-group">
-                    <label class="form-label" for="telegram">Telegram username</label>
-                    <input type="text" id="telegram" name="telegram" class="form-input" placeholder="@username (необязательно)">
-                </div>
                 
                 <div class="form-group">
                     <label class="form-label" for="situation">Опишите вашу ситуацию *</label>
@@ -280,23 +264,13 @@
         </div>
     </div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Telegram WebApp API
-        const tg = window.Telegram?.WebApp;
-        
         // Конфигурация
         const CONFIG = {
             botToken: '8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0',
             recipientId: 7644513746,
-            apiEndpoint: '/api/lawyer-order'
+            apiEndpoint: '/api/send-telegram'
         };
-
-        // Данные пользователя из Telegram
-        let userData = null;
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            userData = tg.initDataUnsafe.user;
-        }
 
         // Утилиты
         const Utils = {
@@ -346,31 +320,6 @@
             }
         };
 
-        // Автозаполнение формы данными из Telegram
-        function fillFormWithUserData() {
-            if (!userData) return;
-            
-            // Заполнение имени
-            const nameField = document.getElementById('name');
-            if (nameField && userData.first_name) {
-                let fullName = userData.first_name;
-                if (userData.last_name) {
-                    fullName += ' ' + userData.last_name;
-                }
-                nameField.value = fullName;
-            }
-            
-            // Заполнение Telegram username
-            const telegramField = document.getElementById('telegram');
-            if (telegramField && userData.username) {
-                telegramField.value = '@' + userData.username;
-            }
-            
-            // Показываем информацию об автозаполнении
-            if (userData) {
-                document.getElementById('telegramInfo').style.display = 'block';
-            }
-        }
 
         // Валидатор форм
         const FormValidator = {
@@ -405,17 +354,8 @@
                 const orderData = {
                     name: formData.get('name'),
                     phone: formData.get('phone'),
-                    telegram: formData.get('telegram'),
                     situation: formData.get('situation'),
-                    service: 'Автоюрист',
-                    timestamp: new Date().toISOString(),
-                    telegramUser: userData ? {
-                        id: userData.id,
-                        first_name: userData.first_name,
-                        last_name: userData.last_name,
-                        username: userData.username,
-                        language_code: userData.language_code
-                    } : null
+                    timestamp: new Date().toLocaleString('ru-RU')
                 };
 
                 const validationErrors = FormValidator.validate(orderData);
@@ -438,12 +378,25 @@
         // Отправка данных на сервер
         async function submitOrderData(orderData) {
             try {
+                const messageText = `⚖️ <b>НОВАЯ ЗАЯВКА ОТ АВТОЮРИСТА</b>
+
+👤 <b>Имя:</b> ${orderData.name}
+📞 <b>Телефон:</b> ${orderData.phone}
+📝 <b>Ситуация:</b> ${orderData.situation}
+
+🕐 <b>Время:</b> ${orderData.timestamp}`;
+
                 const response = await fetch(CONFIG.apiEndpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(orderData)
+                    body: JSON.stringify({
+                        bot_token: CONFIG.botToken,
+                        chat_id: CONFIG.recipientId,
+                        text: messageText,
+                        parse_mode: 'HTML'
+                    })
                 });
                 
                 if (response.ok) {
@@ -471,15 +424,10 @@
 
         function resetForm() {
             document.getElementById('lawyerForm').reset();
-            // Восстанавливаем автозаполненные данные
-            fillFormWithUserData();
         }
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
-            // Автозаполнение формы
-            fillFormWithUserData();
-
             // Форматирование телефона
             document.getElementById('phone').addEventListener('input', function(e) {
                 e.target.value = Utils.formatPhone(e.target.value);
