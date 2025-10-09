@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тесты по темам - ПДД</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            left: 0;
+            top: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff8c00, #ff6b00);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            flex-shrink: 0;
+            min-height: 80px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            color: white;
+            margin-top: 0;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .theme-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-card:hover {
+            border-color: #ff8c00;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.2);
+        }
+
+        .theme-emoji {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .theme-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .theme-code {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .theme-description {
+            font-size: 12px;
+            color: #9ca3af;
+            line-height: 1.4;
+        }
+
+        .info-panel {
+            position: relative;
+            bottom: auto;
+            left: auto;
+            right: auto;
+            background: rgb(212, 212, 212);
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            margin-top: 0;
+        }
+
+        .info-panel h3 {
+            color: #6b7280;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+            text-align: left;
+        }
+
+        .themes-link {
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .themes-link:hover {
+            color: #ff8c00;
+            text-decoration: underline;
+        }
+
+        .info-features {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .info-feature {
+            text-align: center;
+            flex: 1;
+        }
+
+        .info-feature-icon {
+            width: 30px;
+            height: 30px;
+            background: #9ca3af;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 14px;
+            color: white;
+        }
+
+        .info-feature-text {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.3;
+        }
+
+        .info-description {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Мобильные стили */
+        @media (max-width: 768px) {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .header {
+                padding: 15px;
+                min-height: 70px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .back-btn {
+                top: 12px;
+                left: 12px;
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .themes-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 15px;
+            }
+
+            .theme-card {
+                padding: 15px;
+            }
+
+            .theme-emoji {
+                font-size: 40px;
+                margin-bottom: 12px;
+            }
+
+            .theme-title {
+                font-size: 14px;
+            }
+
+            .theme-code {
+                font-size: 12px;
+            }
+
+            .theme-description {
+                font-size: 11px;
+            }
+
+            .info-panel {
+                padding: 15px;
+                border-radius: 15px 15px 0 0;
+            }
+
+            .info-panel h3 {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+
+            .info-features {
+                margin-bottom: 12px;
+            }
+
+            .info-feature-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+                margin-bottom: 6px;
+            }
+
+            .info-feature-text {
+                font-size: 11px;
+            }
+
+            .info-description {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .themes-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .theme-card {
+                padding: 12px;
+            }
+
+            .theme-emoji {
+                font-size: 36px;
+                margin-bottom: 10px;
+            }
+
+            .theme-title {
+                font-size: 13px;
+            }
+
+            .theme-code {
+                font-size: 11px;
+            }
+
+            .theme-description {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="1.html" class="back-btn">← Назад к билетам</a>
+            <h1>Тесты по темам</h1>
+        </div>
+
+        <div class="content">
+            <div class="themes-grid" id="themesGrid">
+                <!-- Темы будут добавлены через JavaScript -->
+            </div>
+        </div>
+
+        <!-- Серая плашка с информацией -->
+        <div class="info-panel">
+            <h3><a href="1.html" class="themes-link">Билеты ПДД</a></h3>
+            <div class="info-features">
+                <div class="info-feature">
+                    <div class="info-feature-icon">📋</div>
+                    <div class="info-feature-text">Есть подсказки<br>и разборы</div>
+                </div>
+                <div class="info-feature">
+                    <div class="info-feature-icon">✓</div>
+                    <div class="info-feature-text">Допускается<br>до 2 ошибок</div>
+                </div>
+                <div class="info-feature">
+                    <div class="info-feature-icon">⏰</div>
+                    <div class="info-feature-text">20 минут на<br>прохождение билета</div>
+                </div>
+            </div>
+            <div class="info-description">
+                Выберите тему для изучения конкретных правил дорожного движения
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 40 категорий тем с соответствующими эмодзи
+        const themes = [
+            // Дорожные знаки (8 категорий)
+            { code: "1.1", name: "Предупреждающие знаки", emoji: "⚠️", description: "Знаки, предупреждающие о возможной опасности" },
+            { code: "1.2", name: "Знаки приоритета", emoji: "🔺", description: "Знаки, определяющие очередность проезда" },
+            { code: "1.3", name: "Запрещающие знаки", emoji: "🚫", description: "Знаки, запрещающие определенные действия" },
+            { code: "1.4", name: "Предписывающие знаки", emoji: "🔵", description: "Знаки, предписывающие определенные действия" },
+            { code: "1.5", name: "Знаки особых предписаний", emoji: "🔷", description: "Знаки особых предписаний движения" },
+            { code: "1.6", name: "Информационные знаки", emoji: "ℹ️", description: "Знаки, информирующие о направлении движения" },
+            { code: "1.7", name: "Знаки сервиса", emoji: "🛠️", description: "Знаки, информирующие о расположении объектов сервиса" },
+            { code: "1.8", name: "Знаки таблички", emoji: "📋", description: "Таблички, уточняющие или ограничивающие действие знаков" },
+
+            // Дорожная разметка (1 категория)
+            { code: "2.1", name: "Горизонтальная разметка", emoji: "🛣️", description: "Горизонтальная и вертикальная разметка дороги" },
+
+            // Движение и маневрирование (8 категорий)
+            { code: "3.1", name: "Перестроение", emoji: "↔️", description: "Правила перестроения на проезжей части" },
+            { code: "3.2", name: "Обгон и опережение", emoji: "🏃", description: "Правила обгона и опережения транспортных средств" },
+            { code: "3.3", name: "Повороты", emoji: "↩️", description: "Правила выполнения поворотов" },
+            { code: "3.4", name: "Разворот", emoji: "🔄", description: "Правила выполнения разворота" },
+            { code: "3.5", name: "Встречный разъезд", emoji: "🤝", description: "Правила встречного разъезда" },
+            { code: "3.6", name: "Движение задним ходом", emoji: "🔙", description: "Правила движения задним ходом" },
+            { code: "3.7", name: "Расположение ТС", emoji: "🚗", description: "Расположение транспортных средств на проезжей части" },
+            { code: "3.8", name: "Скорость движения", emoji: "⚡", description: "Скорость движения и выбор скорости" },
+
+            // Регулирование движения (4 категории)
+            { code: "4.1", name: "Светофор и регулировщик", emoji: "🚦", description: "Сигналы светофора и регулировщика" },
+            { code: "4.2", name: "Сигналы поворота", emoji: "👋", description: "Сигналы поворота и торможения" },
+            { code: "4.3", name: "Специальные сигналы", emoji: "🔊", description: "Специальные сигналы и фары" },
+            { code: "4.4", name: "Аварийная сигнализация", emoji: "🚨", description: "Аварийная сигнализация и знак аварийной остановки" },
+
+            // Остановка и стоянка (2 категории)
+            { code: "5.1", name: "Остановка", emoji: "⏸️", description: "Правила остановки транспортных средств" },
+            { code: "5.2", name: "Стоянка", emoji: "🅿️", description: "Правила стоянки транспортных средств" },
+
+            // Перекрестки (3 категории)
+            { code: "6.1", name: "Нерегулируемые равнозначные перекрестки", emoji: "➕", description: "Проезд нерегулируемых равнозначных перекрестков" },
+            { code: "6.2", name: "Нерегулируемые неравнозначные перекрестки", emoji: "🔀", description: "Проезд нерегулируемых неравнозначных перекрестков" },
+            { code: "6.3", name: "Пешеходные переходы и остановки", emoji: "🚶", description: "Пешеходные переходы и остановки маршрутных ТС" },
+
+            // Безопасность и ответственность (4 категории)
+            { code: "7.1", name: "Основы безопасности", emoji: "🛡️", description: "Основы безопасности дорожного движения" },
+            { code: "7.2", name: "Неисправности и запрет", emoji: "🔧", description: "Неисправности и условия, при которых запрещена эксплуатация" },
+            { code: "7.3", name: "Медицина", emoji: "🏥", description: "Медицинские аспекты вождения" },
+            { code: "7.4", name: "Юридическая ответственность", emoji: "⚖️", description: "Юридическая ответственность водителей" },
+
+            // Общие темы (3 категории)
+            { code: "8.1", name: "Общие положения", emoji: "📖", description: "Общие положения и учебная езда" },
+            { code: "8.2", name: "Обязанности водителей", emoji: "👨‍💼", description: "Обязанности водителей" },
+            { code: "8.3", name: "Движение в жилых зонах", emoji: "🏘️", description: "Движение в жилых зонах" },
+
+            // Специальные транспортные средства (3 категории)
+            { code: "9.1", name: "Мопеды", emoji: "🛵", description: "Правила движения мопедов" },
+            { code: "9.2", name: "Трамвай", emoji: "🚋", description: "Правила движения трамваев" },
+            { code: "9.3", name: "Приоритет маршрутных ТС", emoji: "🚌", description: "Приоритет маршрутных транспортных средств" },
+
+            // Специальные участки дорог (2 категории)
+            { code: "10.1", name: "Движение через ж/д пути", emoji: "🚂", description: "Движение через железнодорожные пути" },
+            { code: "10.2", name: "Автомагистраль", emoji: "🛣️", description: "Движение по автомагистралям" },
+
+            // Перевозка (1 категория)
+            { code: "11.1", name: "Перевозка", emoji: "🚚", description: "Перевозка людей и грузов" },
+
+            // Технические вопросы (1 категория)
+            { code: "12.1", name: "Буксировка", emoji: "🔗", description: "Правила буксировки транспортных средств" }
+        ];
+
+        // Функция для создания карточки темы
+        function createThemeCard(theme) {
+            const card = document.createElement('div');
+            card.className = 'theme-card';
+            card.innerHTML = `
+                <span class="theme-emoji">${theme.emoji}</span>
+                <div class="theme-title">${theme.name}</div>
+                <div class="theme-code">${theme.code}</div>
+                <div class="theme-description">${theme.description}</div>
+            `;
+            
+            // Добавляем обработчик клика
+            card.addEventListener('click', () => {
+                // Здесь можно добавить логику для открытия тестов по теме
+                alert(`Открыть тесты по теме: ${theme.name}`);
+            });
+            
+            return card;
+        }
+
+        // Функция для загрузки тем
+        function loadThemes() {
+            const themesGrid = document.getElementById('themesGrid');
+            
+            themes.forEach(theme => {
+                const card = createThemeCard(theme);
+                themesGrid.appendChild(card);
+            });
+        }
+
+        // Загружаем темы при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadThemes);
+    </script>
+</body>
+</html>
