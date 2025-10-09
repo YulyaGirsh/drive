@@ -39,43 +39,22 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            background: white;
             padding: 20px;
-            text-align: center;
-            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             flex-shrink: 0;
-        }
-
-        .header h1 {
-            font-size: 1.8em;
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            margin-top: 40px;
+            min-height: 80px;
         }
 
         .back-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            display: inline-block;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-            border-color: #ff6b35;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #007AFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .form-container {
@@ -124,7 +103,7 @@
 
         .form-input:focus, .form-textarea:focus {
             outline: none;
-            border-color: #ff8c00;
+            border-color: #007AFF;
         }
 
         .form-textarea {
@@ -134,7 +113,7 @@
 
         .submit-btn {
             width: 100%;
-            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            background: #007AFF;
             color: white;
             border: none;
             padding: 16px;
@@ -142,21 +121,17 @@
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease;
             margin-top: 20px;
-            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.2);
         }
 
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
+            background: #0056CC;
         }
 
         .submit-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
         .error-message {
@@ -199,7 +174,6 @@
             justify-content: center;
         }
 
-
         /* Мобильные стили */
         @media (max-width: 480px) {
             html, body {
@@ -222,24 +196,12 @@
                 left: 0;
                 top: 0;
             }
-            
+
             .header {
                 padding: 15px;
                 min-height: 60px;
             }
-            
-            .header h1 {
-                font-size: 1.5em;
-                margin-top: 35px;
-            }
-            
-            .back-btn {
-                padding: 6px 12px;
-                font-size: 12px;
-                top: 12px;
-                left: 12px;
-            }
-            
+
             .form-container {
                 padding: 15px;
             }
@@ -257,14 +219,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <a href="index.html" class="back-btn">← Назад к разделам</a>
-            
-            <h1>⚖️ Автоюрист</h1>
+            <button class="back-btn" onclick="goBack()">
+                ← Назад
+            </button>
         </div>
         
         <div class="form-container">
+            <h1 class="form-title">Автоюрист</h1>
             <p class="form-subtitle">Получите профессиональную юридическую помощь по вопросам автомобильного права</p>
-            
             
             <div class="success-message" id="successMessage">
                 ✅ Заявка отправлена успешно! Мы свяжемся с вами в ближайшее время.
@@ -282,7 +244,6 @@
                     <input type="tel" id="phone" name="phone" class="form-input" placeholder="+7 (999) 123-45-67" required>
                     <div class="error-message" id="phoneError">Пожалуйста, введите корректный номер телефона</div>
                 </div>
-                
                 
                 <div class="form-group">
                     <label class="form-label" for="situation">Опишите вашу ситуацию *</label>
@@ -356,6 +317,43 @@
             }
         };
 
+        // API сервис
+        const ApiService = {
+            async sendLead(data) {
+                const messageText = this.formatMessage(data);
+                
+                const response = await fetch(CONFIG.apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        bot_token: CONFIG.botToken,
+                        chat_id: CONFIG.recipientId,
+                        text: messageText,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.description || `HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            },
+
+            formatMessage(data) {
+                return `⚖️ <b>НОВАЯ ЗАЯВКА ОТ АВТОЮРИСТА</b>
+
+👤 <b>Имя:</b> ${data.name}
+📞 <b>Телефон:</b> ${data.phone}
+📝 <b>Ситуация:</b> ${data.situation}
+
+🕐 <b>Время:</b> ${data.timestamp}
+🌐 <b>Источник:</b> Telegram Mini App`;
+            }
+        };
 
         // Валидатор форм
         const FormValidator = {
@@ -378,102 +376,67 @@
             }
         };
 
-        // Обработчик отправки формы
-        document.getElementById('lawyerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            Utils.clearErrors();
-            Utils.setLoading(true);
+        // Обработчик форм
+        const FormHandler = {
+            async handleSubmit(event) {
+                event.preventDefault();
+                
+                Utils.clearErrors();
+                Utils.setLoading(true);
 
-            try {
-                const formData = new FormData(this);
-                const orderData = {
-                    name: formData.get('name'),
-                    phone: formData.get('phone'),
-                    situation: formData.get('situation'),
+                try {
+                    const formData = this.collectFormData();
+                    const validationErrors = FormValidator.validate(formData);
+
+                    if (validationErrors.length > 0) {
+                        validationErrors.forEach(error => Utils.showError(error + 'Error'));
+                        return;
+                    }
+
+                    await ApiService.sendLead(formData);
+                    this.showSuccess();
+                    this.resetForm();
+
+                } catch (error) {
+                    console.error('Ошибка отправки заявки:', error);
+                    this.showError(error.message);
+                } finally {
+                    Utils.setLoading(false);
+                }
+            },
+
+            collectFormData() {
+                return {
+                    name: document.getElementById('name').value.trim(),
+                    phone: document.getElementById('phone').value,
+                    situation: document.getElementById('situation').value.trim(),
                     timestamp: new Date().toLocaleString('ru-RU')
                 };
+            },
 
-                const validationErrors = FormValidator.validate(orderData);
-
-                if (validationErrors.length > 0) {
-                    validationErrors.forEach(error => Utils.showError(error + 'Error'));
-                    return;
-                }
-
-                await submitOrderData(orderData);
-
-            } catch (error) {
-                console.error('Ошибка отправки заявки:', error);
-                alert('Ошибка при отправке заявки. Попробуйте еще раз.');
-            } finally {
-                Utils.setLoading(false);
-            }
-        });
-
-        // Отправка данных на сервер
-        async function submitOrderData(orderData) {
-            try {
-                const messageText = `⚖️ <b>НОВАЯ ЗАЯВКА ОТ АВТОЮРИСТА</b>
-
-👤 <b>Имя:</b> ${orderData.name}
-📞 <b>Телефон:</b> ${orderData.phone}
-📝 <b>Ситуация:</b> ${orderData.situation}
-
-🕐 <b>Время:</b> ${orderData.timestamp}`;
-
-                console.log('Отправляем данные:', {
-                    endpoint: CONFIG.apiEndpoint,
-                    botToken: CONFIG.botToken.substring(0, 10) + '...',
-                    chatId: CONFIG.recipientId
-                });
-
-                const response = await fetch(CONFIG.apiEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        bot_token: CONFIG.botToken,
-                        chat_id: CONFIG.recipientId,
-                        text: messageText,
-                        parse_mode: 'HTML'
-                    })
-                });
+            showSuccess() {
+                const successMessage = document.getElementById('successMessage');
+                successMessage.style.display = 'block';
                 
-                console.log('Ответ сервера:', response.status, response.statusText);
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Успешный ответ:', result);
-                    showSuccess();
-                    resetForm();
-                } else {
-                    const errorText = await response.text();
-                    console.error('Ошибка сервера:', response.status, errorText);
-                    alert(`Ошибка при отправке заявки (${response.status}). Попробуйте еще раз.`);
-                }
-            } catch (error) {
-                console.error('Ошибка сети:', error);
-                alert('Ошибка при отправке заявки. Проверьте подключение к интернету.');
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            },
+
+            showError(message) {
+                alert(`Ошибка отправки заявки: ${message}\n\nПопробуйте еще раз или обратитесь в поддержку.`);
+            },
+
+            resetForm() {
+                document.getElementById('lawyerForm').reset();
             }
-        }
-
-        function showSuccess() {
-            const successMessage = document.getElementById('successMessage');
-            successMessage.style.display = 'block';
-            
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-            }, 5000);
-        }
-
-        function resetForm() {
-            document.getElementById('lawyerForm').reset();
-        }
+        };
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
+            // Обработчик отправки формы
+            document.getElementById('lawyerForm').addEventListener('submit', FormHandler.handleSubmit.bind(FormHandler));
+
             // Форматирование телефона
             document.getElementById('phone').addEventListener('input', function(e) {
                 e.target.value = Utils.formatPhone(e.target.value);
