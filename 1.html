@@ -78,9 +78,8 @@
 
   .random-btn {
     position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 20px;
+    right: 20px;
     background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
     color: #fff;
     padding: 15px 25px;
@@ -113,14 +112,14 @@
     line-height: 1.2;
   }
   .random-btn:hover {
-    transform: translateX(-50%) translateY(-2px);
+    transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
   }
 
   /* Вертикальный режим (высота больше ширины) */
   @media (max-height: 900px) and (orientation: portrait) {
     .random-btn {
-      position: absolute !important;
+      position: fixed !important;
       top: 20px !important;
       right: 20px !important;
       left: auto !important;
@@ -173,7 +172,7 @@
     }
     
     .random-btn {
-      position: absolute !important;
+      position: fixed !important;
       top: 20px !important;
       right: 20px !important;
       z-index: 1001;
@@ -196,7 +195,7 @@
     }
     
     .random-btn {
-      position: absolute !important;
+      position: fixed !important;
       top: 15px !important;
       right: 15px !important;
       left: auto !important;
@@ -218,7 +217,7 @@
   /* Дополнительный медиа-запрос для очень маленьких экранов в вертикальном режиме */
   @media (max-height: 600px) and (orientation: portrait) {
     .random-btn {
-      position: absolute !important;
+      position: fixed !important;
       top: 10px !important;
       right: 10px !important;
       left: auto !important;
@@ -325,6 +324,33 @@
   if (imgEl.complete) renderNodes();
   else imgEl.addEventListener('load', renderNodes);
   window.addEventListener('resize', renderNodes);
+
+  // Автоматическая прокрутка к первому билету при загрузке страницы
+  function scrollToFirstTicket() {
+    // Ждем немного, чтобы страница полностью загрузилась
+    setTimeout(() => {
+      // Находим первый билет (элемент с классом .node)
+      const firstTicket = document.querySelector('.node');
+      if (firstTicket) {
+        // Прокручиваем к первому билету с небольшим отступом сверху
+        firstTicket.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start',
+          inline: 'nearest'
+        });
+      }
+    }, 500); // Задержка 500мс для полной загрузки
+  }
+
+  // Запускаем прокрутку при загрузке страницы
+  document.addEventListener('DOMContentLoaded', scrollToFirstTicket);
+  
+  // Также запускаем после рендеринга узлов
+  const originalRenderNodes = window.renderNodes;
+  window.renderNodes = function() {
+    originalRenderNodes();
+    scrollToFirstTicket();
+  };
 </script>
 </body>
 </html>
