@@ -338,38 +338,62 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 headers={'Content-Type': 'application/json'}
             )
             
-            with urllib.request.urlopen(req) as response:
-                result = response.read().decode('utf-8')
-                result_data = json.loads(result)
+            try:
+                with urllib.request.urlopen(req) as response:
+                    result = response.read().decode('utf-8')
+                    result_data = json.loads(result)
+                    
+                    print(f"Ответ от Telegram API: {result_data}")
+                    
+                    if result_data.get('ok'):
+                        member_data = result_data.get('result', {})
+                        status = member_data.get('status', 'left')
+                        
+                        # Пользователь подписан если статус не 'left'
+                        is_subscribed = status != 'left'
+                        
+                        print(f"Статус подписки: {status}, Подписан: {is_subscribed}")
+                        
+                        # Отправляем ответ клиенту
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.end_headers()
+                        self.wfile.write(json.dumps({
+                            'success': True, 
+                            'is_subscribed': is_subscribed,
+                            'status': status
+                        }).encode('utf-8'))
+                    else:
+                        print(f"Ошибка Telegram API: {result_data}")
+                        # Если бот не может проверить подписку, считаем что пользователь не подписан
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.end_headers()
+                        self.wfile.write(json.dumps({
+                            'success': True, 
+                            'is_subscribed': False,
+                            'status': 'unknown',
+                            'error': result_data.get('description', 'Cannot check subscription')
+                        }).encode('utf-8'))
+                        
+            except urllib.error.HTTPError as e:
+                error_text = e.read().decode('utf-8')
+                print(f"HTTP ошибка при проверке подписки: {e.code} - {error_text}")
                 
-                print(f"Ответ от Telegram API: {result_data}")
-                
-                if result_data.get('ok'):
-                    member_data = result_data.get('result', {})
-                    status = member_data.get('status', 'left')
-                    
-                    # Пользователь подписан если статус не 'left'
-                    is_subscribed = status != 'left'
-                    
-                    print(f"Статус подписки: {status}, Подписан: {is_subscribed}")
-                    
-                    # Отправляем ответ клиенту
+                # Если ошибка 400, значит бот не может проверить подписку
+                if e.code == 400:
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     self.wfile.write(json.dumps({
                         'success': True, 
-                        'is_subscribed': is_subscribed,
-                        'status': status
+                        'is_subscribed': False,
+                        'status': 'unknown',
+                        'error': 'Bot cannot check subscription - not admin of channel'
                     }).encode('utf-8'))
                 else:
-                    print(f"Ошибка Telegram API: {result_data}")
-                    self.send_error(500, f"Telegram API error: {result_data.get('description', 'Unknown error')}")
+                    self.send_error(500, f"HTTP error: {e.code}")
                 
-        except urllib.error.HTTPError as e:
-            error_text = e.read().decode('utf-8')
-            print(f"HTTP ошибка при проверке подписки: {e.code} - {error_text}")
-            self.send_error(500, f"HTTP error: {e.code}")
         except Exception as e:
             print(f"Ошибка при проверке подписки: {e}")
             self.send_error(500, str(e))
