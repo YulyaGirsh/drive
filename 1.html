@@ -180,7 +180,7 @@
   /* Мобильные стили для плашки */
   @media (max-width: 480px) {
     .page {
-      padding-bottom: 50px;     /* минимальный отступ для мобильных */
+      padding-bottom: 20px;     /* минимальный отступ для мобильных */
     }
 
     .info-panel {
@@ -335,6 +335,13 @@
       justify-content: center !important;
       margin: 0 !important;
       box-sizing: border-box !important;
+    }
+  }
+
+  /* Дополнительный медиа-запрос для мобильных устройств с маленькой высотой */
+  @media (max-width: 480px) and (max-height: 800px) {
+    .page {
+      padding-bottom: 10px;     /* еще меньший отступ для маленьких экранов */
     }
   }
 </style>
