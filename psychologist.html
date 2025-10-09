@@ -386,6 +386,12 @@
 
 🕐 <b>Время:</b> ${orderData.timestamp}`;
 
+                console.log('Отправляем данные:', {
+                    endpoint: CONFIG.apiEndpoint,
+                    botToken: CONFIG.botToken.substring(0, 10) + '...',
+                    chatId: CONFIG.recipientId
+                });
+
                 const response = await fetch(CONFIG.apiEndpoint, {
                     method: 'POST',
                     headers: {
@@ -399,16 +405,20 @@
                     })
                 });
                 
+                console.log('Ответ сервера:', response.status, response.statusText);
+                
                 if (response.ok) {
-                    console.log('Order submitted successfully');
+                    const result = await response.json();
+                    console.log('Успешный ответ:', result);
                     showSuccess();
                     resetForm();
                 } else {
-                    console.error('Failed to submit order:', response.status);
-                    alert('Ошибка при отправке заявки. Попробуйте еще раз.');
+                    const errorText = await response.text();
+                    console.error('Ошибка сервера:', response.status, errorText);
+                    alert(`Ошибка при отправке заявки (${response.status}). Попробуйте еще раз.`);
                 }
             } catch (error) {
-                console.error('Error submitting order:', error);
+                console.error('Ошибка сети:', error);
                 alert('Ошибка при отправке заявки. Проверьте подключение к интернету.');
             }
         }

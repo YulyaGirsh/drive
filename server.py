@@ -79,6 +79,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             parse_mode = data.get('parse_mode', 'HTML')
             
             if not all([bot_token, chat_id, text]):
+                print("Ошибка: отсутствуют обязательные параметры")
                 self.send_error(400, "Missing required parameters")
                 return
             
@@ -89,6 +90,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 'text': text,
                 'parse_mode': parse_mode
             }
+            
+            print(f"Отправляем запрос в Telegram: {telegram_url}")
             
             # Отправляем запрос
             req = urllib.request.Request(
@@ -103,12 +106,21 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 
                 print(f"Ответ от Telegram: {result_data}")
                 
-                # Отправляем ответ клиенту
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(result.encode('utf-8'))
+                if result_data.get('ok'):
+                    print("✅ Сообщение успешно отправлено в Telegram")
+                    # Отправляем успешный ответ клиенту
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'success': True, 'message': 'Message sent successfully'}).encode('utf-8'))
+                else:
+                    print(f"❌ Ошибка Telegram API: {result_data}")
+                    self.send_error(500, f"Telegram API error: {result_data.get('description', 'Unknown error')}")
                 
+        except urllib.error.HTTPError as e:
+            error_text = e.read().decode('utf-8')
+            print(f"HTTP ошибка при отправке в Telegram: {e.code} - {error_text}")
+            self.send_error(500, f"HTTP error: {e.code}")
         except Exception as e:
             print(f"Ошибка при отправке в Telegram: {e}")
             self.send_error(500, str(e))
