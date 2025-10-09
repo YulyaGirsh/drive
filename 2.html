@@ -194,6 +194,30 @@
             line-height: 1.4;
         }
 
+        .theme-label {
+            position: fixed;
+            background: white;
+            border: 2px solid #ff8c00;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        .theme-label:hover {
+            background: #ff8c00;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.3);
+        }
+
         /* Мобильные стили */
         @media (max-width: 768px) {
             body {
@@ -277,6 +301,12 @@
                 width: 45px;
                 height: 45px;
                 font-size: 18px;
+            }
+
+            .theme-label {
+                font-size: 14px;
+                padding: 8px 12px;
+                max-width: 250px;
             }
         }
 
@@ -423,12 +453,52 @@
         function openRandomTheme() {
             const randomTheme = Math.floor(Math.random() * 40) + 1;
             const theme = themes[randomTheme - 1];
-            showThemeInfo(theme);
+            // Создаем фиктивное событие для позиционирования
+            const fakeEvent = {
+                target: {
+                    getBoundingClientRect: () => ({
+                        right: window.innerWidth / 2,
+                        top: window.innerHeight / 2,
+                        height: 60
+                    })
+                }
+            };
+            showThemeInfo(theme, fakeEvent);
         }
 
         // Функция для показа информации о теме
-        function showThemeInfo(theme) {
-            alert(`${theme.emoji} ${theme.name}\n\n${theme.description}\n\nКод: ${theme.code}`);
+        function showThemeInfo(theme, event) {
+            // Удаляем предыдущую метку, если есть
+            const existingLabel = document.querySelector('.theme-label');
+            if (existingLabel) {
+                existingLabel.remove();
+            }
+
+            // Создаем новую метку
+            const label = document.createElement('div');
+            label.className = 'theme-label';
+            label.textContent = `${theme.emoji} ${theme.name}`;
+            
+            // Позиционируем метку справа от смайлика
+            const clickedNode = event.target;
+            const rect = clickedNode.getBoundingClientRect();
+            label.style.left = (rect.right + 20) + 'px';
+            label.style.top = (rect.top + rect.height / 2 - 25) + 'px';
+            
+            // Добавляем обработчик клика для закрытия
+            label.addEventListener('click', () => {
+                label.remove();
+            });
+            
+            // Добавляем метку на страницу
+            document.body.appendChild(label);
+            
+            // Автоматически убираем метку через 5 секунд
+            setTimeout(() => {
+                if (label.parentNode) {
+                    label.remove();
+                }
+            }, 5000);
         }
 
         function renderNodes() {
@@ -453,7 +523,7 @@
                 a.title = theme.name; // Показываем название при наведении
                 a.addEventListener('click', (e) => {
                     e.preventDefault();
-                    showThemeInfo(theme);
+                    showThemeInfo(theme, e);
                 });
                 roadEl.appendChild(a);
             }
