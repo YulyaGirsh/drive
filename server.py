@@ -57,6 +57,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.handle_lawyer_order()
             elif self.path == '/api/psychologist-order':
                 self.handle_psychologist_order()
+            elif self.path == '/api/check-subscription':
+                self.check_subscription()
             else:
                 self.send_error(404, "API endpoint not found")
         except Exception as e:
@@ -299,6 +301,78 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 
         except Exception as e:
             print(f'❌ Ошибка при отправке уведомления: {e}')
+
+    def check_subscription(self):
+        """Проверяет подписку пользователя на канал"""
+        try:
+            # Читаем данные запроса
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            print(f"Проверяем подписку для пользователя: {data}")
+            
+            user_id = data.get('user_id')
+            channel_username = data.get('channel_username', 'avtoshkolavtelefone')
+            
+            if not user_id:
+                self.send_error(400, "Missing user_id")
+                return
+            
+            # Конфигурация бота
+            bot_token = "8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0"
+            
+            # Проверяем подписку через Telegram API
+            telegram_url = f"https://api.telegram.org/bot{bot_token}/getChatMember"
+            telegram_data = {
+                'chat_id': f'@{channel_username}',
+                'user_id': user_id
+            }
+            
+            print(f"Отправляем запрос проверки подписки: {telegram_url}")
+            
+            # Отправляем запрос
+            req = urllib.request.Request(
+                telegram_url,
+                data=json.dumps(telegram_data).encode('utf-8'),
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            with urllib.request.urlopen(req) as response:
+                result = response.read().decode('utf-8')
+                result_data = json.loads(result)
+                
+                print(f"Ответ от Telegram API: {result_data}")
+                
+                if result_data.get('ok'):
+                    member_data = result_data.get('result', {})
+                    status = member_data.get('status', 'left')
+                    
+                    # Пользователь подписан если статус не 'left'
+                    is_subscribed = status != 'left'
+                    
+                    print(f"Статус подписки: {status}, Подписан: {is_subscribed}")
+                    
+                    # Отправляем ответ клиенту
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        'success': True, 
+                        'is_subscribed': is_subscribed,
+                        'status': status
+                    }).encode('utf-8'))
+                else:
+                    print(f"Ошибка Telegram API: {result_data}")
+                    self.send_error(500, f"Telegram API error: {result_data.get('description', 'Unknown error')}")
+                
+        except urllib.error.HTTPError as e:
+            error_text = e.read().decode('utf-8')
+            print(f"HTTP ошибка при проверке подписки: {e.code} - {error_text}")
+            self.send_error(500, f"HTTP error: {e.code}")
+        except Exception as e:
+            print(f"Ошибка при проверке подписки: {e}")
+            self.send_error(500, str(e))
 
     def send_questions(self):
         """Отправляет все вопросы из data.json"""

@@ -251,29 +251,33 @@
             }
             
             try {
-                // Используем Telegram WebApp API для проверки подписки
-                const result = await tg.requestWriteAccess();
-                console.log('Результат проверки доступа:', result);
+                console.log('Проверяем подписку для пользователя:', userData.id);
                 
-                // Проверяем подписку через Telegram API
-                const response = await fetch(`https://api.telegram.org/bot${tg.initDataUnsafe.user?.id}/getChatMember`, {
+                // Отправляем запрос на сервер для проверки подписки
+                const response = await fetch('/api/check-subscription', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        chat_id: `@${CHANNEL_USERNAME}`,
-                        user_id: userData.id
+                        user_id: userData.id,
+                        channel_username: CHANNEL_USERNAME
                     })
                 });
                 
                 if (response.ok) {
-                    const data = await response.json();
-                    isSubscribed = data.result && data.result.status !== 'left';
+                    const result = await response.json();
+                    console.log('Результат проверки подписки:', result);
+                    
+                    isSubscribed = result.is_subscribed;
                     console.log('Статус подписки:', isSubscribed);
+                    
+                    return isSubscribed;
+                } else {
+                    console.error('Ошибка проверки подписки:', response.status);
+                    return false;
                 }
                 
-                return isSubscribed;
             } catch (error) {
                 console.error('Ошибка проверки подписки:', error);
                 return false;
