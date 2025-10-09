@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyDrive - Курс по парковке</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            margin-top: 40px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        .videos-container {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .video-button {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.2);
+            min-height: 60px;
+        }
+
+        .video-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
+        }
+
+        .video-button:active {
+            transform: translateY(0);
+        }
+
+        .video-title {
+            flex: 1;
+            line-height: 1.3;
+            font-size: 13px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+                margin-top: 35px;
+            }
+            
+            .back-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            
+            .video-button {
+                padding: 14px 16px;
+                font-size: 12px;
+                min-height: 55px;
+            }
+            
+            .video-title {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Назад к разделам</a>
+            
+            <h1>🚗 Курс по парковке</h1>
+        </div>
+        
+        <div class="videos-container">
+            <button class="video-button" onclick="openVideo(0)">
+                <div class="video-title">Вводный урок</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(1)">
+                <div class="video-title">Урок 1. Основы парковки</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(2)">
+                <div class="video-title">Урок 2. Параллельная парковка</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(3)">
+                <div class="video-title">Урок 3. Перпендикулярная парковка</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(4)">
+                <div class="video-title">Урок 4. Диагональная парковка</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(5)">
+                <div class="video-title">Урок 5. Парковка задним ходом</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(6)">
+                <div class="video-title">Урок 6. Сложные ситуации</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(7)">
+                <div class="video-title">Заключение</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(8)">
+                <div class="video-title">Бонус 1. Дополнительные техники</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(9)">
+                <div class="video-title">Бонус 2. Продвинутые методы</div>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Массив с данными о видеоуроках по парковке
+        const videos = [
+            {
+                title: "Вводный урок",
+                description: "Знакомство с курсом по парковке. Основные принципы и техники.",
+                duration: "12:30",
+                videoId: "2f4f5a601b39b7414ef52a565701b644",
+                embedUrl: "https://rutube.ru/play/embed/2f4f5a601b39b7414ef52a565701b644/?p=IBIbcPACQXF_fxj9V1D68A",
+                rutubeId: "2f4f5a601b39b7414ef52a565701b644",
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Урок 1. Основы парковки",
+                description: "Изучаем базовые принципы парковки и подготовку к маневру.",
+                duration: "18:45",
+                videoId: "23558ebdf428f27f544b1836e48cc4ad",
+                embedUrl: "https://rutube.ru/play/embed/23558ebdf428f27f544b1836e48cc4ad/?p=mKBavPixKV7mX7BqZOIzhg",
+                rutubeId: "23558ebdf428f27f544b1836e48cc4ad",
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Урок 2. Параллельная парковка",
+                description: "Осваиваем технику параллельной парковки между автомобилями.",
+                duration: "22:15",
+                videoId: "f473513aaaa1152e36f89334ac9eb0e2",
+                embedUrl: "https://rutube.ru/play/embed/f473513aaaa1152e36f89334ac9eb0e2/?p=6WKFn7KDBvy0T24Gjd8PXw",
+                rutubeId: "f473513aaaa1152e36f89334ac9eb0e2",
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Урок 3. Перпендикулярная парковка",
+                description: "Изучаем парковку под углом 90 градусов к бордюру.",
+                duration: "19:30",
+                videoId: "d4a54ef82b06ead19c73e7d93483b2d2",
+                embedUrl: "https://rutube.ru/play/embed/d4a54ef82b06ead19c73e7d93483b2d2/?p=UUQQzJMA8S4-bBTfnUYejw",
+                rutubeId: "d4a54ef82b06ead19c73e7d93483b2d2",
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Урок 4. Диагональная парковка",
+                description: "Осваиваем парковку под углом 45 градусов.",
+                duration: "16:20",
+                videoId: "66ca30c44e17a2573aa32a8ed326381b",
+                embedUrl: "https://rutube.ru/play/embed/66ca30c44e17a2573aa32a8ed326381b/?p=pOKrXWpWU_Z-F_9TZU-1YA",
+                rutubeId: "66ca30c44e17a2573aa32a8ed326381b",
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Урок 5. Парковка задним ходом",
+                description: "Изучаем технику парковки задним ходом в различных ситуациях.",
+                duration: "24:10",
+                videoId: "155e4e369f1aab32b63676eaec205947",
+                embedUrl: "https://rutube.ru/play/embed/155e4e369f1aab32b63676eaec205947/?p=0jnyG5Q_OyrrCTyOFm_rhg",
+                rutubeId: "155e4e369f1aab32b63676eaec205947",
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Урок 6. Сложные ситуации",
+                description: "Разбираем парковку в сложных условиях и узких местах.",
+                duration: "21:45",
+                videoId: "b1888e7e9711955a377a7dea78b1140f",
+                embedUrl: "https://rutube.ru/play/embed/b1888e7e9711955a377a7dea78b1140f/?p=eOIoc0d-gegneV89eFv4mA",
+                rutubeId: "b1888e7e9711955a377a7dea78b1140f",
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Заключение",
+                description: "Подводим итоги курса и закрепляем полученные знания.",
+                duration: "15:30",
+                videoId: "f174f3bdf89d73104f54be8a568cadd3",
+                embedUrl: "https://rutube.ru/play/embed/f174f3bdf89d73104f54be8a568cadd3/?p=pGnM2BQTBhhsXQDuI92UUw",
+                rutubeId: "f174f3bdf89d73104f54be8a568cadd3",
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Бонус 1. Дополнительные техники",
+                description: "Дополнительные техники и секреты успешной парковки.",
+                duration: "17:25",
+                videoId: "93330d56c01fa51c336698fefc770bb9",
+                embedUrl: "https://rutube.ru/play/embed/93330d56c01fa51c336698fefc770bb9/?p=ePDHI8QlK--n0r0RKVl3vg",
+                rutubeId: "93330d56c01fa51c336698fefc770bb9",
+                host: "rutube",
+                isPrivate: true
+            },
+            {
+                title: "Бонус 2. Продвинутые методы",
+                description: "Продвинутые методы парковки для опытных водителей.",
+                duration: "20:15",
+                videoId: "ff39d9de0ad3b43ab6b6e8ca8519aee0",
+                embedUrl: "https://rutube.ru/play/embed/ff39d9de0ad3b43ab6b6e8ca8519aee0/?p=lifZNgO0-eLjZWJ71_n3rA",
+                rutubeId: "ff39d9de0ad3b43ab6b6e8ca8519aee0",
+                host: "rutube",
+                isPrivate: true
+            }
+        ];
+
+        function openVideo(videoNumber) {
+            console.log('Открываем видео номер:', videoNumber);
+            
+            // Простая проверка
+            if (!videoNumber || videoNumber < 0 || videoNumber >= videos.length) {
+                alert('Неверный номер видео!');
+                return;
+            }
+            
+            const video = videos[videoNumber];
+            
+            if (!video) {
+                console.error('Видео не найдено для номера:', videoNumber);
+                alert('Видео не найдено!');
+                return;
+            }
+            
+            console.log('Видео найдено:', video.title);
+            
+            // Используем RuTube embed URL
+            const embedUrl = video.embedUrl;
+            console.log('Используем RuTube:', embedUrl);
+            
+            // Создаем простое модальное окно
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                max-width: 800px;
+                width: 100%;
+                text-align: center;
+                position: relative;
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const title = document.createElement('h2');
+            title.textContent = video.title;
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const description = document.createElement('p');
+            description.textContent = video.description;
+            description.style.cssText = 'color: #666; margin-bottom: 15px; font-size: 14px;';
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = embedUrl;
+            iframe.width = '100%';
+            iframe.height = '400';
+            iframe.frameBorder = '0';
+            iframe.allowFullscreen = true;
+            iframe.style.cssText = 'border-radius: 8px; margin-bottom: 15px;';
+            
+            content.appendChild(closeBtn);
+            content.appendChild(title);
+            content.appendChild(description);
+            content.appendChild(iframe);
+            modal.appendChild(content);
+            
+            // Добавляем модальное окно в DOM
+            console.log('Добавляем модальное окно в DOM...');
+            document.body.appendChild(modal);
+            console.log('Модальное окно добавлено в DOM');
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Закрытие по Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
