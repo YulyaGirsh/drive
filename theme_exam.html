@@ -383,7 +383,12 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-right: 15px;
+            margin-bottom: 20px;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .restart-btn:hover {
@@ -401,6 +406,11 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .back-to-themes-btn:hover {
@@ -495,10 +505,8 @@
                 <h2>Тест завершен!</h2>
                 <div class="score" id="finalScore">0/20</div>
                 <div class="score-text" id="scoreText">Результат</div>
-                <div>
-                    <button class="restart-btn" onclick="restartTest()">Пройти заново</button>
-                    <button class="back-to-themes-btn" onclick="backToThemes()">К темам</button>
-                </div>
+                <button class="restart-btn" onclick="restartTest()">Пройти заново</button>
+                <button class="back-to-themes-btn" onclick="backToThemes()">К темам</button>
             </div>
         </div>
     </div>
