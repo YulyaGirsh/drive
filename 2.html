@@ -522,19 +522,11 @@
 
         // Функция для открытия случайной темы
         function openRandomTheme() {
-            const randomTheme = Math.floor(Math.random() * 40) + 1;
-            const theme = themes[randomTheme - 1];
-            // Создаем фиктивное событие для позиционирования
-            const fakeEvent = {
-                target: {
-                    getBoundingClientRect: () => ({
-                        right: window.innerWidth / 2,
-                        top: window.innerHeight / 2,
-                        height: 60
-                    })
-                }
-            };
-            showThemeInfo(theme, fakeEvent);
+            const randomThemeIndex = Math.floor(Math.random() * themes.length);
+            const theme = themes[randomThemeIndex];
+            
+            // Переходим к тесту по случайной теме
+            window.location.href = `theme_exam.html?theme=${theme.code}&name=${encodeURIComponent(theme.name)}`;
         }
 
         // Функция для показа информации о теме
