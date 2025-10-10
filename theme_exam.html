@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест по теме - EasyDrive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Убираем все возможные зазоры */
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        html, body {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: white;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            left: 0;
+            top: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .header-info h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header-info p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .progress-bar {
+            background: #f0f0f0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-info {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .question {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid #ff8c00;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .question-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            background: white;
+            border: 2px solid #ff8c00;
+            color: #000;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+        }
+
+        .answer-btn:hover {
+            background: #ff8c00;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+        }
+
+        .answer-btn.selected {
+            background: #ff8c00;
+            color: white;
+        }
+
+        .answer-btn.correct {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .answer-btn.incorrect {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .answer-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .explanation {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        .explanation h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .explanation p {
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+        }
+
+        .next-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h2 {
+            color: #ff8c00;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .score {
+            font-size: 48px;
+            font-weight: 700;
+            color: #ff8c00;
+            margin-bottom: 20px;
+        }
+
+        .score-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+        }
+
+        .back-to-themes-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-themes-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        /* Мобильные стили */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px;
+            }
+
+            .header-info h1 {
+                font-size: 18px;
+            }
+
+            .header-info p {
+                font-size: 12px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .question {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .answer-btn {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .next-btn {
+                padding: 12px 25px;
+                font-size: 14px;
+            }
+
+            .results h2 {
+                font-size: 24px;
+            }
+
+            .score {
+                font-size: 36px;
+            }
+
+            .score-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <div class="header-info">
+                <h1 id="themeTitle">Тест по теме</h1>
+                <p id="themeDescription">Прохождение теста</p>
+            </div>
+            <div style="width: 40px;"></div> <!-- Пустой элемент для центрирования -->
+        </div>
+
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="question-info" id="questionInfo">
+                Вопрос 1 из 20
+            </div>
+
+            <div class="question" id="questionContainer">
+                <div class="question-text" id="questionText">
+                    Загрузка вопроса...
+                </div>
+                <div class="question-image-container" id="questionImageContainer"></div>
+                <div class="answers" id="answersContainer"></div>
+                <div class="explanation" id="explanationContainer"></div>
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>
+                    Следующий вопрос
+                </button>
+            </div>
+
+            <div class="results" id="resultsContainer">
+                <h2>Тест завершен!</h2>
+                <div class="score" id="finalScore">0/20</div>
+                <div class="score-text" id="scoreText">Результат</div>
+                <div>
+                    <button class="restart-btn" onclick="restartTest()">Пройти заново</button>
+                    <button class="back-to-themes-btn" onclick="backToThemes()">К темам</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTheme = null;
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let correctAnswers = 0;
+
+        // Получаем параметры из URL
+        function getUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                themeCode: urlParams.get('theme'),
+                themeName: urlParams.get('name')
+            };
+        }
+
+        // Загружаем данные о темах и вопросах
+        async function loadThemeData() {
+            try {
+                const response = await fetch('questions_categorized_40_final.json');
+                const data = await response.json();
+                
+                const params = getUrlParams();
+                currentTheme = data.categories.find(cat => cat.code === params.themeCode);
+                
+                if (!currentTheme) {
+                    console.error('Тема не найдена:', params.themeCode);
+                    return;
+                }
+
+                // Фильтруем вопросы по теме
+                questions = data.questions.filter(q => q.category_code === params.themeCode);
+                
+                if (questions.length === 0) {
+                    console.error('Вопросы для темы не найдены:', params.themeCode);
+                    return;
+                }
+
+                // Обновляем заголовок
+                document.getElementById('themeTitle').textContent = currentTheme.name;
+                document.getElementById('themeDescription').textContent = `Вопросов: ${questions.length}`;
+
+                // Запускаем тест
+                startTest();
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+            }
+        }
+
+        // Начинаем тест
+        function startTest() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            correctAnswers = 0;
+            showQuestion();
+        }
+
+        // Показываем текущий вопрос
+        function showQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+
+            // Обновляем прогресс
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('questionInfo').textContent = 
+                `Вопрос ${currentQuestionIndex + 1} из ${questions.length}`;
+
+            // Показываем текст вопроса
+            document.getElementById('questionText').textContent = question.question_text;
+
+            // Показываем изображение, если есть
+            const imageContainer = document.getElementById('questionImageContainer');
+            if (question.image_url) {
+                imageContainer.innerHTML = `<img src="${question.image_url}" alt="Изображение к вопросу" class="question-image">`;
+            } else {
+                imageContainer.innerHTML = '';
+            }
+
+            // Показываем варианты ответов
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+
+            question.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = answer;
+                button.onclick = () => selectAnswer(index);
+                answersContainer.appendChild(button);
+            });
+
+            // Скрываем объяснение и кнопку "Следующий"
+            document.getElementById('explanationContainer').classList.remove('show');
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        // Выбираем ответ
+        function selectAnswer(answerIndex) {
+            const buttons = document.querySelectorAll('.answer-btn');
+            const question = questions[currentQuestionIndex];
+            
+            // Отключаем все кнопки
+            buttons.forEach(btn => btn.classList.add('disabled'));
+            
+            // Выделяем выбранный ответ
+            buttons[answerIndex].classList.add('selected');
+            
+            // Сохраняем ответ пользователя
+            userAnswers[currentQuestionIndex] = answerIndex;
+            
+            // Проверяем правильность
+            const isCorrect = answerIndex === question.correct_answer;
+            if (isCorrect) {
+                buttons[answerIndex].classList.add('correct');
+                correctAnswers++;
+            } else {
+                buttons[answerIndex].classList.add('incorrect');
+                // Выделяем правильный ответ
+                buttons[question.correct_answer].classList.add('correct');
+            }
+
+            // Показываем объяснение, если есть
+            if (question.explanation) {
+                const explanationContainer = document.getElementById('explanationContainer');
+                explanationContainer.innerHTML = `
+                    <h4>Объяснение:</h4>
+                    <p>${question.explanation}</p>
+                `;
+                explanationContainer.classList.add('show');
+            }
+
+            // Включаем кнопку "Следующий"
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        // Переходим к следующему вопросу
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        // Показываем результаты
+        function showResults() {
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').classList.add('show');
+            
+            const percentage = Math.round((correctAnswers / questions.length) * 100);
+            document.getElementById('finalScore').textContent = `${correctAnswers}/${questions.length}`;
+            
+            let scoreText = '';
+            if (percentage >= 90) {
+                scoreText = 'Отлично! Вы отлично знаете эту тему!';
+            } else if (percentage >= 70) {
+                scoreText = 'Хорошо! Есть что повторить.';
+            } else if (percentage >= 50) {
+                scoreText = 'Удовлетворительно. Рекомендуем повторить тему.';
+            } else {
+                scoreText = 'Неудовлетворительно. Обязательно изучите тему заново.';
+            }
+            
+            document.getElementById('scoreText').textContent = scoreText;
+        }
+
+        // Перезапускаем тест
+        function restartTest() {
+            document.getElementById('resultsContainer').classList.remove('show');
+            document.getElementById('questionContainer').style.display = 'block';
+            startTest();
+        }
+
+        // Возвращаемся к темам
+        function backToThemes() {
+            window.location.href = '2.html';
+        }
+
+        // Возвращаемся назад
+        function goBack() {
+            window.history.back();
+        }
+
+        // Запускаем приложение
+        document.addEventListener('DOMContentLoaded', loadThemeData);
+    </script>
+</body>
+</html>

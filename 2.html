@@ -509,9 +509,10 @@
             
             label.style.top = (rect.top + rect.height / 2 - 25) + 'px';
             
-            // Добавляем обработчик клика для закрытия
+            // Добавляем обработчик клика для закрытия или перехода к тесту
             label.addEventListener('click', () => {
-                label.remove();
+                // Переходим к тесту по теме
+                window.location.href = `theme_exam.html?theme=${theme.code}&name=${encodeURIComponent(theme.name)}`;
             });
             
             // Добавляем метку на страницу
