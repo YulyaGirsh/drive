@@ -209,7 +209,7 @@
             transition: all 0.3s ease;
             max-width: 300px;
             word-wrap: break-word;
-            white-space: nowrap;
+            white-space: normal;
         }
 
         .theme-label:hover {
@@ -479,15 +479,25 @@
             label.className = 'theme-label';
             label.textContent = `${theme.emoji} ${theme.name}`;
             
-            // Определяем позицию метки в зависимости от номера темы
+            // Определяем позицию метки в зависимости от названия темы
             const clickedNode = event.target;
             const rect = clickedNode.getBoundingClientRect();
-            const themeNumber = theme.code;
             
-            // Позиции 1,5,9,13,17,21,25,29,33,37 - отображаем слева
-            const leftPositions = [1, 5, 9, 13, 17, 21, 25, 29, 33, 37];
+            // Категории, которые должны отображаться слева
+            const leftCategories = [
+                "Предупреждающие знаки",
+                "Знаки особых предписаний", 
+                "Горизонтальная разметка",
+                "Разворот",
+                "Скорость движения",
+                "Аварийная сигнализация",
+                "Нерегулируемые неравнозначные перекрестки",
+                "Медицина",
+                "Движение в жилых зонах",
+                "Движение через ж/д пути"
+            ];
             
-            if (leftPositions.includes(themeNumber)) {
+            if (leftCategories.includes(theme.name)) {
                 // Позиционируем метку слева от смайлика
                 label.style.left = (rect.left - 20) + 'px';
                 label.style.transform = 'translateX(-100%)';
