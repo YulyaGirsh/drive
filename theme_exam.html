@@ -246,6 +246,104 @@
             box-shadow: none;
         }
 
+        .hint-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hint-btn:hover {
+            background: #138496;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+        }
+
+        .hint-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .hint-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .hint-modal.show {
+            display: flex;
+        }
+
+        .hint-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .hint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .hint-title {
+            color: #17a2b8;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .hint-close {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .hint-close:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .hint-text {
+            color: #333;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
         .results {
             text-align: center;
             padding: 40px 20px;
@@ -405,6 +503,17 @@
         </div>
     </div>
 
+    <!-- Модальное окно подсказки -->
+    <div class="hint-modal" id="hintModal">
+        <div class="hint-content">
+            <div class="hint-header">
+                <h3 class="hint-title">💡 Подсказка</h3>
+                <button class="hint-close" onclick="closeHint()">×</button>
+            </div>
+            <div class="hint-text" id="hintText"></div>
+        </div>
+    </div>
+
     <script>
         let currentTheme = null;
         let questions = [];
@@ -488,10 +597,18 @@
                 imageContainer.innerHTML = '';
             }
 
-            // Показываем варианты ответов
+            // Добавляем кнопку подсказки перед вариантами ответов
             const answersContainer = document.getElementById('answersContainer');
             answersContainer.innerHTML = '';
 
+            // Создаем кнопку подсказки
+            const hintButton = document.createElement('button');
+            hintButton.className = 'hint-btn';
+            hintButton.innerHTML = '💡 Подсказка';
+            hintButton.onclick = () => showHint(question.hint_text);
+            answersContainer.appendChild(hintButton);
+
+            // Показываем варианты ответов
             question.answers.forEach((answer, index) => {
                 const button = document.createElement('button');
                 button.className = 'answer-btn';
@@ -511,7 +628,7 @@
             const buttons = document.querySelectorAll('.answer-btn');
             const question = questions[currentQuestionIndex];
             
-            // Отключаем все кнопки
+            // Отключаем все кнопки ответов
             buttons.forEach(btn => btn.classList.add('disabled'));
             
             // Выделяем выбранный ответ
@@ -520,15 +637,17 @@
             // Сохраняем ответ пользователя
             userAnswers[currentQuestionIndex] = answerIndex;
             
-            // Проверяем правильность
-            const isCorrect = answerIndex === question.correct_answer;
+            // Проверяем правильность (сравниваем с индексом правильного ответа)
+            const correctAnswerIndex = question.answers.findIndex(answer => answer === question.correct_answer);
+            const isCorrect = answerIndex === correctAnswerIndex;
+            
             if (isCorrect) {
                 buttons[answerIndex].classList.add('correct');
                 correctAnswers++;
             } else {
                 buttons[answerIndex].classList.add('incorrect');
                 // Выделяем правильный ответ
-                buttons[question.correct_answer].classList.add('correct');
+                buttons[correctAnswerIndex].classList.add('correct');
             }
 
             // Показываем объяснение, если есть
@@ -585,10 +704,34 @@
             window.location.href = '2.html';
         }
 
+        // Показываем подсказку
+        function showHint(hintText) {
+            if (!hintText) {
+                alert('Подсказка для этого вопроса недоступна');
+                return;
+            }
+            
+            document.getElementById('hintText').textContent = hintText;
+            document.getElementById('hintModal').classList.add('show');
+        }
+
+        // Закрываем подсказку
+        function closeHint() {
+            document.getElementById('hintModal').classList.remove('show');
+        }
+
         // Возвращаемся назад
         function goBack() {
             window.history.back();
         }
+
+        // Закрываем подсказку при клике вне модального окна
+        document.addEventListener('click', function(event) {
+            const hintModal = document.getElementById('hintModal');
+            if (event.target === hintModal) {
+                closeHint();
+            }
+        });
 
         // Запускаем приложение
         document.addEventListener('DOMContentLoaded', loadThemeData);
