@@ -209,12 +209,12 @@
             transition: all 0.3s ease;
             max-width: 300px;
             word-wrap: break-word;
+            white-space: nowrap;
         }
 
         .theme-label:hover {
             background: #ff8c00;
             color: white;
-            transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 140, 0, 0.3);
         }
 
@@ -479,10 +479,24 @@
             label.className = 'theme-label';
             label.textContent = `${theme.emoji} ${theme.name}`;
             
-            // Позиционируем метку справа от смайлика
+            // Определяем позицию метки в зависимости от номера темы
             const clickedNode = event.target;
             const rect = clickedNode.getBoundingClientRect();
-            label.style.left = (rect.right + 20) + 'px';
+            const themeNumber = theme.code;
+            
+            // Позиции 1,5,9,13,17,21,25,29,33,37 - отображаем слева
+            const leftPositions = [1, 5, 9, 13, 17, 21, 25, 29, 33, 37];
+            
+            if (leftPositions.includes(themeNumber)) {
+                // Позиционируем метку слева от смайлика
+                label.style.left = (rect.left - 20) + 'px';
+                label.style.transform = 'translateX(-100%)';
+            } else {
+                // Позиционируем метку справа от смайлика
+                label.style.left = (rect.right + 20) + 'px';
+                label.style.transform = 'none';
+            }
+            
             label.style.top = (rect.top + rect.height / 2 - 25) + 'px';
             
             // Добавляем обработчик клика для закрытия
