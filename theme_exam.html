@@ -247,29 +247,29 @@
         }
 
         .hint-btn {
-            background: #17a2b8;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             color: white;
             border: none;
             padding: 10px 20px;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            margin: 15px 0;
             transition: all 0.3s ease;
-            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
         .hint-btn:hover {
-            background: #138496;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
         }
 
         .hint-btn:disabled {
-            background: #6c757d;
+            background: #ccc;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
@@ -605,7 +605,7 @@
                 imageContainer.innerHTML = '';
             }
 
-            // Добавляем кнопку подсказки перед вариантами ответов
+            // Очищаем контейнер ответов
             const answersContainer = document.getElementById('answersContainer');
             answersContainer.innerHTML = '';
 
@@ -622,6 +622,9 @@
                 button.className = 'answer-btn';
                 button.textContent = answer;
                 button.onclick = () => selectAnswer(index);
+                // Сбрасываем стили кнопок
+                button.style.pointerEvents = 'auto';
+                button.classList.remove('disabled', 'selected', 'correct', 'incorrect');
                 answersContainer.appendChild(button);
             });
 
@@ -636,8 +639,11 @@
             const buttons = document.querySelectorAll('.answer-btn');
             const question = questions[currentQuestionIndex];
             
-            // Отключаем все кнопки ответов
-            buttons.forEach(btn => btn.classList.add('disabled'));
+            // Блокируем все кнопки ответов
+            buttons.forEach(btn => {
+                btn.style.pointerEvents = 'none';
+                btn.classList.add('disabled');
+            });
             
             // Выделяем выбранный ответ
             buttons[answerIndex].classList.add('selected');
@@ -649,24 +655,18 @@
             const correctAnswerIndex = question.answers.findIndex(answer => answer === question.correct_answer);
             const isCorrect = answerIndex === correctAnswerIndex;
             
+            // Выделяем правильный ответ зеленым
+            buttons[correctAnswerIndex].classList.add('correct');
+            
             if (isCorrect) {
-                buttons[answerIndex].classList.add('correct');
                 correctAnswers++;
             } else {
+                // Выделяем неправильный ответ красным
                 buttons[answerIndex].classList.add('incorrect');
-                // Выделяем правильный ответ
-                buttons[correctAnswerIndex].classList.add('correct');
             }
 
-            // Показываем объяснение, если есть
-            if (question.explanation) {
-                const explanationContainer = document.getElementById('explanationContainer');
-                explanationContainer.innerHTML = `
-                    <h4>Объяснение:</h4>
-                    <p>${question.explanation}</p>
-                `;
-                explanationContainer.classList.add('show');
-            }
+            // Показываем подсказку автоматически
+            showAnswerHint(isCorrect, question);
 
             // Включаем кнопку "Следующий"
             document.getElementById('nextBtn').disabled = false;
@@ -710,6 +710,40 @@
         // Возвращаемся к темам
         function backToThemes() {
             window.location.href = '2.html';
+        }
+
+        // Показываем подсказку после ответа
+        function showAnswerHint(isCorrect, question) {
+            const hintContainer = document.createElement('div');
+            hintContainer.className = 'hint-container';
+            hintContainer.style.cssText = `
+                margin-top: 20px;
+                padding: 15px;
+                border-radius: 10px;
+                background: ${isCorrect ? '#e8f5e8' : '#ffeaea'};
+                border: 2px solid ${isCorrect ? '#4CAF50' : '#f44336'};
+                color: ${isCorrect ? '#2e7d32' : '#c62828'};
+                font-size: 14px;
+                line-height: 1.5;
+            `;
+            
+            const resultText = isCorrect ? '✅ Правильно!' : '❌ Неправильно!';
+            const hintText = question.hint_text || question.explanation || "Подробное объяснение правил дорожного движения для данного вопроса. Обратите внимание на знаки, разметку и приоритет движения. Помните: безопасность превыше всего!";
+            
+            hintContainer.innerHTML = `
+                <div style="font-weight: 600; margin-bottom: 10px;">${resultText}</div>
+                <div><strong>Объяснение:</strong> ${hintText}</div>
+            `;
+            
+            // Удаляем предыдущую подсказку, если есть
+            const existingHint = document.querySelector('.hint-container');
+            if (existingHint) {
+                existingHint.remove();
+            }
+            
+            // Добавляем подсказку после кнопок ответов
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.appendChild(hintContainer);
         }
 
         // Показываем подсказку
