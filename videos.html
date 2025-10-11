@@ -306,6 +306,23 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('Страница загружена, проверяем подписку...');
             
+            // Проверяем URL параметры для тестирования
+            const urlParams = new URLSearchParams(window.location.search);
+            const testUserId = urlParams.get('test_user_id');
+            const forceSubscribe = urlParams.get('force_subscribe') === 'true';
+            
+            if (testUserId && !userData) {
+                // Режим тестирования с User ID из URL
+                userData = { id: parseInt(testUserId) };
+                console.log('Режим тестирования с User ID:', testUserId);
+            }
+            
+            if (forceSubscribe) {
+                // Принудительно считаем пользователя подписанным
+                isSubscribed = true;
+                console.log('Принудительный режим подписки включен');
+            }
+            
             // Проверяем подписку
             await checkSubscription();
             
