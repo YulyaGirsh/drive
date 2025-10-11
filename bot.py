@@ -71,7 +71,7 @@ async def cmd_trans(message: types.Message):
         parse_mode="HTML"
     )
 
-@dp.message()
+@dp.message(lambda message: not message.text.startswith('/'))
 async def handle_all_messages(message: types.Message):
     """Обработчик для всех сообщений"""
     # Проверяем, что это администратор для команд трансляций
@@ -204,7 +204,7 @@ async def send_psychologist_data(data):
 
 # Импорт для работы с callback'ами
 from aiogram.types import CallbackQuery
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 
 # Обработчики callback'ов для управления трансляциями
 @dp.callback_query(lambda c: c.data == "view_current")
