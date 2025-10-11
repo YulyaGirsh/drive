@@ -272,21 +272,48 @@
         let userData = null;
         let isAdmin = false;
         
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            userData = tg.initDataUnsafe.user;
-            isAdmin = userData.id === CONFIG.adminUserId;
-        } else {
-            // Для тестирования в браузере - проверяем URL параметры
-            const urlParams = new URLSearchParams(window.location.search);
-            const testAdmin = urlParams.get('admin') === 'true';
-            const testUserId = urlParams.get('user_id');
+        // Проверяем различные способы получения данных пользователя
+        if (tg) {
+            // Способ 1: initDataUnsafe.user
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                userData = tg.initDataUnsafe.user;
+                isAdmin = userData.id === CONFIG.adminUserId;
+                console.log('Данные пользователя получены через initDataUnsafe.user:', userData);
+            }
+            // Способ 2: initData (если первый не сработал)
+            else if (tg.initData) {
+                try {
+                    const initData = new URLSearchParams(tg.initData);
+                    const userParam = initData.get('user');
+                    if (userParam) {
+                        const user = JSON.parse(decodeURIComponent(userParam));
+                        userData = user;
+                        isAdmin = user.id === CONFIG.adminUserId;
+                        console.log('Данные пользователя получены через initData:', user);
+                    }
+                } catch (error) {
+                    console.error('Ошибка парсинга initData:', error);
+                }
+            }
+            // Способ 3: проверяем другие возможные свойства
+            else if (tg.user) {
+                userData = tg.user;
+                isAdmin = userData.id === CONFIG.adminUserId;
+                console.log('Данные пользователя получены через tg.user:', userData);
+            }
             
-            if (testAdmin || (testUserId && parseInt(testUserId) === CONFIG.adminUserId)) {
-                isAdmin = true;
-                userData = { id: testUserId ? parseInt(testUserId) : CONFIG.adminUserId };
-                console.log('Режим тестирования: включен админ-режим');
+            // Дополнительная проверка: ищем ID админа в initData строке
+            if (!isAdmin && tg.initData) {
+                const adminIdStr = CONFIG.adminUserId.toString();
+                if (tg.initData.includes(adminIdStr)) {
+                    console.log('Найден ID админа в initData строке, принудительно включаем админ-режим');
+                    isAdmin = true;
+                    userData = { id: CONFIG.adminUserId };
+                }
             }
         }
+        
+        console.log('Итоговые данные:', { userData, isAdmin, tg: !!tg });
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
@@ -295,12 +322,26 @@
             console.log('userData:', userData);
             console.log('tg:', tg);
             
+            // Дополнительная отладка для Telegram
+            if (tg) {
+                console.log('Telegram WebApp объект:', {
+                    initData: tg.initData,
+                    initDataUnsafe: tg.initDataUnsafe,
+                    user: tg.user,
+                    platform: tg.platform,
+                    version: tg.version,
+                    colorScheme: tg.colorScheme
+                });
+            }
+            
             // Показываем кнопку админа если пользователь - админ
             if (isAdmin) {
                 document.getElementById('adminBtn').style.display = 'inline-block';
                 console.log('Кнопка админа показана');
             } else {
                 console.log('Кнопка админа скрыта - пользователь не админ');
+                console.log('Ожидаемый ID админа:', CONFIG.adminUserId);
+                console.log('Полученный ID пользователя:', userData ? userData.id : 'не определен');
             }
             
             // Загружаем данные о трансляции
