@@ -251,14 +251,6 @@
                 Ошибка загрузки данных. Попробуйте обновить страницу.
             </div>
             
-            <!-- Временная кнопка для тестирования админ-режима -->
-            <div id="debugPanel" style="background: #f0f0f0; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; display: none;">
-                <h3 style="margin-bottom: 10px; color: #333;">🔧 Режим отладки</h3>
-                <p style="margin-bottom: 15px; color: #666;">Если вы администратор, но кнопка "Админ" не отображается, используйте эту кнопку:</p>
-                <button onclick="enableAdminMode()" style="background: #ff8c00; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600;">
-                    👑 Включить админ-режим
-                </button>
-            </div>
             
             <div id="translationContent" style="display: none;">
                 <!-- Контент будет загружен динамически -->
@@ -281,15 +273,19 @@
         let userData = null;
         let isAdmin = false;
         
-        // Проверяем различные способы получения данных пользователя
+        // Получаем данные пользователя из Telegram WebApp API
         if (tg) {
             console.log('Telegram WebApp API доступен');
             
-            // Способ 1: initDataUnsafe.user
+            // Способ 1: initDataUnsafe.user (основной способ)
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 userData = tg.initDataUnsafe.user;
                 isAdmin = userData.id === CONFIG.adminUserId;
                 console.log('Данные пользователя получены через initDataUnsafe.user:', userData);
+                console.log('ID пользователя:', userData.id, 'ID админа:', CONFIG.adminUserId, 'isAdmin:', isAdmin);
+                
+                // Показываем alert для отладки
+                alert(`Отладка: ID пользователя = ${userData.id}, ID админа = ${CONFIG.adminUserId}, Админ = ${isAdmin}`);
             }
             // Способ 2: initData (если первый не сработал)
             else if (tg.initData) {
@@ -301,52 +297,35 @@
                         userData = user;
                         isAdmin = user.id === CONFIG.adminUserId;
                         console.log('Данные пользователя получены через initData:', user);
+                        console.log('ID пользователя:', user.id, 'ID админа:', CONFIG.adminUserId, 'isAdmin:', isAdmin);
+                        
+                        // Показываем alert для отладки
+                        alert(`Отладка (initData): ID пользователя = ${user.id}, ID админа = ${CONFIG.adminUserId}, Админ = ${isAdmin}`);
+                    } else {
+                        console.log('initData есть, но параметр user не найден');
+                        alert('initData есть, но параметр user не найден');
                     }
                 } catch (error) {
                     console.error('Ошибка парсинга initData:', error);
+                    alert('Ошибка парсинга initData: ' + error.message);
                 }
             }
-            // Способ 3: проверяем другие возможные свойства
+            // Способ 3: tg.user (если доступен)
             else if (tg.user) {
                 userData = tg.user;
                 isAdmin = userData.id === CONFIG.adminUserId;
                 console.log('Данные пользователя получены через tg.user:', userData);
-            }
-            
-            // Дополнительная проверка: ищем ID админа в initData строке
-            if (!isAdmin && tg.initData) {
-                const adminIdStr = CONFIG.adminUserId.toString();
-                if (tg.initData.includes(adminIdStr)) {
-                    console.log('Найден ID админа в initData строке, принудительно включаем админ-режим');
-                    isAdmin = true;
-                    userData = { id: CONFIG.adminUserId };
-                }
+                console.log('ID пользователя:', userData.id, 'ID админа:', CONFIG.adminUserId, 'isAdmin:', isAdmin);
+                
+                // Показываем alert для отладки
+                alert(`Отладка (tg.user): ID пользователя = ${userData.id}, ID админа = ${CONFIG.adminUserId}, Админ = ${isAdmin}`);
+            } else {
+                console.log('Данные пользователя не найдены в Telegram WebApp');
+                alert('Данные пользователя не найдены в Telegram WebApp');
             }
         } else {
             console.log('Telegram WebApp API недоступен');
-        }
-        
-        // Fallback: проверяем URL параметры (для случаев когда Telegram API не работает)
-        if (!isAdmin) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const adminParam = urlParams.get('admin');
-            const userIdParam = urlParams.get('user_id');
-            
-            if (adminParam === 'true' || (userIdParam && parseInt(userIdParam) === CONFIG.adminUserId)) {
-                isAdmin = true;
-                userData = { id: CONFIG.adminUserId };
-                console.log('Админ-режим включен через URL параметры');
-            }
-        }
-        
-        // Дополнительный fallback: проверяем localStorage (для тестирования)
-        if (!isAdmin) {
-            const storedAdmin = localStorage.getItem('is_admin');
-            if (storedAdmin === 'true') {
-                isAdmin = true;
-                userData = { id: CONFIG.adminUserId };
-                console.log('Админ-режим включен через localStorage');
-            }
+            alert('Telegram WebApp API недоступен');
         }
         
         console.log('Итоговые данные:', { userData, isAdmin, tg: !!tg });
@@ -358,18 +337,6 @@
             console.log('userData:', userData);
             console.log('tg:', tg);
             
-            // Дополнительная отладка для Telegram
-            if (tg) {
-                console.log('Telegram WebApp объект:', {
-                    initData: tg.initData,
-                    initDataUnsafe: tg.initDataUnsafe,
-                    user: tg.user,
-                    platform: tg.platform,
-                    version: tg.version,
-                    colorScheme: tg.colorScheme
-                });
-            }
-            
             // Показываем кнопку админа если пользователь - админ
             if (isAdmin) {
                 document.getElementById('adminBtn').style.display = 'inline-block';
@@ -378,9 +345,6 @@
                 console.log('Кнопка админа скрыта - пользователь не админ');
                 console.log('Ожидаемый ID админа:', CONFIG.adminUserId);
                 console.log('Полученный ID пользователя:', userData ? userData.id : 'не определен');
-                
-                // Показываем панель отладки если админ не определен
-                document.getElementById('debugPanel').style.display = 'block';
             }
             
             // Загружаем данные о трансляции
@@ -505,21 +469,6 @@
             return `${year}-${month}-${day} ${hours}:${minutes}`;
         }
 
-        // Включение админ-режима (для отладки)
-        function enableAdminMode() {
-            isAdmin = true;
-            userData = { id: CONFIG.adminUserId };
-            localStorage.setItem('is_admin', 'true');
-            
-            // Показываем кнопку админа
-            document.getElementById('adminBtn').style.display = 'inline-block';
-            
-            // Скрываем панель отладки
-            document.getElementById('debugPanel').style.display = 'none';
-            
-            alert('Админ-режим включен! Теперь вы можете управлять трансляциями.');
-            console.log('Админ-режим включен вручную');
-        }
 
         // Инициализация Telegram WebApp
         if (tg) {

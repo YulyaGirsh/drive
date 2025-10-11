@@ -334,13 +334,16 @@
         let userData = null;
         let isAdmin = false;
         
-        // Проверяем различные способы получения данных пользователя
+        // Получаем данные пользователя из Telegram WebApp API
         if (tg) {
-            // Способ 1: initDataUnsafe.user
+            console.log('Telegram WebApp API доступен');
+            
+            // Способ 1: initDataUnsafe.user (основной способ)
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 userData = tg.initDataUnsafe.user;
                 isAdmin = userData.id === CONFIG.adminUserId;
                 console.log('Данные пользователя получены через initDataUnsafe.user:', userData);
+                console.log('ID пользователя:', userData.id, 'ID админа:', CONFIG.adminUserId, 'isAdmin:', isAdmin);
             }
             // Способ 2: initData (если первый не сработал)
             else if (tg.initData) {
@@ -352,27 +355,25 @@
                         userData = user;
                         isAdmin = user.id === CONFIG.adminUserId;
                         console.log('Данные пользователя получены через initData:', user);
+                        console.log('ID пользователя:', user.id, 'ID админа:', CONFIG.adminUserId, 'isAdmin:', isAdmin);
+                    } else {
+                        console.log('initData есть, но параметр user не найден');
                     }
                 } catch (error) {
                     console.error('Ошибка парсинга initData:', error);
                 }
             }
-            // Способ 3: проверяем другие возможные свойства
+            // Способ 3: tg.user (если доступен)
             else if (tg.user) {
                 userData = tg.user;
                 isAdmin = userData.id === CONFIG.adminUserId;
                 console.log('Данные пользователя получены через tg.user:', userData);
+                console.log('ID пользователя:', userData.id, 'ID админа:', CONFIG.adminUserId, 'isAdmin:', isAdmin);
+            } else {
+                console.log('Данные пользователя не найдены в Telegram WebApp');
             }
-            
-            // Дополнительная проверка: ищем ID админа в initData строке
-            if (!isAdmin && tg.initData) {
-                const adminIdStr = CONFIG.adminUserId.toString();
-                if (tg.initData.includes(adminIdStr)) {
-                    console.log('Найден ID админа в initData строке, принудительно включаем админ-режим');
-                    isAdmin = true;
-                    userData = { id: CONFIG.adminUserId };
-                }
-            }
+        } else {
+            console.log('Telegram WebApp API недоступен');
         }
         
         console.log('Итоговые данные:', { userData, isAdmin, tg: !!tg });
