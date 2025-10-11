@@ -188,7 +188,246 @@
         </div>
     </div>
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // Telegram WebApp API
+        const tg = window.Telegram?.WebApp;
+        
+        // Конфигурация
+        const CHANNEL_USERNAME = 'avtoshkolavtelefone';
+        const FREE_VIDEOS_COUNT = 2; // Первые 2 видео доступны всем
+        
+        // Данные пользователя из Telegram
+        let userData = null;
+        let isSubscribed = false;
+        
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userData = tg.initDataUnsafe.user;
+        }
+        
+        // Проверяем подписку на канал
+        async function checkSubscription() {
+            if (!tg || !userData) {
+                console.log('Не в Telegram Mini App или нет данных пользователя');
+                return false;
+            }
+            
+            try {
+                console.log('Проверяем подписку для пользователя:', userData.id);
+                
+                // Отправляем запрос на сервер для проверки подписки
+                const response = await fetch('/api/check-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userData.id,
+                        channel_username: CHANNEL_USERNAME
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Результат проверки подписки:', result);
+                    
+                    isSubscribed = result.is_subscribed;
+                    console.log('Статус подписки:', isSubscribed);
+                    
+                    return isSubscribed;
+                } else {
+                    console.error('Ошибка проверки подписки:', response.status);
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('Ошибка проверки подписки:', error);
+                return false;
+            }
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Страница загружена, проверяем подписку...');
+            
+            // Проверяем подписку
+            await checkSubscription();
+            
+            // Обновляем интерфейс в зависимости от подписки
+            updateVideoButtons();
+            
+            // Показываем уведомление для браузерной версии
+            if (!tg) {
+                showBrowserNotification();
+            }
+        });
+        
+        // Обновляем кнопки видео в зависимости от подписки
+        function updateVideoButtons() {
+            const videoButtons = document.querySelectorAll('.video-button');
+            
+            videoButtons.forEach((button, index) => {
+                const videoNumber = index;
+                
+                if (videoNumber >= FREE_VIDEOS_COUNT) {
+                    if (!isSubscribed) {
+                        // Блокируем кнопку для неподписанных пользователей
+                        button.style.opacity = '0.6';
+                        button.style.cursor = 'not-allowed';
+                        button.innerHTML = `
+                            <div class="video-title">
+                                ${button.querySelector('.video-title').textContent}
+                                <br><small style="color: #ffcc00;">🔒 Только для подписчиков</small>
+                            </div>
+                        `;
+                    }
+                }
+            });
+        }
+        
+        // Показываем уведомление для браузерной версии
+        function showBrowserNotification() {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                padding: 15px;
+                margin: 10px 0;
+                border-radius: 10px;
+                text-align: center;
+                font-weight: 600;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+            `;
+            notification.innerHTML = `
+                🚗 <strong>Полный доступ к курсу парковки</strong><br>
+                Первые 2 урока доступны всем, остальные - только подписчикам канала<br>
+                <a href="https://t.me/${CHANNEL_USERNAME}" target="_blank" style="color: #ffcc00; text-decoration: underline;">
+                    Подписаться на канал @${CHANNEL_USERNAME}
+                </a>
+            `;
+            
+            const videosContainer = document.querySelector('.videos-container');
+            videosContainer.insertBefore(notification, videosContainer.firstChild);
+        }
+        
+        // Показываем модальное окно с предложением подписки
+        function showSubscriptionModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 400px;
+                width: 100%;
+                text-align: center;
+                position: relative;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const icon = document.createElement('div');
+            icon.innerHTML = '🔒';
+            icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Доступ ограничен';
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const message = document.createElement('p');
+            message.innerHTML = `
+                Это видео доступно только подписчикам канала<br>
+                <strong>@${CHANNEL_USERNAME}</strong><br><br>
+                Подпишитесь на канал, чтобы получить доступ ко всем урокам парковки!
+            `;
+            message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
+            
+            const subscribeBtn = document.createElement('button');
+            subscribeBtn.innerHTML = '🚗 Подписаться на канал';
+            subscribeBtn.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 15px;
+                width: 100%;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+            `;
+            subscribeBtn.onclick = function() {
+                window.open(`https://t.me/${CHANNEL_USERNAME}`, '_blank');
+                modal.remove();
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerHTML = 'Отмена';
+            cancelBtn.style.cssText = `
+                background: #f0f0f0;
+                color: #666;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 14px;
+            `;
+            cancelBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            content.appendChild(closeBtn);
+            content.appendChild(icon);
+            content.appendChild(title);
+            content.appendChild(message);
+            content.appendChild(subscribeBtn);
+            content.appendChild(cancelBtn);
+            modal.appendChild(content);
+            
+            document.body.appendChild(modal);
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
         // Массив с данными о видеоуроках по парковке
         const videos = [
             {
@@ -299,6 +538,12 @@
             // Простая проверка
             if (!videoNumber || videoNumber < 0 || videoNumber >= videos.length) {
                 alert('Неверный номер видео!');
+                return;
+            }
+            
+            // Проверяем доступ к видео
+            if (videoNumber >= FREE_VIDEOS_COUNT && !isSubscribed) {
+                showSubscriptionModal();
                 return;
             }
             
