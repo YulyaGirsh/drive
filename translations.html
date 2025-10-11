@@ -237,7 +237,6 @@
     <div class="container">
         <div class="header">
             <a href="index.html" class="back-btn">← Назад к разделам</a>
-            <a href="#" class="admin-btn" id="adminBtn" onclick="openAdminPanel()">⚙️ Админ</a>
             
             <h1>📺 Трансляции</h1>
         </div>
@@ -262,90 +261,12 @@
     <script>
         // Конфигурация
         const CONFIG = {
-            adminUserId: 7644513746,
             storageKey: 'translation_data'
         };
-
-        // Telegram WebApp API
-        const tg = window.Telegram?.WebApp;
-        
-        // Данные пользователя из Telegram
-        let userData = null;
-        let isAdmin = false;
-        
-        // Получаем данные пользователя из Telegram WebApp API
-        if (tg) {
-            console.log('Telegram WebApp API доступен');
-            
-            // Способ 1: initDataUnsafe.user (основной способ)
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                userData = tg.initDataUnsafe.user;
-                isAdmin = userData.id === CONFIG.adminUserId;
-                console.log('Данные пользователя получены через initDataUnsafe.user:', userData);
-                console.log('ID пользователя:', userData.id, 'ID админа:', CONFIG.adminUserId, 'isAdmin:', isAdmin);
-                
-                // Показываем alert для отладки
-                alert(`Отладка: ID пользователя = ${userData.id}, ID админа = ${CONFIG.adminUserId}, Админ = ${isAdmin}`);
-            }
-            // Способ 2: initData (если первый не сработал)
-            else if (tg.initData) {
-                try {
-                    const initData = new URLSearchParams(tg.initData);
-                    const userParam = initData.get('user');
-                    if (userParam) {
-                        const user = JSON.parse(decodeURIComponent(userParam));
-                        userData = user;
-                        isAdmin = user.id === CONFIG.adminUserId;
-                        console.log('Данные пользователя получены через initData:', user);
-                        console.log('ID пользователя:', user.id, 'ID админа:', CONFIG.adminUserId, 'isAdmin:', isAdmin);
-                        
-                        // Показываем alert для отладки
-                        alert(`Отладка (initData): ID пользователя = ${user.id}, ID админа = ${CONFIG.adminUserId}, Админ = ${isAdmin}`);
-                    } else {
-                        console.log('initData есть, но параметр user не найден');
-                        alert('initData есть, но параметр user не найден');
-                    }
-                } catch (error) {
-                    console.error('Ошибка парсинга initData:', error);
-                    alert('Ошибка парсинга initData: ' + error.message);
-                }
-            }
-            // Способ 3: tg.user (если доступен)
-            else if (tg.user) {
-                userData = tg.user;
-                isAdmin = userData.id === CONFIG.adminUserId;
-                console.log('Данные пользователя получены через tg.user:', userData);
-                console.log('ID пользователя:', userData.id, 'ID админа:', CONFIG.adminUserId, 'isAdmin:', isAdmin);
-                
-                // Показываем alert для отладки
-                alert(`Отладка (tg.user): ID пользователя = ${userData.id}, ID админа = ${CONFIG.adminUserId}, Админ = ${isAdmin}`);
-            } else {
-                console.log('Данные пользователя не найдены в Telegram WebApp');
-                alert('Данные пользователя не найдены в Telegram WebApp');
-            }
-        } else {
-            console.log('Telegram WebApp API недоступен');
-            alert('Telegram WebApp API недоступен');
-        }
-        
-        console.log('Итоговые данные:', { userData, isAdmin, tg: !!tg });
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Страница трансляций загружена');
-            console.log('isAdmin:', isAdmin);
-            console.log('userData:', userData);
-            console.log('tg:', tg);
-            
-            // Показываем кнопку админа если пользователь - админ
-            if (isAdmin) {
-                document.getElementById('adminBtn').style.display = 'inline-block';
-                console.log('Кнопка админа показана');
-            } else {
-                console.log('Кнопка админа скрыта - пользователь не админ');
-                console.log('Ожидаемый ID админа:', CONFIG.adminUserId);
-                console.log('Полученный ID пользователя:', userData ? userData.id : 'не определен');
-            }
             
             // Загружаем данные о трансляции
             loadTranslationData();
@@ -354,18 +275,23 @@
         // Загрузка данных о трансляции
         function loadTranslationData() {
             try {
-                // Пытаемся загрузить из localStorage
-                const savedData = localStorage.getItem(CONFIG.storageKey);
-                if (savedData) {
-                    const data = JSON.parse(savedData);
-                    displayTranslation(data);
-                } else {
-                    // Если нет сохраненных данных, показываем заглушку
-                    displayNoTranslation();
-                }
+                // Загружаем данные с сервера
+                fetch('/api/get-translation-data')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.datetime && data.link) {
+                            displayTranslation(data);
+                        } else {
+                            displayNoTranslation();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка загрузки данных:', error);
+                        displayNoTranslation();
+                    });
             } catch (error) {
                 console.error('Ошибка загрузки данных:', error);
-                showError();
+                displayNoTranslation();
             }
         }
 
@@ -408,6 +334,13 @@
                     <a href="${data.link}" target="_blank" class="translation-link">
                         🎥 Перейти к трансляции
                     </a>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; text-align: center;">
+                        <p style="margin: 0; color: #666; font-size: 14px;">
+                            💡 <strong>Для администраторов:</strong><br>
+                            Управление трансляциями доступно в боте по команде <code>/trans</code>
+                        </p>
+                    </div>
                 </div>
             `;
             
@@ -432,6 +365,12 @@
                     <div class="no-translation">
                         🕐 Расписание трансляций обновляется
                     </div>
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; text-align: center;">
+                        <p style="margin: 0; color: #666; font-size: 14px;">
+                            💡 <strong>Для администраторов:</strong><br>
+                            Управление трансляциями доступно в боте по команде <code>/trans</code>
+                        </p>
+                    </div>
                 </div>
             `;
             
@@ -447,15 +386,6 @@
             error.style.display = 'block';
         }
 
-        // Открытие админ-панели
-        function openAdminPanel() {
-            if (!isAdmin) {
-                alert('У вас нет прав администратора');
-                return;
-            }
-            
-            window.location.href = 'admin_translations.html';
-        }
 
         // Получение текущей даты и времени в нужном формате
         function getCurrentDateTime() {

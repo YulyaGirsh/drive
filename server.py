@@ -44,6 +44,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             elif self.path.startswith('/api/questions/ticket/'):
                 ticket_number = int(self.path.split('/')[-1])
                 self.send_questions_for_ticket(ticket_number)
+            elif self.path == '/api/get-translation-data':
+                self.send_translation_data()
             else:
                 self.send_error(404, "API endpoint not found")
         except Exception as e:
@@ -450,6 +452,25 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             return f"images/{matching_files[0].name}"
         
         return None
+
+    def send_translation_data(self):
+        """Отправляет данные о трансляции из файла translation_data.json"""
+        try:
+            with open('translation_data.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode('utf-8'))
+        except FileNotFoundError:
+            # Если файл не найден, возвращаем пустой объект
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps({}, ensure_ascii=False).encode('utf-8'))
+        except json.JSONDecodeError:
+            self.send_error(500, "Invalid JSON format in translation data")
 
 def start_server():
     # Переходим в директорию с файлами
