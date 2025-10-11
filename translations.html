@@ -275,15 +275,32 @@
         if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userData = tg.initDataUnsafe.user;
             isAdmin = userData.id === CONFIG.adminUserId;
+        } else {
+            // Для тестирования в браузере - проверяем URL параметры
+            const urlParams = new URLSearchParams(window.location.search);
+            const testAdmin = urlParams.get('admin') === 'true';
+            const testUserId = urlParams.get('user_id');
+            
+            if (testAdmin || (testUserId && parseInt(testUserId) === CONFIG.adminUserId)) {
+                isAdmin = true;
+                userData = { id: testUserId ? parseInt(testUserId) : CONFIG.adminUserId };
+                console.log('Режим тестирования: включен админ-режим');
+            }
         }
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Страница трансляций загружена');
+            console.log('isAdmin:', isAdmin);
+            console.log('userData:', userData);
+            console.log('tg:', tg);
             
             // Показываем кнопку админа если пользователь - админ
             if (isAdmin) {
                 document.getElementById('adminBtn').style.display = 'inline-block';
+                console.log('Кнопка админа показана');
+            } else {
+                console.log('Кнопка админа скрыта - пользователь не админ');
             }
             
             // Загружаем данные о трансляции
