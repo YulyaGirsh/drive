@@ -250,18 +250,10 @@
         async function checkSubscription() {
             if (!tg || !userData) {
                 console.log('Не в Telegram Mini App или нет данных пользователя');
-                // Для тестирования в браузере - временно разрешаем доступ
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                    console.log('Режим разработки: разрешаем доступ');
-                    isSubscribed = true;
-                    return true;
-                }
                 return false;
             }
             
             try {
-                console.log('Проверяем подписку для пользователя:', userData.id);
-                
                 // Отправляем запрос на сервер для проверки подписки
                 const response = await fetch('/api/check-subscription', {
                     method: 'POST',
@@ -274,25 +266,12 @@
                     })
                 });
                 
-                console.log('Ответ сервера:', response.status, response.statusText);
-                
                 if (response.ok) {
                     const result = await response.json();
-                    console.log('Результат проверки подписки:', result);
-                    
                     isSubscribed = result.is_subscribed;
-                    console.log('Статус подписки:', isSubscribed);
-                    
-                    // Показываем уведомление с результатом проверки
-                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                        alert(`Результат проверки подписки:\nПодписан: ${isSubscribed}\nСтатус: ${result.status}\n${result.error ? 'Ошибка: ' + result.error : ''}`);
-                    }
-                    
                     return isSubscribed;
                 } else {
                     console.error('Ошибка проверки подписки:', response.status);
-                    const errorText = await response.text();
-                    console.error('Текст ошибки:', errorText);
                     return false;
                 }
                 
@@ -304,25 +283,6 @@
         
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('Страница загружена, проверяем подписку...');
-            
-            // Проверяем URL параметры для тестирования
-            const urlParams = new URLSearchParams(window.location.search);
-            const testUserId = urlParams.get('test_user_id');
-            const forceSubscribe = urlParams.get('force_subscribe') === 'true';
-            
-            if (testUserId && !userData) {
-                // Режим тестирования с User ID из URL
-                userData = { id: parseInt(testUserId) };
-                console.log('Режим тестирования с User ID:', testUserId);
-            }
-            
-            if (forceSubscribe) {
-                // Принудительно считаем пользователя подписанным
-                isSubscribed = true;
-                console.log('Принудительный режим подписки включен');
-            }
-            
             // Проверяем подписку
             await checkSubscription();
             
