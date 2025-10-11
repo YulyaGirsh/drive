@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Трансляции - EasyDrive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            margin-top: 40px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        .admin-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: none;
+            font-size: 14px;
+        }
+
+        .admin-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .translation-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .translation-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .translation-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .translation-description {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .datetime-info {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .datetime-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .datetime-value {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .translation-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+        }
+
+        .translation-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+            color: white;
+        }
+
+        .no-translation {
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+            padding: 40px 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .error-message {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Мобильные стили */
+        @media (max-width: 480px) {
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+                margin-top: 35px;
+            }
+            
+            .back-btn, .admin-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                top: 12px;
+            }
+            
+            .back-btn {
+                left: 12px;
+            }
+            
+            .admin-btn {
+                right: 12px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .translation-card {
+                padding: 20px;
+            }
+            
+            .translation-title {
+                font-size: 20px;
+            }
+            
+            .datetime-value {
+                font-size: 18px;
+            }
+            
+            .translation-link {
+                padding: 12px 25px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Назад к разделам</a>
+            <a href="#" class="admin-btn" id="adminBtn" onclick="openAdminPanel()">⚙️ Админ</a>
+            
+            <h1>📺 Трансляции</h1>
+        </div>
+        
+        <div class="content">
+            <div id="loadingMessage" class="loading">
+                Загрузка информации о трансляциях...
+            </div>
+            
+            <div id="errorMessage" class="error-message" style="display: none;">
+                Ошибка загрузки данных. Попробуйте обновить страницу.
+            </div>
+            
+            <div id="translationContent" style="display: none;">
+                <!-- Контент будет загружен динамически -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Конфигурация
+        const CONFIG = {
+            adminUserId: 7644513746,
+            storageKey: 'translation_data'
+        };
+
+        // Telegram WebApp API
+        const tg = window.Telegram?.WebApp;
+        
+        // Данные пользователя из Telegram
+        let userData = null;
+        let isAdmin = false;
+        
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userData = tg.initDataUnsafe.user;
+            isAdmin = userData.id === CONFIG.adminUserId;
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Страница трансляций загружена');
+            
+            // Показываем кнопку админа если пользователь - админ
+            if (isAdmin) {
+                document.getElementById('adminBtn').style.display = 'inline-block';
+            }
+            
+            // Загружаем данные о трансляции
+            loadTranslationData();
+        });
+
+        // Загрузка данных о трансляции
+        function loadTranslationData() {
+            try {
+                // Пытаемся загрузить из localStorage
+                const savedData = localStorage.getItem(CONFIG.storageKey);
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    displayTranslation(data);
+                } else {
+                    // Если нет сохраненных данных, показываем заглушку
+                    displayNoTranslation();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                showError();
+            }
+        }
+
+        // Отображение информации о трансляции
+        function displayTranslation(data) {
+            const content = document.getElementById('translationContent');
+            const loading = document.getElementById('loadingMessage');
+            
+            loading.style.display = 'none';
+            
+            if (!data || !data.datetime || !data.link) {
+                displayNoTranslation();
+                return;
+            }
+
+            const dateTime = new Date(data.datetime);
+            const formattedDateTime = dateTime.toLocaleString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                weekday: 'long'
+            });
+
+            content.innerHTML = `
+                <div class="translation-card">
+                    <div class="translation-icon">📺</div>
+                    <h2 class="translation-title">Прямая трансляция</h2>
+                    <p class="translation-description">
+                        Присоединяйтесь к нашей прямой трансляции, где мы разбираем сложные вопросы ПДД, 
+                        отвечаем на ваши вопросы и делимся полезными советами для успешной сдачи экзамена.
+                    </p>
+                    
+                    <div class="datetime-info">
+                        <div class="datetime-label">Следующая трансляция</div>
+                        <div class="datetime-value">${formattedDateTime}</div>
+                    </div>
+                    
+                    <a href="${data.link}" target="_blank" class="translation-link">
+                        🎥 Перейти к трансляции
+                    </a>
+                </div>
+            `;
+            
+            content.style.display = 'block';
+        }
+
+        // Отображение заглушки когда нет трансляции
+        function displayNoTranslation() {
+            const content = document.getElementById('translationContent');
+            const loading = document.getElementById('loadingMessage');
+            
+            loading.style.display = 'none';
+            
+            content.innerHTML = `
+                <div class="translation-card">
+                    <div class="translation-icon">📺</div>
+                    <h2 class="translation-title">Трансляции</h2>
+                    <p class="translation-description">
+                        Информация о следующих трансляциях будет доступна в ближайшее время. 
+                        Следите за обновлениями!
+                    </p>
+                    <div class="no-translation">
+                        🕐 Расписание трансляций обновляется
+                    </div>
+                </div>
+            `;
+            
+            content.style.display = 'block';
+        }
+
+        // Показ ошибки
+        function showError() {
+            const loading = document.getElementById('loadingMessage');
+            const error = document.getElementById('errorMessage');
+            
+            loading.style.display = 'none';
+            error.style.display = 'block';
+        }
+
+        // Открытие админ-панели
+        function openAdminPanel() {
+            if (!isAdmin) {
+                alert('У вас нет прав администратора');
+                return;
+            }
+            
+            window.location.href = 'admin_translations.html';
+        }
+
+        // Получение текущей даты и времени в нужном формате
+        function getCurrentDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+
+        // Инициализация Telegram WebApp
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+    </script>
+</body>
+</html>

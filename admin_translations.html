@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель трансляций - EasyDrive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            margin-top: 40px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .admin-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e1e1;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .datetime-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.2);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .current-data {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .current-data h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .data-item {
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .data-value {
+            color: #333;
+            margin-top: 4px;
+        }
+
+        .success-message {
+            background: #34C759;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .access-denied {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .access-denied h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        /* Мобильные стили */
+        @media (max-width: 480px) {
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+                margin-top: 35px;
+            }
+            
+            .back-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                top: 12px;
+                left: 12px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .admin-card {
+                padding: 20px;
+            }
+            
+            .datetime-inputs {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="translations.html" class="back-btn">← Назад к трансляциям</a>
+            
+            <h1>⚙️ Админ-панель</h1>
+        </div>
+        
+        <div class="content">
+            <div id="accessDenied" class="access-denied" style="display: none;">
+                <h2>🚫 Доступ запрещен</h2>
+                <p>У вас нет прав для доступа к админ-панели.</p>
+            </div>
+            
+            <div id="adminContent" style="display: none;">
+                <div class="admin-card">
+                    <h2 class="admin-title">Управление трансляциями</h2>
+                    
+                    <div class="success-message" id="successMessage">
+                        ✅ Данные о трансляции успешно обновлены!
+                    </div>
+                    
+                    <div class="error-message" id="errorMessage">
+                        ❌ Ошибка при сохранении данных
+                    </div>
+                    
+                    <div class="current-data" id="currentData">
+                        <h3>Текущие данные</h3>
+                        <div id="currentDataContent">
+                            Загрузка...
+                        </div>
+                    </div>
+                    
+                    <form id="translationForm">
+                        <div class="form-group">
+                            <label class="form-label" for="translationDate">Дата трансляции *</label>
+                            <input type="date" id="translationDate" name="date" class="form-input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="translationTime">Время трансляции *</label>
+                            <input type="time" id="translationTime" name="time" class="form-input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="translationLink">Ссылка на трансляцию *</label>
+                            <input type="url" id="translationLink" name="link" class="form-input" 
+                                   placeholder="https://youtube.com/watch?v=..." required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="translationDescription">Описание (необязательно)</label>
+                            <textarea id="translationDescription" name="description" class="form-textarea" 
+                                      placeholder="Дополнительная информация о трансляции..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn" id="submitBtn">
+                            💾 Сохранить изменения
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Конфигурация
+        const CONFIG = {
+            adminUserId: 7644513746,
+            storageKey: 'translation_data'
+        };
+
+        // Telegram WebApp API
+        const tg = window.Telegram?.WebApp;
+        
+        // Данные пользователя из Telegram
+        let userData = null;
+        let isAdmin = false;
+        
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userData = tg.initDataUnsafe.user;
+            isAdmin = userData.id === CONFIG.adminUserId;
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Админ-панель загружена');
+            
+            if (!isAdmin) {
+                document.getElementById('accessDenied').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('adminContent').style.display = 'block';
+            loadCurrentData();
+            setupForm();
+        });
+
+        // Загрузка текущих данных
+        function loadCurrentData() {
+            try {
+                const savedData = localStorage.getItem(CONFIG.storageKey);
+                const currentDataContent = document.getElementById('currentDataContent');
+                
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    const dateTime = new Date(data.datetime);
+                    const formattedDateTime = dateTime.toLocaleString('ru-RU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        weekday: 'long'
+                    });
+                    
+                    currentDataContent.innerHTML = `
+                        <div class="data-item">
+                            <div class="data-label">Дата и время:</div>
+                            <div class="data-value">${formattedDateTime}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Ссылка:</div>
+                            <div class="data-value"><a href="${data.link}" target="_blank">${data.link}</a></div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Обновлено:</div>
+                            <div class="data-value">${new Date(data.updatedAt).toLocaleString('ru-RU')}</div>
+                        </div>
+                    `;
+                    
+                    // Заполняем форму текущими данными
+                    const date = dateTime.toISOString().split('T')[0];
+                    const time = dateTime.toTimeString().split(' ')[0].substring(0, 5);
+                    
+                    document.getElementById('translationDate').value = date;
+                    document.getElementById('translationTime').value = time;
+                    document.getElementById('translationLink').value = data.link;
+                    document.getElementById('translationDescription').value = data.description || '';
+                } else {
+                    currentDataContent.innerHTML = '<div class="data-value">Нет сохраненных данных</div>';
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                document.getElementById('currentDataContent').innerHTML = '<div class="data-value">Ошибка загрузки данных</div>';
+            }
+        }
+
+        // Настройка формы
+        function setupForm() {
+            document.getElementById('translationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveTranslationData();
+            });
+        }
+
+        // Сохранение данных о трансляции
+        function saveTranslationData() {
+            const formData = new FormData(document.getElementById('translationForm'));
+            const date = formData.get('date');
+            const time = formData.get('time');
+            const link = formData.get('link');
+            const description = formData.get('description');
+            
+            // Валидация
+            if (!date || !time || !link) {
+                showError('Пожалуйста, заполните все обязательные поля');
+                return;
+            }
+            
+            // Создаем объект Date из даты и времени
+            const datetime = new Date(`${date}T${time}`);
+            if (isNaN(datetime.getTime())) {
+                showError('Неверный формат даты или времени');
+                return;
+            }
+            
+            // Проверяем, что дата в будущем
+            if (datetime <= new Date()) {
+                if (!confirm('Выбранная дата и время уже прошли. Продолжить?')) {
+                    return;
+                }
+            }
+            
+            const data = {
+                datetime: datetime.toISOString(),
+                link: link.trim(),
+                description: description.trim(),
+                updatedAt: new Date().toISOString(),
+                updatedBy: userData ? userData.id : 'unknown'
+            };
+            
+            try {
+                localStorage.setItem(CONFIG.storageKey, JSON.stringify(data));
+                showSuccess();
+                loadCurrentData(); // Обновляем отображение
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                showError('Ошибка при сохранении данных');
+            }
+        }
+
+        // Показ сообщения об успехе
+        function showSuccess() {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'block';
+            
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+        }
+
+        // Показ сообщения об ошибке
+        function showError(message) {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            successMsg.style.display = 'none';
+            errorMsg.textContent = `❌ ${message}`;
+            errorMsg.style.display = 'block';
+            
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 5000);
+        }
+
+        // Инициализация Telegram WebApp
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+    </script>
+</body>
+</html>
