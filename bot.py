@@ -74,64 +74,6 @@ async def cmd_trans(message: types.Message):
 @dp.message(lambda message: not message.text.startswith('/'))
 async def handle_all_messages(message: types.Message):
     """Обработчик для всех сообщений"""
-    # Проверяем, что это администратор для команд трансляций
-    if message.from_user.id == RECIPIENT_ID:
-        text = message.text.strip()
-        
-        # Проверяем, является ли сообщение датой/временем
-        if text.count('-') == 2 and text.count(':') == 1 and len(text) == 16:
-            try:
-                # Парсим дату и время
-                from datetime import datetime
-                dt = datetime.strptime(text, '%Y-%m-%d %H:%M')
-                
-                # Загружаем существующие данные или создаем новые
-                try:
-                    with open('translation_data.json', 'r', encoding='utf-8') as f:
-                        data = json.load(f)
-                except FileNotFoundError:
-                    data = {}
-                
-                # Обновляем дату и время
-                data['datetime'] = text
-                data['updated_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                
-                # Сохраняем данные
-                with open('translation_data.json', 'w', encoding='utf-8') as f:
-                    json.dump(data, f, ensure_ascii=False, indent=2)
-                
-                await message.answer(f"✅ Дата и время установлены: {text}")
-                return
-                
-            except ValueError:
-                await message.answer("❌ Неверный формат даты и времени. Используйте: YYYY-MM-DD HH:MM")
-                return
-        
-        # Проверяем, является ли сообщение ссылкой
-        elif text.startswith('http://') or text.startswith('https://'):
-            try:
-                # Загружаем существующие данные или создаем новые
-                try:
-                    with open('translation_data.json', 'r', encoding='utf-8') as f:
-                        data = json.load(f)
-                except FileNotFoundError:
-                    data = {}
-                
-                # Обновляем ссылку
-                data['link'] = text
-                data['updated_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                
-                # Сохраняем данные
-                with open('translation_data.json', 'w', encoding='utf-8') as f:
-                    json.dump(data, f, ensure_ascii=False, indent=2)
-                
-                await message.answer(f"✅ Ссылка установлена: {text}")
-                return
-                
-            except Exception as e:
-                await message.answer(f"❌ Ошибка при сохранении ссылки: {str(e)}")
-                return
-    
     # Обработка данных из форм (для всех пользователей)
     try:
         # Пытаемся распарсить JSON данные
@@ -151,7 +93,65 @@ async def handle_all_messages(message: types.Message):
             await message.answer("❌ Неверный формат данных")
             
     except json.JSONDecodeError:
-        # Если это не JSON, обрабатываем как обычное сообщение
+        # Если это не JSON, проверяем, не является ли это командой трансляций для админа
+        if message.from_user.id == RECIPIENT_ID:
+            text = message.text.strip()
+            
+            # Проверяем, является ли сообщение датой/временем
+            if text.count('-') == 2 and text.count(':') == 1 and len(text) == 16:
+                try:
+                    # Парсим дату и время
+                    from datetime import datetime
+                    dt = datetime.strptime(text, '%Y-%m-%d %H:%M')
+                    
+                    # Загружаем существующие данные или создаем новые
+                    try:
+                        with open('translation_data.json', 'r', encoding='utf-8') as f:
+                            data = json.load(f)
+                    except FileNotFoundError:
+                        data = {}
+                    
+                    # Обновляем дату и время
+                    data['datetime'] = text
+                    data['updated_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    
+                    # Сохраняем данные
+                    with open('translation_data.json', 'w', encoding='utf-8') as f:
+                        json.dump(data, f, ensure_ascii=False, indent=2)
+                    
+                    await message.answer(f"✅ Дата и время установлены: {text}")
+                    return
+                    
+                except ValueError:
+                    await message.answer("❌ Неверный формат даты и времени. Используйте: YYYY-MM-DD HH:MM")
+                    return
+            
+            # Проверяем, является ли сообщение ссылкой
+            elif text.startswith('http://') or text.startswith('https://'):
+                try:
+                    # Загружаем существующие данные или создаем новые
+                    try:
+                        with open('translation_data.json', 'r', encoding='utf-8') as f:
+                            data = json.load(f)
+                    except FileNotFoundError:
+                        data = {}
+                    
+                    # Обновляем ссылку
+                    data['link'] = text
+                    data['updated_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    
+                    # Сохраняем данные
+                    with open('translation_data.json', 'w', encoding='utf-8') as f:
+                        json.dump(data, f, ensure_ascii=False, indent=2)
+                    
+                    await message.answer(f"✅ Ссылка установлена: {text}")
+                    return
+                    
+                except Exception as e:
+                    await message.answer(f"❌ Ошибка при сохранении ссылки: {str(e)}")
+                    return
+        
+        # Если это не JSON и не команда трансляций, отправляем стандартное сообщение
         await message.answer("Привет! Используйте /start для начала работы.")
 
 async def send_lawyer_data(data):
