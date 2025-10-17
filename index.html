@@ -11,9 +11,6 @@
         if (!sessionStorage.getItem('splashShown')) {
             sessionStorage.setItem('splashShown', 'true');
             window.location.href = 'splash.html';
-        } else {
-            // Если заставка уже была показана, показываем содержимое
-            document.body.classList.add('loaded');
         }
     </script>
     <style>
@@ -31,9 +28,9 @@
             padding: 0;
         }
 
-        /* Скрываем содержимое до выполнения JavaScript */
-        body:not(.loaded) {
-            visibility: hidden;
+        /* Показываем содержимое по умолчанию */
+        body {
+            visibility: visible;
         }
 
         /* Скрываем любые возможные точки загрузки */
@@ -353,6 +350,11 @@
         function openTranslations() {
             window.location.href = 'translations.html';
         }
+
+        // Показываем содержимое после загрузки страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.visibility = 'visible';
+        });
     </script>
 </body>
 </html>
