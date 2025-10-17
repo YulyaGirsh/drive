@@ -10,6 +10,17 @@ from pathlib import Path
 PORT = 8000
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Добавляем правильные MIME-типы для изображений
+        self.extensions_map.update({
+            '.png': 'image/png',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.gif': 'image/gif',
+            '.webp': 'image/webp'
+        })
+    
     def end_headers(self):
         # Добавляем CORS заголовки для работы с Telegram
         self.send_header('Access-Control-Allow-Origin', '*')
