@@ -7,13 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         // Показываем заставку только при самом первом заходе
-        window.addEventListener('load', function() {
-            // Проверяем, не показывали ли уже заставку в этой сессии
-            if (!sessionStorage.getItem('splashShown')) {
-                sessionStorage.setItem('splashShown', 'true');
-                window.location.href = 'splash.html';
-            }
-        });
+        // Проверяем сразу, до отображения содержимого
+        if (!sessionStorage.getItem('splashShown')) {
+            sessionStorage.setItem('splashShown', 'true');
+            window.location.href = 'splash.html';
+        } else {
+            // Если заставка уже была показана, показываем содержимое
+            document.body.classList.add('loaded');
+        }
     </script>
     <style>
         * {
@@ -28,6 +29,11 @@
             min-height: 100vh;
             margin: 0;
             padding: 0;
+        }
+
+        /* Скрываем содержимое до выполнения JavaScript */
+        body:not(.loaded) {
+            visibility: hidden;
         }
 
         /* Скрываем любые возможные точки загрузки */
