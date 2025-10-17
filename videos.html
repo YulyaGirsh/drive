@@ -235,7 +235,7 @@
         const tg = window.Telegram?.WebApp;
         
         // Конфигурация
-        const CHANNEL_USERNAME = 'avtoshkolavtelefone';
+        const CHANNEL_USERNAME = '+w4RmUNIUdKFlMDBi';
         const FREE_VIDEOS_COUNT = 2; // Первые 2 видео доступны всем
         
         // Данные пользователя из Telegram
@@ -335,7 +335,7 @@
                 📺 <strong>Полный доступ к видеоурокам</strong><br>
                 Первые 2 урока доступны всем, остальные - только подписчикам канала<br>
                 <a href="https://t.me/${CHANNEL_USERNAME}" target="_blank" style="color: #ffcc00; text-decoration: underline;">
-                    Подписаться на канал @${CHANNEL_USERNAME}
+                    Подписаться на канал
                 </a>
             `;
             
@@ -805,8 +805,7 @@
             
             const message = document.createElement('p');
             message.innerHTML = `
-                Это видео доступно только подписчикам канала<br>
-                <strong>@${CHANNEL_USERNAME}</strong><br><br>
+                Это видео доступно только подписчикам канала<br><br>
                 Подпишитесь на канал, чтобы получить доступ ко всем видеоурокам!
             `;
             message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';

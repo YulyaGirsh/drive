@@ -315,7 +315,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             print(f"Проверяем подписку для пользователя: {data}")
             
             user_id = data.get('user_id')
-            channel_username = data.get('channel_username', 'avtoshkolavtelefone')
+            channel_username = data.get('channel_username', '+w4RmUNIUdKFlMDBi')
             
             if not user_id:
                 self.send_error(400, "Missing user_id")
