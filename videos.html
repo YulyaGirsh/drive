@@ -947,26 +947,11 @@
             }
             
             try {
-                // Создаем платеж через Т-банк
-                const response = await fetch(`${API_BASE_URL}/api/tbank-create-payment`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: currentUserData.id,
-                        amount: SUBSCRIPTION_PRICE,
-                        payment_method: 'tbank'
-                    })
-                });
+                // Упрощенная логика - сразу показываем реквизиты для оплаты
+                console.log('Создаем платеж для пользователя:', currentUserData.id);
                 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Ответ сервера:', result);
-                    
-                    if (result.success) {
-                        // Показываем информацию о платеже
-                        const paymentInfo = `
+                // Показываем информацию о платеже
+                const paymentInfo = `
 💳 <b>Информация для оплаты</b>
 
 🏦 <b>Банк:</b> Т-банк
@@ -975,9 +960,9 @@
 📝 <b>Комментарий:</b> ${currentUserData.id}
 
 После оплаты нажмите кнопку "Подтвердить оплату"
-                        `;
-                        
-                        const confirmModal = document.createElement('div');
+                `;
+                
+                const confirmModal = document.createElement('div');
                         confirmModal.style.cssText = `
                             position: fixed;
                             top: 0;
@@ -1069,23 +1054,11 @@
                         confirmContent.appendChild(cancelConfirmBtn);
                         confirmModal.appendChild(confirmContent);
                         
-                        document.body.appendChild(confirmModal);
-                    } else {
-                        alert('❌ Ошибка создания платежа: ' + (result.message || 'Неизвестная ошибка'));
-                    }
-                } else {
-                    const errorText = await response.text();
-                    console.error('Ошибка сервера:', response.status, errorText);
-                    alert(`❌ Ошибка сервера (${response.status}): ${errorText || 'Сервер недоступен'}`);
-                }
+                document.body.appendChild(confirmModal);
                 
             } catch (error) {
                 console.error('Ошибка при обработке платежа:', error);
-                if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                    alert('❌ Сервер недоступен. Убедитесь, что сервер запущен на localhost:8000');
-                } else {
-                    alert('❌ Ошибка при обработке платежа. Попробуйте еще раз.');
-                }
+                alert('❌ Ошибка при обработке платежа. Попробуйте еще раз.');
             }
         }
         
