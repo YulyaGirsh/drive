@@ -115,8 +115,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Отправляем запрос
             req = urllib.request.Request(
                 telegram_url,
-                data=json.dumps(telegram_data).encode('utf-8'),
-                headers={'Content-Type': 'application/json'}
+                data=json.dumps(telegram_data, ensure_ascii=False).encode('utf-8'),
+                headers={'Content-Type': 'application/json; charset=utf-8'}
             )
             
             with urllib.request.urlopen(req) as response:
@@ -282,14 +282,14 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             telegram_data = {
                 'chat_id': chat_id,
                 'text': message,
-                'parse_mode': 'Markdown'
+                'parse_mode': 'HTML'
             }
             
             # Отправляем запрос
             req = urllib.request.Request(
                 telegram_url,
-                data=json.dumps(telegram_data).encode('utf-8'),
-                headers={'Content-Type': 'application/json'}
+                data=json.dumps(telegram_data, ensure_ascii=False).encode('utf-8'),
+                headers={'Content-Type': 'application/json; charset=utf-8'}
             )
             
             with urllib.request.urlopen(req) as response:
@@ -306,8 +306,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                         telegram_data['text'] = message.replace('**', '').replace('*', '')
                         req = urllib.request.Request(
                             telegram_url,
-                            data=json.dumps(telegram_data).encode('utf-8'),
-                            headers={'Content-Type': 'application/json'}
+                            data=json.dumps(telegram_data, ensure_ascii=False).encode('utf-8'),
+                            headers={'Content-Type': 'application/json; charset=utf-8'}
                         )
                         with urllib.request.urlopen(req) as fallback_response:
                             fallback_result = json.loads(fallback_response.read().decode('utf-8'))
@@ -351,8 +351,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Отправляем запрос
             req = urllib.request.Request(
                 telegram_url,
-                data=json.dumps(telegram_data).encode('utf-8'),
-                headers={'Content-Type': 'application/json'}
+                data=json.dumps(telegram_data, ensure_ascii=False).encode('utf-8'),
+                headers={'Content-Type': 'application/json; charset=utf-8'}
             )
             
             try:
@@ -544,14 +544,14 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             
             if success:
                 # Отправляем уведомление админу
-                admin_message = f"""💰 <b>НОВАЯ ОПЛАТА ПОДПИСКИ</b>
+                admin_message = f"""<b>НОВАЯ ОПЛАТА ПОДПИСКИ</b>
 
-👤 <b>Пользователь ID:</b> {user_id}
-💰 <b>Сумма:</b> {amount}₽
-🏦 <b>Способ оплаты:</b> {payment_method}
-🕐 <b>Время:</b> {self.get_current_timestamp()}
+<b>Пользователь ID:</b> {user_id}
+<b>Сумма:</b> {amount} руб
+<b>Способ оплаты:</b> {payment_method}
+<b>Время:</b> {self.get_current_timestamp()}
 
-✅ Подписка активирована!"""
+Подписка активирована!"""
                 
                 self.send_telegram_notification(admin_message)
                 
