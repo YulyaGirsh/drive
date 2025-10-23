@@ -1,36 +1,32 @@
 #!/bin/bash
 
-# Скрипт для запуска сервера на продакшене
-echo "Запуск сервера EasyDrive..."
+# Скрипт для запуска Python сервера
+echo "Запуск Python сервера..."
 
 # Переходим в директорию проекта
 cd /home/easydrive
 
-# Проверяем, что мы в правильной директории
-if [ ! -f "server.py" ]; then
-    echo "Ошибка: server.py не найден в текущей директории"
-    exit 1
-fi
-
-# Проверяем, не запущен ли уже сервер
-if pgrep -f "python.*server.py" > /dev/null; then
-    echo "Сервер уже запущен. Останавливаем старый процесс..."
-    pkill -f "python.*server.py"
-    sleep 2
-fi
+# Останавливаем предыдущий процесс если он запущен
+pkill -f "python.*server.py" || true
 
 # Запускаем сервер в фоновом режиме
-echo "Запускаем сервер на порту 8000..."
-nohup python server.py > server.log 2>&1 &
+nohup python3 server.py > server.log 2>&1 &
 
-# Ждем немного и проверяем статус
-sleep 3
+# Получаем PID процесса
+SERVER_PID=$!
 
-if pgrep -f "python.*server.py" > /dev/null; then
-    echo "✅ Сервер успешно запущен!"
-    echo "Логи: tail -f /home/easydrive/server.log"
-    echo "Остановка: pkill -f 'python.*server.py'"
+# Сохраняем PID в файл
+echo $SERVER_PID > server.pid
+
+echo "Сервер запущен с PID: $SERVER_PID"
+echo "Логи сервера: /home/easydrive/server.log"
+echo "PID файл: /home/easydrive/server.pid"
+
+# Проверяем что сервер запустился
+sleep 2
+if ps -p $SERVER_PID > /dev/null; then
+    echo "Сервер успешно запущен!"
 else
-    echo "❌ Ошибка запуска сервера. Проверьте логи:"
-    cat /home/easydrive/server.log
+    echo "Ошибка запуска сервера. Проверьте логи:"
+    tail -20 server.log
 fi
