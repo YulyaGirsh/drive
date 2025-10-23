@@ -33,6 +33,12 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         # Обработка API запросов
         if self.path.startswith('/api/'):
             self.handle_api_request()
+        elif self.path == '/favicon.ico':
+            # Обработка favicon.ico
+            self.send_response(200)
+            self.send_header('Content-Type', 'image/x-icon')
+            self.end_headers()
+            self.wfile.write(b'')  # Пустой favicon
         else:
             # Обычная обработка статических файлов
             super().do_GET()
@@ -81,6 +87,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.create_tbank_payment()
             elif self.path == '/api/tbank-webhook':
                 self.handle_tbank_webhook()
+            elif self.path == '/api/v2/heartbeat':
+                self.handle_heartbeat()
             else:
                 self.send_error(404, "API endpoint not found")
         except Exception as e:
@@ -742,6 +750,21 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 
         except Exception as e:
             print(f"Ошибка при обработке webhook Т-банк: {e}")
+            self.send_error(500, str(e))
+
+    def handle_heartbeat(self):
+        """Обрабатывает heartbeat запросы"""
+        try:
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                'status': 'ok',
+                'timestamp': self.get_current_timestamp(),
+                'server': 'EasyDrive'
+            }).encode('utf-8'))
+        except Exception as e:
+            print(f"Ошибка при обработке heartbeat: {e}")
             self.send_error(500, str(e))
 
 def start_server():
