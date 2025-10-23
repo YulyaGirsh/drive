@@ -1449,6 +1449,8 @@
 
         function openVideo(videoNumber) {
             console.log('Открываем видео номер:', videoNumber);
+            console.log('Массив videos:', videos);
+            console.log('Длина массива videos:', videos ? videos.length : 'undefined');
             
             // Простая проверка
             if (!videoNumber || videoNumber < 1 || videoNumber > 20) {
@@ -1463,10 +1465,18 @@
             }
             
             const videoIndex = videoNumber - 1;
+            console.log('Индекс видео:', videoIndex);
+            
+            if (!videos || !Array.isArray(videos)) {
+                console.error('Массив videos не определен или не является массивом');
+                alert('Ошибка загрузки видео!');
+                return;
+            }
+            
             const video = videos[videoIndex];
             
             if (!video) {
-                console.error('Видео не найдено для номера:', videoNumber);
+                console.error('Видео не найдено для номера:', videoNumber, 'индекс:', videoIndex);
                 alert('Видео не найдено!');
                 return;
             }
