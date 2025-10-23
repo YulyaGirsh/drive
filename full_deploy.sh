@@ -17,6 +17,8 @@ git pull --rebase origin main
 # 3. Остановка старого сервера
 echo "3. Остановка старого сервера..."
 pkill -f "python.*server.py" || true
+sleep 3
+fuser -k 8000/tcp || true
 
 # 4. Настройка nginx
 echo "4. Настройка nginx..."

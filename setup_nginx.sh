@@ -7,7 +7,7 @@ echo "Настройка nginx для EasyDrive..."
 sudo tee /etc/nginx/sites-available/easydrive << 'EOF'
 server {
     listen 80;
-    server_name _;  # Принимаем все домены
+    server_name hochupravaeasy.ru www.hochupravaeasy.ru;  # Ваш домен
     
     # Статические файлы
     location / {
