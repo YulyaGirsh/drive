@@ -22,6 +22,10 @@ TBANK_SECRET_KEY = os.getenv('TBANK_SECRET_KEY', 'TY#iAnEUV*3CS&Bl')
 TBANK_API_URL = os.getenv('TBANK_API_URL', 'https://api.tbank.ru/v1/payments')
 TBANK_WEBHOOK_URL = os.getenv('TBANK_WEBHOOK_URL', 'https://hochupravaeasy.ru/api/tbank-webhook')
 
+# URL для перенаправления после оплаты
+TBANK_SUCCESS_URL = os.getenv('TBANK_SUCCESS_URL', 'https://hochupravaeasy.ru/success')
+TBANK_FAIL_URL = os.getenv('TBANK_FAIL_URL', 'https://hochupravaeasy.ru/fail')
+
 # Настройки платежа
 PAYMENT_CURRENCY = "RUB"
 PAYMENT_DESCRIPTION = "Подписка на видеоуроки EasyDrive"
@@ -40,5 +44,7 @@ REAL_CONFIG = {
     "api_key": TBANK_API_KEY,
     "secret_key": TBANK_SECRET_KEY,
     "api_url": TBANK_API_URL,
-    "webhook_url": TBANK_WEBHOOK_URL
+    "webhook_url": TBANK_WEBHOOK_URL,
+    "success_url": TBANK_SUCCESS_URL,
+    "fail_url": TBANK_FAIL_URL
 }

@@ -656,31 +656,42 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(400, "Missing user_id")
                 return
             
-            # Упрощенная логика - просто возвращаем успех
-            # В реальном проекте здесь будет интеграция с Т-банк
+            # Создаем платеж через Т-банк
             print(f"Создаем платеж для пользователя {user_id} на сумму {amount}₽")
             
-            # Генерируем ID платежа
-            payment_id = f"tbank_{user_id}_{int(time.time())}"
-            
-            # Отправляем ответ клиенту
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-            self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-            self.end_headers()
-            
-            response_data = {
-                'success': True,
-                'payment_id': payment_id,
-                'message': 'Payment created successfully',
-                'amount': amount,
-                'user_id': user_id
-            }
-            
-            print(f"Отправляем ответ: {response_data}")
-            self.wfile.write(json.dumps(response_data).encode('utf-8'))
+            try:
+                payment = TbankPayment()
+                result = payment.create_payment(amount, user_id)
+                
+                if result and result.get('success'):
+                    print(f"Платеж создан успешно: {result}")
+                    
+                    # Отправляем ответ клиенту
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                    self.end_headers()
+                    
+                    response_data = {
+                        'success': True,
+                        'payment_id': result.get('payment_id'),
+                        'payment_url': result.get('payment_url'),
+                        'message': 'Payment created successfully',
+                        'amount': amount,
+                        'user_id': user_id
+                    }
+                    
+                    print(f"Отправляем ответ: {response_data}")
+                    self.wfile.write(json.dumps(response_data).encode('utf-8'))
+                else:
+                    print(f"Ошибка создания платежа: {result}")
+                    self.send_error(500, f"Payment creation failed: {result.get('error', 'Unknown error')}")
+                    
+            except Exception as e:
+                print(f"Ошибка при создании платежа Т-банк: {e}")
+                self.send_error(500, str(e))
                 
         except Exception as e:
             print(f"Ошибка при создании платежа Т-банк: {e}")

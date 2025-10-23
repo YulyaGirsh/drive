@@ -29,8 +29,8 @@ class TbankPayment:
                 "currency": PAYMENT_CURRENCY,
                 "description": description or PAYMENT_DESCRIPTION,
                 "order_id": f"easydrive_{user_id}_{int(time.time())}",
-                "return_url": f"https://hochupravaeasy.ru/success?user_id={user_id}",
-                "fail_url": f"https://hochupravaeasy.ru/fail?user_id={user_id}",
+                "return_url": f"{TBANK_SUCCESS_URL}?user_id={user_id}",
+                "fail_url": f"{TBANK_FAIL_URL}?user_id={user_id}",
                 "webhook_url": self.webhook_url,
                 "timestamp": int(time.time())
             }
