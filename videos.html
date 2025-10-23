@@ -246,6 +246,16 @@
         
         if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userData = tg.initDataUnsafe.user;
+            console.log('Данные пользователя загружены:', userData);
+        } else {
+            console.log('Telegram WebApp не доступен, используем тестовые данные');
+            // Для тестирования в браузере создаем тестового пользователя
+            userData = {
+                id: 123456789,
+                first_name: 'Test',
+                last_name: 'User',
+                username: 'testuser'
+            };
         }
         
         // Проверяем подписку на канал
@@ -499,9 +509,21 @@
         
         // Обработка оплаты
         async function processPayment() {
-            if (!userData) {
-                alert('Ошибка: нет данных пользователя');
-                return;
+            // Получаем данные пользователя из Telegram или создаем тестовые
+            let currentUserData = userData;
+            
+            if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+            }
+            
+            if (!currentUserData) {
+                // Для тестирования создаем тестового пользователя
+                currentUserData = {
+                    id: Date.now(), // Используем timestamp как ID
+                    first_name: 'Test',
+                    last_name: 'User'
+                };
+                console.log('Используем тестового пользователя:', currentUserData);
             }
             
             try {
@@ -512,7 +534,7 @@
 🏦 <b>Банк:</b> Т-банк
 💳 <b>Номер кошелька:</b> 1761136519162DEMO
 💰 <b>Сумма:</b> ${SUBSCRIPTION_PRICE}₽
-📝 <b>Комментарий:</b> ${userData.id}
+📝 <b>Комментарий:</b> ${currentUserData.id}
 
 После оплаты нажмите кнопку "Подтвердить оплату"
                 `;
@@ -619,6 +641,21 @@
         
         // Подтверждение оплаты
         async function confirmPayment() {
+            // Получаем данные пользователя
+            let currentUserData = userData;
+            
+            if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+            }
+            
+            if (!currentUserData) {
+                currentUserData = {
+                    id: Date.now(),
+                    first_name: 'Test',
+                    last_name: 'User'
+                };
+            }
+            
             try {
                 const response = await fetch('/api/confirm-payment', {
                     method: 'POST',
@@ -626,7 +663,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        user_id: userData.id,
+                        user_id: currentUserData.id,
                         amount: SUBSCRIPTION_PRICE,
                         payment_method: 'tbank'
                     })
