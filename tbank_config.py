@@ -1,10 +1,12 @@
 # Конфигурация Т-банк для интернет-эквайринга
 # Замените на реальные данные после регистрации в Т-банк Бизнес
 
-# Реальные данные Т-банк
-TBANK_MERCHANT_ID = "200000001691412"  # Ваш Merchant ID
-TBANK_API_KEY = "1761136519162DEMO"    # Ваш API Key
-TBANK_SECRET_KEY = "TY#iAnEUV*3CS&Bl"  # Ваш Secret Key
+# Данные Т-банк из переменных окружения
+import os
+
+TBANK_MERCHANT_ID = os.getenv('TBANK_MERCHANT_ID', '200000001691412')
+TBANK_API_KEY = os.getenv('TBANK_API_KEY', '1761136519162DEMO')
+TBANK_SECRET_KEY = os.getenv('TBANK_SECRET_KEY', 'TY#iAnEUV*3CS&Bl')
 
 # URL для API Т-банк
 TBANK_API_URL = "https://api.tbank.ru/v1/payments"  # Реальный URL
