@@ -50,7 +50,6 @@ Thumbs.db
 .env.production.local
 .env.tbank
 config.env
-tbank_config.py
 
 # Temporary files
 *.tmp
