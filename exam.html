@@ -457,6 +457,9 @@
             
             <div class="question-info">
                 <span id="questionInfo">Выберите правильный ответ</span>
+                <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                    Правила: 1-2 ошибки = +5 вопросов и +5 минут каждая. 3+ ошибок = без добавлений. Макс: 30 вопросов, 30 минут.
+                </div>
             </div>
             
             <div class="question" id="questionContainer">
@@ -518,6 +521,7 @@
             examData.currentQuestion = 0;
             examData.answers = new Array(20).fill(null);
             examData.timeLeft = 20 * 60;
+            examData.maxQuestions = 30; // Максимальное количество вопросов
             examData.mistakes = 0;
             examData.additionalQuestions = [];
             examData.currentAdditionalQuestion = 0;
@@ -698,6 +702,10 @@
                 console.log('Первая ошибка - добавляем 5 дополнительных вопросов');
                 examData.additionalQuestions = getAdditionalQuestionsByCategory(category, 5);
                 examData.timeLeft += 5 * 60; // +5 минут
+                // Ограничиваем максимальное время 30 минутами
+                if (examData.timeLeft > 30 * 60) {
+                    examData.timeLeft = 30 * 60;
+                }
                 console.log('Добавлено дополнительных вопросов:', examData.additionalQuestions.length);
                 console.log('Дополнительные вопросы:', examData.additionalQuestions);
             } else if (examData.mistakes === 2) {
@@ -706,15 +714,22 @@
                 const moreQuestions = getAdditionalQuestionsByCategory(category, 5);
                 examData.additionalQuestions = [...examData.additionalQuestions, ...moreQuestions];
                 examData.timeLeft += 5 * 60; // +5 минут
+                // Ограничиваем максимальное время 30 минутами
+                if (examData.timeLeft > 30 * 60) {
+                    examData.timeLeft = 30 * 60;
+                }
+                // Ограничиваем максимальное количество вопросов 30
+                const totalQuestions = 20 + examData.additionalQuestions.length;
+                if (totalQuestions > examData.maxQuestions) {
+                    examData.additionalQuestions = examData.additionalQuestions.slice(0, examData.maxQuestions - 20);
+                }
                 console.log('Всего дополнительных вопросов:', examData.additionalQuestions.length);
                 console.log('Все дополнительные вопросы:', examData.additionalQuestions);
             } else if (examData.mistakes > 2) {
-                // Более 2 ошибок - добавляем еще 5 дополнительных вопросов
-                console.log('Третья и последующие ошибки - добавляем еще 5 дополнительных вопросов');
-                const moreQuestions = getAdditionalQuestionsByCategory(category, 5);
-                examData.additionalQuestions = [...examData.additionalQuestions, ...moreQuestions];
-                examData.timeLeft += 5 * 60; // +5 минут
-                console.log('Всего дополнительных вопросов:', examData.additionalQuestions.length);
+                // 3+ ошибки - тест продолжается, но дополнительные вопросы и время НЕ добавляются
+                console.log('Третья и последующие ошибки - тест продолжается без добавления вопросов и времени');
+                console.log('Текущее количество дополнительных вопросов:', examData.additionalQuestions.length);
+                console.log('Текущее время:', Math.floor(examData.timeLeft / 60), 'минут');
             }
         }
 
