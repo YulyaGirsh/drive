@@ -699,9 +699,11 @@
                 console.log('Первая ошибка - добавляем 5 дополнительных вопросов');
                 examData.additionalQuestions = getAdditionalQuestionsByCategory(category, 5);
                 examData.timeLeft += 5 * 60; // +5 минут
+                examData.originalTimeLimit += 5 * 60; // Обновляем исходное время
                 // Ограничиваем максимальное время 30 минутами
                 if (examData.timeLeft > 30 * 60) {
                     examData.timeLeft = 30 * 60;
+                    examData.originalTimeLimit = 30 * 60; // Обновляем исходное время
                 }
                 console.log('Добавлено дополнительных вопросов:', examData.additionalQuestions.length);
                 console.log('Дополнительные вопросы:', examData.additionalQuestions);
@@ -711,9 +713,11 @@
                 const moreQuestions = getAdditionalQuestionsByCategory(category, 5);
                 examData.additionalQuestions = [...examData.additionalQuestions, ...moreQuestions];
                 examData.timeLeft += 5 * 60; // +5 минут
+                examData.originalTimeLimit += 5 * 60; // Обновляем исходное время
                 // Ограничиваем максимальное время 30 минутами
                 if (examData.timeLeft > 30 * 60) {
                     examData.timeLeft = 30 * 60;
+                    examData.originalTimeLimit = 30 * 60; // Обновляем исходное время
                 }
                 // Ограничиваем максимальное количество вопросов 30
                 const totalQuestions = 20 + examData.additionalQuestions.length;
