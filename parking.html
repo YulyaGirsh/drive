@@ -195,11 +195,11 @@
         
         // Конфигурация
         const CHANNEL_USERNAME = '+w4RmUNIUdKFlMDBi';
-        const FREE_VIDEOS_COUNT = 2; // Первые 2 видео доступны всем
+        const FREE_VIDEOS_COUNT = 999; // Все видео доступны всем
         
         // Данные пользователя из Telegram
         let userData = null;
-        let isSubscribed = false;
+        let isSubscribed = true; // Всегда считаем подписанным
         
         if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userData = tg.initDataUnsafe.user;
@@ -242,64 +242,20 @@
         
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', async function() {
-            // Проверяем подписку
-            await checkSubscription();
-            
-            // Обновляем интерфейс в зависимости от подписки
+            // Все видео доступны без проверки подписки
             updateVideoButtons();
             
-            // Показываем уведомление для браузерной версии
-            if (!tg) {
-                showBrowserNotification();
-            }
+            // Уведомления убраны - все видео доступны
         });
         
-        // Обновляем кнопки видео в зависимости от подписки
+        // Обновляем кнопки видео - все доступны
         function updateVideoButtons() {
-            const videoButtons = document.querySelectorAll('.video-button');
-            
-            videoButtons.forEach((button, index) => {
-                const videoNumber = index;
-                
-                if (videoNumber >= FREE_VIDEOS_COUNT) {
-                    if (!isSubscribed) {
-                        // Блокируем кнопку для неподписанных пользователей
-                        button.style.opacity = '0.6';
-                        button.style.cursor = 'not-allowed';
-                        button.innerHTML = `
-                            <div class="video-title">
-                                ${button.querySelector('.video-title').textContent}
-                                <br><small style="color: #ffcc00;">🔒 Только для подписчиков</small>
-                            </div>
-                        `;
-                    }
-                }
-            });
+            // Все видео доступны без ограничений
         }
         
         // Показываем уведомление для браузерной версии
         function showBrowserNotification() {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
-                color: white;
-                padding: 15px;
-                margin: 10px 0;
-                border-radius: 10px;
-                text-align: center;
-                font-weight: 600;
-                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
-            `;
-            notification.innerHTML = `
-                🚗 <strong>Полный доступ к курсу восстановления навыков</strong><br>
-                Первые 2 урока доступны всем, остальные - только подписчикам канала<br>
-                <a href="https://t.me/${CHANNEL_USERNAME}" target="_blank" style="color: #ffcc00; text-decoration: underline;">
-                    Подписаться на канал
-                </a>
-            `;
-            
-            const videosContainer = document.querySelector('.videos-container');
-            videosContainer.insertBefore(notification, videosContainer.firstChild);
+            // Уведомление убрано - все видео доступны
         }
         
         // Показываем модальное окно с предложением подписки
@@ -533,11 +489,7 @@
                 return;
             }
             
-            // Проверяем доступ к видео
-            if (videoNumber >= FREE_VIDEOS_COUNT && !isSubscribed) {
-                showSubscriptionModal();
-                return;
-            }
+            // Все видео доступны без проверки подписки
             
             const video = videos[videoNumber];
             
