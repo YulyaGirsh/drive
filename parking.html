@@ -429,7 +429,8 @@
                 embedUrl: "https://rutube.ru/play/embed/2f4f5a601b39b7414ef52a565701b644/?p=IBIbcPACQXF_fxj9V1D68A",
                 rutubeId: "2f4f5a601b39b7414ef52a565701b644",
                 host: "rutube",
-                isPrivate: true
+                isPrivate: false,
+                directUrl: "https://rutube.ru/video/private/2f4f5a601b39b7414ef52a565701b644/?p=IBIbcPACQXF_fxj9V1D68A"
             },
             {
                 title: "Урок 1. Откуда берется страх?",
@@ -439,7 +440,7 @@
                 embedUrl: "https://rutube.ru/play/embed/23558ebdf428f27f544b1836e48cc4ad/?p=mKBavPixKV7mX7BqZOIzhg",
                 rutubeId: "23558ebdf428f27f544b1836e48cc4ad",
                 host: "rutube",
-                isPrivate: true
+                isPrivate: false
             },
             {
                 title: "Урок 2. Практика",
@@ -449,7 +450,7 @@
                 embedUrl: "https://rutube.ru/play/embed/f473513aaaa1152e36f89334ac9eb0e2/?p=6WKFn7KDBvy0T24Gjd8PXw",
                 rutubeId: "f473513aaaa1152e36f89334ac9eb0e2",
                 host: "rutube",
-                isPrivate: true
+                isPrivate: false
             },
             {
                 title: "Урок 3. Парковка",
@@ -459,7 +460,7 @@
                 embedUrl: "https://rutube.ru/play/embed/d4a54ef82b06ead19c73e7d93483b2d2/?p=UUQQzJMA8S4-bBTfnUYejw",
                 rutubeId: "d4a54ef82b06ead19c73e7d93483b2d2",
                 host: "rutube",
-                isPrivate: true
+                isPrivate: false
             },
             {
                 title: "Урок 4. Ночная езда",
@@ -469,7 +470,7 @@
                 embedUrl: "https://rutube.ru/play/embed/66ca30c44e17a2573aa32a8ed326381b/?p=pOKrXWpWU_Z-F_9TZU-1YA",
                 rutubeId: "66ca30c44e17a2573aa32a8ed326381b",
                 host: "rutube",
-                isPrivate: true
+                isPrivate: false
             },
             {
                 title: "Урок 5. Как ездить в потоке?",
@@ -479,7 +480,7 @@
                 embedUrl: "https://rutube.ru/play/embed/155e4e369f1aab32b63676eaec205947/?p=0jnyG5Q_OyrrCTyOFm_rhg",
                 rutubeId: "155e4e369f1aab32b63676eaec205947",
                 host: "rutube",
-                isPrivate: true
+                isPrivate: false
             },
             {
                 title: "Урок 6. Езда вне города",
@@ -489,7 +490,7 @@
                 embedUrl: "https://rutube.ru/play/embed/b1888e7e9711955a377a7dea78b1140f/?p=eOIoc0d-gegneV89eFv4mA",
                 rutubeId: "b1888e7e9711955a377a7dea78b1140f",
                 host: "rutube",
-                isPrivate: true
+                isPrivate: false
             },
             {
                 title: "Заключение",
@@ -499,7 +500,7 @@
                 embedUrl: "https://rutube.ru/play/embed/f174f3bdf89d73104f54be8a568cadd3/?p=pGnM2BQTBhhsXQDuI92UUw",
                 rutubeId: "f174f3bdf89d73104f54be8a568cadd3",
                 host: "rutube",
-                isPrivate: true
+                isPrivate: false
             },
             {
                 title: "Бонус 1. Дополнительные техники",
@@ -509,7 +510,7 @@
                 embedUrl: "https://rutube.ru/play/embed/93330d56c01fa51c336698fefc770bb9/?p=ePDHI8QlK--n0r0RKVl3vg",
                 rutubeId: "93330d56c01fa51c336698fefc770bb9",
                 host: "rutube",
-                isPrivate: true
+                isPrivate: false
             },
             {
                 title: "Бонус 2. Продвинутые методы",
@@ -519,7 +520,7 @@
                 embedUrl: "https://rutube.ru/play/embed/ff39d9de0ad3b43ab6b6e8ca8519aee0/?p=lifZNgO0-eLjZWJ71_n3rA",
                 rutubeId: "ff39d9de0ad3b43ab6b6e8ca8519aee0",
                 host: "rutube",
-                isPrivate: true
+                isPrivate: false
             }
         ];
 
@@ -527,7 +528,7 @@
             console.log('Открываем видео номер:', videoNumber);
             
             // Простая проверка
-            if (!videoNumber || videoNumber < 0 || videoNumber >= videos.length) {
+            if (videoNumber === undefined || videoNumber === null || videoNumber < 0 || videoNumber >= videos.length) {
                 alert('Неверный номер видео!');
                 return;
             }
@@ -548,7 +549,128 @@
             
             console.log('Видео найдено:', video.title);
             
-            // Используем RuTube embed URL
+            // Проверяем, является ли видео приватным
+            if (video.isPrivate) {
+                // Для приватных видео показываем сообщение с прямой ссылкой
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.9);
+                    z-index: 1000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 20px;
+                `;
+                
+                const content = document.createElement('div');
+                content.style.cssText = `
+                    background: white;
+                    border-radius: 15px;
+                    padding: 30px;
+                    max-width: 500px;
+                    width: 100%;
+                    text-align: center;
+                    position: relative;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                `;
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '×';
+                closeBtn.style.cssText = `
+                    position: absolute;
+                    top: 15px;
+                    right: 20px;
+                    background: #ff6b6b;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    cursor: pointer;
+                    font-size: 18px;
+                    font-weight: bold;
+                `;
+                closeBtn.onclick = function() {
+                    modal.remove();
+                };
+                
+                const icon = document.createElement('div');
+                icon.innerHTML = '🔒';
+                icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+                
+                const title = document.createElement('h2');
+                title.textContent = video.title;
+                title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+                
+                const message = document.createElement('p');
+                message.innerHTML = `
+                    Это приватное видео. Для просмотра перейдите по прямой ссылке:<br><br>
+                    <a href="${video.directUrl || video.embedUrl}" target="_blank" style="color: #ff8c00; text-decoration: underline; word-break: break-all;">
+                        ${video.directUrl || video.embedUrl}
+                    </a>
+                `;
+                message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
+                
+                const openBtn = document.createElement('button');
+                openBtn.innerHTML = '🚗 Открыть видео';
+                openBtn.style.cssText = `
+                    background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                    color: white;
+                    border: none;
+                    padding: 15px 25px;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                    width: 100%;
+                    box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+                `;
+                openBtn.onclick = function() {
+                    window.open(video.directUrl || video.embedUrl, '_blank');
+                };
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.innerHTML = 'Закрыть';
+                cancelBtn.style.cssText = `
+                    background: #f0f0f0;
+                    color: #666;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 14px;
+                `;
+                cancelBtn.onclick = function() {
+                    modal.remove();
+                };
+                
+                content.appendChild(closeBtn);
+                content.appendChild(icon);
+                content.appendChild(title);
+                content.appendChild(message);
+                content.appendChild(openBtn);
+                content.appendChild(cancelBtn);
+                modal.appendChild(content);
+                
+                document.body.appendChild(modal);
+                
+                // Закрытие по клику на фон
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+                
+                return;
+            }
+            
+            // Используем RuTube embed URL для публичных видео
             const embedUrl = video.embedUrl;
             console.log('Используем RuTube:', embedUrl);
             
@@ -614,6 +736,28 @@
             iframe.frameBorder = '0';
             iframe.allowFullscreen = true;
             iframe.style.cssText = 'border-radius: 8px; margin-bottom: 15px;';
+            
+            // Обработка ошибок загрузки iframe
+            iframe.onerror = function() {
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    background: #ffebee;
+                    color: #c62828;
+                    padding: 20px;
+                    border-radius: 8px;
+                    text-align: center;
+                    margin-bottom: 15px;
+                    border: 1px solid #ffcdd2;
+                `;
+                errorDiv.innerHTML = `
+                    <strong>❌ Ошибка загрузки видео</strong><br>
+                    Видео не удалось загрузить. Возможно, оно недоступно или заблокировано.<br><br>
+                    <a href="${video.directUrl || embedUrl}" target="_blank" style="color: #ff8c00; text-decoration: underline;">
+                        Попробовать открыть напрямую
+                    </a>
+                `;
+                iframe.parentNode.replaceChild(errorDiv, iframe);
+            };
             
             content.appendChild(closeBtn);
             content.appendChild(title);
