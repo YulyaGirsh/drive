@@ -126,14 +126,14 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 print(f"Ответ от Telegram: {result_data}")
                 
                 if result_data.get('ok'):
-                    print("✅ Сообщение успешно отправлено в Telegram")
+                    print("Сообщение успешно отправлено в Telegram")
                     # Отправляем успешный ответ клиенту
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     self.wfile.write(json.dumps({'success': True, 'message': 'Message sent successfully'}).encode('utf-8'))
                 else:
-                    print(f"❌ Ошибка Telegram API: {result_data}")
+                    print(f"Ошибка Telegram API: {result_data}")
                     self.send_error(500, f"Telegram API error: {result_data.get('description', 'Unknown error')}")
                 
         except urllib.error.HTTPError as e:
@@ -174,7 +174,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 ⚖️ **Услуга:** {order_data['service']}
 
-👤 **Клиент:**
+**Клиент:**
 {client_info}
 
 📞 **Телефон:** {order_data['phone']}
@@ -237,7 +237,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 🧠 **Услуга:** {order_data['service']}
 
-👤 **Клиент:**
+**Клиент:**
 {client_info}
 
 📞 **Телефон:** {order_data['phone']}
@@ -297,9 +297,9 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 result_data = json.loads(result)
                 
                 if result_data.get('ok'):
-                    print('✅ Уведомление админу отправлено')
+                    print('Уведомление админу отправлено')
                 else:
-                    print(f'❌ Ошибка отправки уведомления: {result_data}')
+                    print(f'Ошибка отправки уведомления: {result_data}')
                     # Fallback без Markdown
                     try:
                         telegram_data['parse_mode'] = None
@@ -312,12 +312,12 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                         with urllib.request.urlopen(req) as fallback_response:
                             fallback_result = json.loads(fallback_response.read().decode('utf-8'))
                             if fallback_result.get('ok'):
-                                print('✅ Уведомление админу отправлено (без Markdown)')
+                                print('Уведомление админу отправлено (без Markdown)')
                     except Exception as fallback_error:
-                        print(f'❌ Ошибка отправки уведомления (fallback): {fallback_error}')
+                        print(f'Ошибка отправки уведомления (fallback): {fallback_error}')
                 
         except Exception as e:
-            print(f'❌ Ошибка при отправке уведомления: {e}')
+            print(f'Ошибка при отправке уведомления: {e}')
 
     def check_subscription(self):
         """Проверяет подписку пользователя на канал"""
@@ -555,7 +555,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 
                 self.send_telegram_notification(admin_message)
                 
-                print(f"✅ Подписка активирована для пользователя {user_id}")
+                print(f"Подписка активирована для пользователя {user_id}")
                 
                 # Отправляем успешный ответ клиенту
                 self.send_response(200)
