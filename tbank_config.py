@@ -3,6 +3,16 @@
 
 # Данные Т-банк из переменных окружения
 import os
+from pathlib import Path
+
+# Загружаем переменные из .env.tbank файла если он существует
+env_file = Path('.env.tbank')
+if env_file.exists():
+    with open(env_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.strip() and not line.startswith('#'):
+                key, value = line.strip().split('=', 1)
+                os.environ[key] = value
 
 TBANK_MERCHANT_ID = os.getenv('TBANK_MERCHANT_ID', '200000001691412')
 TBANK_API_KEY = os.getenv('TBANK_API_KEY', '1761136519162DEMO')
