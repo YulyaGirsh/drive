@@ -1235,7 +1235,7 @@
                         totalQuestions: 20,
                         timeSpent: examData.originalTimeLimit - examData.timeLeft,
                         passed: false,
-                        reason: `Не все дополнительные вопросы отвечены правильно (${correctAdditionalAnswers}/${examData.additionalQuestions.length})`,
+                        reason: `Ошибок в дополнительных вопросах: ${examData.additionalQuestions.length - correctAdditionalAnswers}`,
                         mistakes: examData.mistakes,
                         additionalQuestions: examData.additionalQuestions.length,
                         correctAdditionalAnswers: correctAdditionalAnswers
