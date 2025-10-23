@@ -10,10 +10,10 @@ cat > config.js << EOF
 // Конфигурация бота
 const BOT_CONFIG = {
     token: '8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0',
-    recipientId: '7644513746'
+    recipientId: '5292692434'
 };
 EOF
 
 echo "Конфигурация обновлена!"
 echo "Токен бота: 8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0"
-echo "ID получателя: 7644513746"
+echo "ID получателя: 5292692434"

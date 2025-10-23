@@ -20,7 +20,7 @@ if not BOT_TOKEN:
     raise ValueError("BOT_TOKEN не найден в переменных окружения!")
 
 # ID получателя для отправки данных форм
-RECIPIENT_ID = int(os.getenv('RECIPIENT_ID', '7644513746'))
+RECIPIENT_ID = int(os.getenv('RECIPIENT_ID', '5292692434'))
 
 # URL приложения (HTTPS требуется для Telegram Mini App)
 APP_URL = os.getenv('APP_URL', 'https://hochupravaeasy.ru')
