@@ -239,9 +239,8 @@
         const FREE_VIDEOS_COUNT = 2; // Первые 2 видео доступны всем
         const SUBSCRIPTION_PRICE = 10; // Цена подписки в рублях
         
-        // Базовый URL для API запросов
+        // Базовый URL для API запросов (используем Telegram API)
         const API_BASE_URL = 'https://api.telegram.org/bot' + CONFIG.botToken;
-        const TBANK_API_URL = 'https://api.tbank.ru/v1/payments';
         
         // Данные пользователя из Telegram
         let userData = null;
@@ -907,7 +906,7 @@
             }
         }
         
-        // Обработка оплаты через Т-банк API
+        // Обработка оплаты
         async function processPayment() {
             // Получаем данные пользователя из Telegram или создаем тестовые
             let currentUserData = userData;
@@ -926,81 +925,7 @@
                 console.log('Используем тестового пользователя:', currentUserData);
             }
             
-            try {
-                // Создаем платеж через Т-банк API
-                const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
-                const paymentData = {
-                    merchant_id: '200000001691412',
-                    amount: SUBSCRIPTION_PRICE * 100, // Сумма в копейках
-                    currency: 'RUB',
-                    order_id: orderId,
-                    description: 'Подписка на видеоуроки EasyDrive',
-                    return_url: `https://hochupravaeasy.ru/success?user_id=${currentUserData.id}`,
-                    fail_url: `https://hochupravaeasy.ru/fail?user_id=${currentUserData.id}`,
-                    webhook_url: 'https://hochupravaeasy.ru/api/tbank-webhook'
-                };
-                
-                console.log('Создаем платеж через Т-банк API:', paymentData);
-                
-                const response = await fetch(TBANK_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer 1761136519162DEMO'
-                    },
-                    body: JSON.stringify(paymentData)
-                });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Ответ Т-банк API:', result);
-                    
-                    if (result.success && result.payment_url) {
-                        // Открываем страницу оплаты Т-банка
-                        window.open(result.payment_url, '_blank');
-                        
-                        // Показываем информацию о платеже
-                        showPaymentInfoModal(currentUserData, orderId);
-                    } else {
-                        // Если API не работает, показываем реквизиты для ручной оплаты
-                        showManualPaymentModal(currentUserData);
-                    }
-                } else {
-                    console.error('Ошибка Т-банк API:', response.status);
-                    // Показываем реквизиты для ручной оплаты
-                    showManualPaymentModal(currentUserData);
-                }
-            } catch (error) {
-                console.error('Ошибка при создании платежа:', error);
-                // Показываем реквизиты для ручной оплаты
-                showManualPaymentModal(currentUserData);
-            }
-        }
-        
-        // Показывает модальное окно с информацией о платеже
-        function showPaymentInfoModal(currentUserData, orderId) {
-            const paymentInfo = `
-💳 <b>Платеж создан успешно!</b>
-
-🆔 <b>Номер заказа:</b> ${orderId}
-💰 <b>Сумма:</b> ${SUBSCRIPTION_PRICE}₽
-🏦 <b>Способ оплаты:</b> Т-банк
-
-✅ <b>Откройте вкладку с оплатой и завершите платеж</b>
-⏰ <b>Подписка активируется автоматически после оплаты</b>
-            `;
-            
-            showModal('Информация о платеже', paymentInfo, [
-                {
-                    text: '✅ Понятно',
-                    style: 'background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%); color: white;',
-                    onclick: () => {}
-                }
-            ]);
-        }
-        
-        // Показывает модальное окно с реквизитами для ручной оплаты
-        function showManualPaymentModal(currentUserData) {
+            // Показываем информацию о платеже (работает без сервера)
             const paymentInfo = `
 💳 <b>Информация для оплаты</b>
 
@@ -1011,27 +936,9 @@
 
 После оплаты нажмите кнопку "Подтвердить оплату"
             `;
-            
-            showModal('Ручная оплата', paymentInfo, [
-                {
-                    text: '✅ Подтвердить оплату',
-                    style: 'background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%); color: white;',
-                    onclick: async () => {
-                        await confirmPayment();
-                    }
-                },
-                {
-                    text: 'Отмена',
-                    style: 'background: #f0f0f0; color: #666;',
-                    onclick: () => {}
-                }
-            ]);
-        }
-        
-        // Универсальная функция для показа модального окна
-        function showModal(title, content, buttons) {
-            const modal = document.createElement('div');
-            modal.style.cssText = `
+    
+            const confirmModal = document.createElement('div');
+            confirmModal.style.cssText = `
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -1045,8 +952,8 @@
                 padding: 20px;
             `;
             
-            const modalContent = document.createElement('div');
-            modalContent.style.cssText = `
+            const confirmContent = document.createElement('div');
+            confirmContent.style.cssText = `
                 background: white;
                 border-radius: 15px;
                 padding: 30px;
@@ -1057,9 +964,9 @@
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             `;
             
-            const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = '×';
-            closeBtn.style.cssText = `
+            const closeConfirmBtn = document.createElement('button');
+            closeConfirmBtn.innerHTML = '×';
+            closeConfirmBtn.style.cssText = `
                 position: absolute;
                 top: 15px;
                 right: 20px;
@@ -1073,43 +980,56 @@
                 font-size: 18px;
                 font-weight: bold;
             `;
-            closeBtn.onclick = () => modal.remove();
+            closeConfirmBtn.onclick = function() {
+                confirmModal.remove();
+            };
             
-            const titleEl = document.createElement('h3');
-            titleEl.innerHTML = title;
-            titleEl.style.cssText = 'color: #333; margin-bottom: 20px; font-size: 20px;';
+            const paymentText = document.createElement('div');
+            paymentText.innerHTML = paymentInfo.replace(/\n/g, '<br>');
+            paymentText.style.cssText = 'color: #333; margin-bottom: 25px; text-align: left; font-family: monospace; background: #f5f5f5; padding: 15px; border-radius: 8px;';
             
-            const contentEl = document.createElement('div');
-            contentEl.innerHTML = content.replace(/\n/g, '<br>');
-            contentEl.style.cssText = 'color: #333; margin-bottom: 25px; text-align: left; font-family: monospace; background: #f5f5f5; padding: 15px; border-radius: 8px;';
+            const confirmBtn = document.createElement('button');
+            confirmBtn.innerHTML = '✅ Подтвердить оплату';
+            confirmBtn.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 15px;
+                width: 100%;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+            `;
+            confirmBtn.onclick = async function() {
+                await confirmPayment();
+                confirmModal.remove();
+            };
             
-            modalContent.appendChild(closeBtn);
-            modalContent.appendChild(titleEl);
-            modalContent.appendChild(contentEl);
+            const cancelConfirmBtn = document.createElement('button');
+            cancelConfirmBtn.innerHTML = 'Отмена';
+            cancelConfirmBtn.style.cssText = `
+                background: #f0f0f0;
+                color: #666;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 14px;
+            `;
+            cancelConfirmBtn.onclick = function() {
+                confirmModal.remove();
+            };
             
-            buttons.forEach(btn => {
-                const button = document.createElement('button');
-                button.innerHTML = btn.text;
-                button.style.cssText = `
-                    ${btn.style}
-                    border: none;
-                    padding: 15px 25px;
-                    border-radius: 25px;
-                    cursor: pointer;
-                    font-size: 16px;
-                    font-weight: 600;
-                    margin: 5px;
-                    width: 100%;
-                `;
-                button.onclick = () => {
-                    btn.onclick();
-                    modal.remove();
-                };
-                modalContent.appendChild(button);
-            });
+            confirmContent.appendChild(closeConfirmBtn);
+            confirmContent.appendChild(paymentText);
+            confirmContent.appendChild(confirmBtn);
+            confirmContent.appendChild(cancelConfirmBtn);
+            confirmModal.appendChild(confirmContent);
             
-            modal.appendChild(modalContent);
-            document.body.appendChild(modal);
+            document.body.appendChild(confirmModal);
         }
         
         // Подтверждение оплаты
@@ -1449,8 +1369,6 @@
 
         function openVideo(videoNumber) {
             console.log('Открываем видео номер:', videoNumber);
-            console.log('Массив videos:', videos);
-            console.log('Длина массива videos:', videos ? videos.length : 'undefined');
             
             // Простая проверка
             if (!videoNumber || videoNumber < 1 || videoNumber > 20) {
@@ -1465,18 +1383,10 @@
             }
             
             const videoIndex = videoNumber - 1;
-            console.log('Индекс видео:', videoIndex);
-            
-            if (!videos || !Array.isArray(videos)) {
-                console.error('Массив videos не определен или не является массивом');
-                alert('Ошибка загрузки видео!');
-                return;
-            }
-            
             const video = videos[videoIndex];
             
             if (!video) {
-                console.error('Видео не найдено для номера:', videoNumber, 'индекс:', videoIndex);
+                console.error('Видео не найдено для номера:', videoNumber);
                 alert('Видео не найдено!');
                 return;
             }
