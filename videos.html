@@ -239,6 +239,9 @@
         const FREE_VIDEOS_COUNT = 2; // Первые 2 видео доступны всем
         const SUBSCRIPTION_PRICE = 10; // Цена подписки в рублях
         
+        // Базовый URL для API запросов
+        const API_BASE_URL = window.location.protocol + '//' + window.location.host;
+        
         // Данные пользователя из Telegram
         let userData = null;
         let isSubscribed = false; // Проверяем подписку
@@ -267,7 +270,7 @@
             
             try {
                 // Отправляем запрос на сервер для проверки подписки
-                const response = await fetch('/api/check-subscription', {
+                const response = await fetch(`${API_BASE_URL}/api/check-subscription`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -300,7 +303,7 @@
             }
             
             try {
-                const response = await fetch('/api/check-paid-subscription', {
+                const response = await fetch(`${API_BASE_URL}/api/check-paid-subscription`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -850,7 +853,7 @@
             }
             
             try {
-                const response = await fetch('/api/confirm-payment', {
+                const response = await fetch(`${API_BASE_URL}/api/confirm-payment`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -886,7 +889,11 @@
                 
             } catch (error) {
                 console.error('Ошибка подтверждения оплаты картой:', error);
-                alert('❌ Ошибка при подтверждении оплаты картой. Попробуйте еще раз.');
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    alert('❌ Сервер недоступен. Убедитесь, что сервер запущен на localhost:8000');
+                } else {
+                    alert('❌ Ошибка при подтверждении оплаты картой. Попробуйте еще раз.');
+                }
             }
         }
         
@@ -908,7 +915,7 @@
             }
             
             try {
-                const response = await fetch('/api/confirm-payment', {
+                const response = await fetch(`${API_BASE_URL}/api/confirm-payment`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -938,7 +945,11 @@
                 
             } catch (error) {
                 console.error('Ошибка подтверждения оплаты СБП:', error);
-                alert('❌ Ошибка при подтверждении оплаты СБП. Попробуйте еще раз.');
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    alert('❌ Сервер недоступен. Убедитесь, что сервер запущен на localhost:8000');
+                } else {
+                    alert('❌ Ошибка при подтверждении оплаты СБП. Попробуйте еще раз.');
+                }
             }
         }
         
@@ -1092,7 +1103,7 @@
             }
             
             try {
-                const response = await fetch('/api/confirm-payment', {
+                const response = await fetch(`${API_BASE_URL}/api/confirm-payment`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1122,7 +1133,11 @@
                 
             } catch (error) {
                 console.error('Ошибка подтверждения оплаты:', error);
-                alert('❌ Ошибка при подтверждении оплаты. Попробуйте еще раз.');
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    alert('❌ Сервер недоступен. Убедитесь, что сервер запущен на localhost:8000');
+                } else {
+                    alert('❌ Ошибка при подтверждении оплаты. Попробуйте еще раз.');
+                }
             }
         }
         
