@@ -6,6 +6,9 @@ import http.server
 import socketserver
 import os
 import sys
+import json
+import time
+from tbank_payment import TbankPayment
 
 # Порт для сервера (обычно 8000 для nginx proxy)
 PORT = 8000
@@ -54,6 +57,16 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         try:
             if self.path == '/api/send-telegram':
                 self.send_telegram_message()
+            elif self.path == '/api/tbank-create-payment':
+                self.create_tbank_payment()
+            elif self.path == '/api/tbank-webhook':
+                self.handle_tbank_webhook()
+            elif self.path == '/api/confirm-payment':
+                self.confirm_payment()
+            elif self.path == '/api/check-subscription':
+                self.check_subscription()
+            elif self.path == '/api/check-paid-subscription':
+                self.check_paid_subscription()
             else:
                 self.send_error(404, "API endpoint not found")
         except Exception as e:
@@ -149,6 +162,170 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_error(404, "Questions file not found")
         except Exception as e:
             self.send_error(500, f"Error loading questions: {str(e)}")
+
+    def create_tbank_payment(self):
+        """Создает платеж через Т-банк"""
+        try:
+            # Читаем данные запроса
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            print(f"Создаем платеж Т-банк: {data}")
+            
+            user_id = data.get('user_id')
+            amount = data.get('amount', 10)
+            payment_method = data.get('payment_method', 'card')
+            
+            if not user_id:
+                self.send_error(400, "Missing user_id")
+                return
+            
+            # Создаем платеж через Т-банк
+            print(f"Создаем платеж для пользователя {user_id} на сумму {amount}₽")
+            
+            try:
+                payment = TbankPayment()
+                result = payment.create_payment(amount, user_id)
+                
+                if result and result.get('success'):
+                    print(f"Платеж создан успешно: {result}")
+                    
+                    # Отправляем ответ клиенту
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                    self.end_headers()
+                    
+                    response_data = {
+                        'success': True,
+                        'payment_id': result.get('payment_id'),
+                        'payment_url': result.get('payment_url'),
+                        'message': 'Payment created successfully',
+                        'amount': amount,
+                        'user_id': user_id
+                    }
+                    
+                    print(f"Отправляем ответ: {response_data}")
+                    self.wfile.write(json.dumps(response_data).encode('utf-8'))
+                else:
+                    print(f"Ошибка создания платежа: {result}")
+                    self.send_error(500, f"Payment creation failed: {result.get('error', 'Unknown error')}")
+                    
+            except Exception as e:
+                print(f"Ошибка при создании платежа Т-банк: {e}")
+                self.send_error(500, str(e))
+                
+        except Exception as e:
+            print(f"Ошибка при создании платежа Т-банк: {e}")
+            self.send_error(500, str(e))
+
+    def handle_tbank_webhook(self):
+        """Обрабатывает webhook от Т-банк"""
+        try:
+            # Читаем данные запроса
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            print(f"Получен webhook от Т-банк: {data}")
+            
+            # Отправляем ответ
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'status': 'ok'}).encode('utf-8'))
+            
+        except Exception as e:
+            print(f"Ошибка при обработке webhook: {e}")
+            self.send_error(500, str(e))
+
+    def confirm_payment(self):
+        """Подтверждает оплату"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            user_id = data.get('user_id')
+            amount = data.get('amount', 10)
+            
+            print(f"Подтверждаем оплату для пользователя {user_id} на сумму {amount}₽")
+            
+            # Отправляем ответ
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            
+            response_data = {
+                'success': True,
+                'message': 'Payment confirmed successfully',
+                'user_id': user_id,
+                'amount': amount
+            }
+            
+            self.wfile.write(json.dumps(response_data).encode('utf-8'))
+            
+        except Exception as e:
+            print(f"Ошибка при подтверждении оплаты: {e}")
+            self.send_error(500, str(e))
+
+    def check_subscription(self):
+        """Проверяет подписку пользователя"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            user_id = data.get('user_id')
+            print(f"Проверяем подписку для пользователя {user_id}")
+            
+            # Отправляем ответ
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            
+            response_data = {
+                'has_subscription': False,
+                'user_id': user_id
+            }
+            
+            self.wfile.write(json.dumps(response_data).encode('utf-8'))
+            
+        except Exception as e:
+            print(f"Ошибка при проверке подписки: {e}")
+            self.send_error(500, str(e))
+
+    def check_paid_subscription(self):
+        """Проверяет платную подписку пользователя"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            user_id = data.get('user_id')
+            print(f"Проверяем платную подписку для пользователя {user_id}")
+            
+            # Отправляем ответ
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            
+            response_data = {
+                'has_paid_subscription': False,
+                'user_id': user_id
+            }
+            
+            self.wfile.write(json.dumps(response_data).encode('utf-8'))
+            
+        except Exception as e:
+            print(f"Ошибка при проверке платной подписки: {e}")
+            self.send_error(500, str(e))
 
 if __name__ == "__main__":
     with socketserver.TCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
