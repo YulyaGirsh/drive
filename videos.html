@@ -853,7 +853,7 @@
             }
             
             try {
-                const response = await fetch(`${API_BASE_URL}/api/confirm-payment`, {
+                const response = await fetch(`${API_BASE_URL}/api/tbank-create-payment`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -866,7 +866,7 @@
                             number: cardNumber,
                             expiry: cardExpiry,
                             cvv: cardCVV,
-                            name: cardName
+                            holder: cardName
                         }
                     })
                 });

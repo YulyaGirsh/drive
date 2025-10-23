@@ -6,6 +6,7 @@ import json
 import urllib.parse
 import urllib.request
 from pathlib import Path
+from tbank_payment import TbankPayment, create_test_payment
 
 PORT = 8000
 
@@ -76,6 +77,10 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.check_paid_subscription()
             elif self.path == '/api/confirm-payment':
                 self.confirm_payment()
+            elif self.path == '/api/tbank-create-payment':
+                self.create_tbank_payment()
+            elif self.path == '/api/tbank-webhook':
+                self.handle_tbank_webhook()
             else:
                 self.send_error(404, "API endpoint not found")
         except Exception as e:
@@ -622,6 +627,122 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         """Возвращает текущее время в формате строки"""
         from datetime import datetime
         return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    def create_tbank_payment(self):
+        """Создает платеж через Т-банк"""
+        try:
+            # Читаем данные запроса
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            print(f"Создаем платеж Т-банк: {data}")
+            
+            user_id = data.get('user_id')
+            amount = data.get('amount', 10)
+            payment_method = data.get('payment_method', 'card')
+            card_data = data.get('card_data', {})
+            
+            if not user_id:
+                self.send_error(400, "Missing user_id")
+                return
+            
+            # Создаем платеж
+            if payment_method == 'card' and card_data:
+                # Платеж по карте
+                payment = TbankPayment()
+                result = payment.create_card_payment(amount, user_id, card_data)
+            else:
+                # Обычный платеж (перенаправление на страницу оплаты)
+                payment = TbankPayment()
+                result = payment.create_payment(amount, user_id)
+            
+            if result and result.get('success'):
+                print(f"Платеж создан успешно: {result}")
+                
+                # Отправляем ответ клиенту
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    'success': True,
+                    'payment_id': result.get('payment_id'),
+                    'payment_url': result.get('payment_url'),
+                    'status': result.get('status'),
+                    'message': result.get('message', 'Payment created successfully')
+                }).encode('utf-8'))
+            else:
+                print(f"Ошибка создания платежа: {result}")
+                self.send_error(500, f"Payment creation failed: {result.get('error', 'Unknown error')}")
+                
+        except Exception as e:
+            print(f"Ошибка при создании платежа Т-банк: {e}")
+            self.send_error(500, str(e))
+
+    def handle_tbank_webhook(self):
+        """Обрабатывает webhook от Т-банк"""
+        try:
+            # Читаем данные запроса
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            print(f"Получен webhook от Т-банк: {data}")
+            
+            # Проверяем подпись (если есть)
+            signature = self.headers.get('X-Tbank-Signature', '')
+            if signature:
+                payment = TbankPayment()
+                if not payment.verify_webhook(data, signature):
+                    print("Неверная подпись webhook")
+                    self.send_error(400, "Invalid signature")
+                    return
+            
+            # Обрабатываем статус платежа
+            payment_status = data.get('status')
+            order_id = data.get('order_id', '')
+            amount = data.get('amount', 0)
+            
+            # Извлекаем user_id из order_id (формат: easydrive_{user_id}_{timestamp})
+            if order_id.startswith('easydrive_'):
+                try:
+                    user_id = order_id.split('_')[1]
+                except:
+                    user_id = None
+            else:
+                user_id = None
+            
+            if payment_status == 'success' and user_id:
+                # Активируем подписку
+                success = self.activate_user_subscription(user_id, amount / 100, 'tbank')
+                
+                if success:
+                    print(f"Подписка активирована для пользователя {user_id}")
+                    
+                    # Отправляем уведомление админу
+                    admin_message = f"""<b>НОВАЯ ОПЛАТА ПОДПИСКИ (Т-БАНК)</b>
+
+<b>Пользователь ID:</b> {user_id}
+<b>Сумма:</b> {amount / 100} руб
+<b>Способ оплаты:</b> Т-банк
+<b>Время:</b> {self.get_current_timestamp()}
+<b>Статус:</b> Успешно
+
+Подписка активирована!"""
+                    
+                    self.send_telegram_notification(admin_message)
+                else:
+                    print(f"Ошибка активации подписки для пользователя {user_id}")
+            
+            # Отправляем ответ Т-банк
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'status': 'ok'}).encode('utf-8'))
+                
+        except Exception as e:
+            print(f"Ошибка при обработке webhook Т-банк: {e}")
+            self.send_error(500, str(e))
 
 def start_server():
     # Переходим в директорию с файлами
