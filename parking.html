@@ -195,11 +195,13 @@
         
         // Конфигурация
         const CHANNEL_USERNAME = '+w4RmUNIUdKFlMDBi';
-        const FREE_VIDEOS_COUNT = 999; // Все видео доступны всем
+        const FREE_VIDEOS_COUNT = 1; // Только вводный урок доступен бесплатно
+        const SUBSCRIPTION_PRICE = 10; // Цена подписки в рублях
         
         // Данные пользователя из Telegram
         let userData = null;
-        let isSubscribed = true; // Всегда считаем подписанным
+        let isSubscribed = false; // Проверяем подписку
+        let hasPaidSubscription = false; // Проверяем оплаченную подписку
         
         if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userData = tg.initDataUnsafe.user;
@@ -240,22 +242,372 @@
             }
         }
         
+        // Проверяем оплаченную подписку
+        async function checkPaidSubscription() {
+            if (!userData) {
+                return false;
+            }
+            
+            try {
+                const response = await fetch('/api/check-paid-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userData.id
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    hasPaidSubscription = result.has_paid_subscription;
+                    return hasPaidSubscription;
+                } else {
+                    console.error('Ошибка проверки оплаченной подписки:', response.status);
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('Ошибка проверки оплаченной подписки:', error);
+                return false;
+            }
+        }
+        
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', async function() {
-            // Все видео доступны без проверки подписки
+            // Проверяем подписку и оплаченную подписку
+            await checkSubscription();
+            await checkPaidSubscription();
+            
+            // Обновляем интерфейс в зависимости от подписки
             updateVideoButtons();
             
-            // Уведомления убраны - все видео доступны
+            // Показываем уведомление для браузерной версии
+            if (!tg) {
+                showBrowserNotification();
+            }
         });
         
-        // Обновляем кнопки видео - все доступны
+        // Обновляем кнопки видео в зависимости от подписки
         function updateVideoButtons() {
-            // Все видео доступны без ограничений
+            const videoButtons = document.querySelectorAll('.video-button');
+            
+            videoButtons.forEach((button, index) => {
+                const videoNumber = index;
+                
+                if (videoNumber >= FREE_VIDEOS_COUNT) {
+                    if (!hasPaidSubscription) {
+                        // Блокируем кнопку для неоплативших пользователей
+                        button.style.opacity = '0.6';
+                        button.style.cursor = 'not-allowed';
+                        button.innerHTML = `
+                            <div class="video-title">
+                                ${button.querySelector('.video-title').textContent}
+                                <br><small style="color: #ffcc00;">🔒 Требуется подписка</small>
+                            </div>
+                        `;
+                    }
+                }
+            });
         }
         
         // Показываем уведомление для браузерной версии
         function showBrowserNotification() {
-            // Уведомление убрано - все видео доступны
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                padding: 15px;
+                margin: 10px 0;
+                border-radius: 10px;
+                text-align: center;
+                font-weight: 600;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+            `;
+            notification.innerHTML = `
+                🚗 <strong>Полный доступ к курсу восстановления навыков</strong><br>
+                Вводный урок доступен бесплатно, остальные - по подписке за ${SUBSCRIPTION_PRICE}₽<br>
+                <button onclick="showPaymentModal()" style="background: #ffcc00; color: #333; border: none; padding: 8px 16px; border-radius: 20px; margin-top: 8px; cursor: pointer; font-weight: 600;">
+                    💳 Купить подписку
+                </button>
+            `;
+            
+            const videosContainer = document.querySelector('.videos-container');
+            videosContainer.insertBefore(notification, videosContainer.firstChild);
+        }
+        
+        // Показываем модальное окно с предложением оплаты
+        function showPaymentModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 400px;
+                width: 100%;
+                text-align: center;
+                position: relative;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const icon = document.createElement('div');
+            icon.innerHTML = '💳';
+            icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Получите полный доступ';
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const message = document.createElement('p');
+            message.innerHTML = `
+                Разблокируйте все уроки восстановления навыков за <strong>${SUBSCRIPTION_PRICE}₽</strong><br><br>
+                • Доступ ко всем урокам навсегда<br>
+                • Без рекламы<br>
+                • Поддержка 24/7
+            `;
+            message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
+            
+            const paymentBtn = document.createElement('button');
+            paymentBtn.innerHTML = `💳 Оплатить ${SUBSCRIPTION_PRICE}₽`;
+            paymentBtn.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 15px;
+                width: 100%;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+            `;
+            paymentBtn.onclick = function() {
+                processPayment();
+                modal.remove();
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerHTML = 'Отмена';
+            cancelBtn.style.cssText = `
+                background: #f0f0f0;
+                color: #666;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 14px;
+            `;
+            cancelBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            content.appendChild(closeBtn);
+            content.appendChild(icon);
+            content.appendChild(title);
+            content.appendChild(message);
+            content.appendChild(paymentBtn);
+            content.appendChild(cancelBtn);
+            modal.appendChild(content);
+            
+            document.body.appendChild(modal);
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        // Обработка оплаты
+        async function processPayment() {
+            if (!userData) {
+                alert('Ошибка: нет данных пользователя');
+                return;
+            }
+            
+            try {
+                // Показываем информацию о платеже
+                const paymentInfo = `
+💳 <b>Информация для оплаты</b>
+
+🏦 <b>Банк:</b> Т-банк
+💳 <b>Номер кошелька:</b> 1761136519162DEMO
+💰 <b>Сумма:</b> ${SUBSCRIPTION_PRICE}₽
+📝 <b>Комментарий:</b> ${userData.id}
+
+После оплаты нажмите кнопку "Подтвердить оплату"
+                `;
+                
+                const confirmModal = document.createElement('div');
+                confirmModal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    z-index: 1001;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 20px;
+                `;
+                
+                const confirmContent = document.createElement('div');
+                confirmContent.style.cssText = `
+                    background: white;
+                    border-radius: 15px;
+                    padding: 30px;
+                    max-width: 500px;
+                    width: 100%;
+                    text-align: center;
+                    position: relative;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                `;
+                
+                const closeConfirmBtn = document.createElement('button');
+                closeConfirmBtn.innerHTML = '×';
+                closeConfirmBtn.style.cssText = `
+                    position: absolute;
+                    top: 15px;
+                    right: 20px;
+                    background: #ff6b6b;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    cursor: pointer;
+                    font-size: 18px;
+                    font-weight: bold;
+                `;
+                closeConfirmBtn.onclick = function() {
+                    confirmModal.remove();
+                };
+                
+                const paymentText = document.createElement('div');
+                paymentText.innerHTML = paymentInfo.replace(/\n/g, '<br>');
+                paymentText.style.cssText = 'color: #333; margin-bottom: 25px; text-align: left; font-family: monospace; background: #f5f5f5; padding: 15px; border-radius: 8px;';
+                
+                const confirmBtn = document.createElement('button');
+                confirmBtn.innerHTML = '✅ Подтвердить оплату';
+                confirmBtn.style.cssText = `
+                    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                    color: white;
+                    border: none;
+                    padding: 15px 25px;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                    width: 100%;
+                    box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+                `;
+                confirmBtn.onclick = async function() {
+                    await confirmPayment();
+                    confirmModal.remove();
+                };
+                
+                const cancelConfirmBtn = document.createElement('button');
+                cancelConfirmBtn.innerHTML = 'Отмена';
+                cancelConfirmBtn.style.cssText = `
+                    background: #f0f0f0;
+                    color: #666;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 14px;
+                `;
+                cancelConfirmBtn.onclick = function() {
+                    confirmModal.remove();
+                };
+                
+                confirmContent.appendChild(closeConfirmBtn);
+                confirmContent.appendChild(paymentText);
+                confirmContent.appendChild(confirmBtn);
+                confirmContent.appendChild(cancelConfirmBtn);
+                confirmModal.appendChild(confirmContent);
+                
+                document.body.appendChild(confirmModal);
+                
+            } catch (error) {
+                console.error('Ошибка при обработке платежа:', error);
+                alert('Ошибка при обработке платежа. Попробуйте еще раз.');
+            }
+        }
+        
+        // Подтверждение оплаты
+        async function confirmPayment() {
+            try {
+                const response = await fetch('/api/confirm-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userData.id,
+                        amount: SUBSCRIPTION_PRICE,
+                        payment_method: 'tbank'
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        hasPaidSubscription = true;
+                        updateVideoButtons();
+                        alert('✅ Оплата подтверждена! Теперь у вас есть доступ ко всем урокам восстановления навыков!');
+                    } else {
+                        alert('❌ Ошибка подтверждения оплаты: ' + (result.message || 'Неизвестная ошибка'));
+                    }
+                } else {
+                    alert('❌ Ошибка сервера при подтверждении оплаты');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка подтверждения оплаты:', error);
+                alert('❌ Ошибка при подтверждении оплаты. Попробуйте еще раз.');
+            }
         }
         
         // Показываем модальное окно с предложением подписки
@@ -489,7 +841,11 @@
                 return;
             }
             
-            // Все видео доступны без проверки подписки
+            // Проверяем доступ к видео
+            if (videoNumber >= FREE_VIDEOS_COUNT && !hasPaidSubscription) {
+                showPaymentModal();
+                return;
+            }
             
             const video = videos[videoNumber];
             

@@ -72,6 +72,10 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.handle_psychologist_order()
             elif self.path == '/api/check-subscription':
                 self.check_subscription()
+            elif self.path == '/api/check-paid-subscription':
+                self.check_paid_subscription()
+            elif self.path == '/api/confirm-payment':
+                self.confirm_payment()
             else:
                 self.send_error(404, "API endpoint not found")
         except Exception as e:
@@ -482,6 +486,142 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({}, ensure_ascii=False).encode('utf-8'))
         except json.JSONDecodeError:
             self.send_error(500, "Invalid JSON format in translation data")
+
+    def check_paid_subscription(self):
+        """Проверяет оплаченную подписку пользователя"""
+        try:
+            # Читаем данные запроса
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            print(f"Проверяем оплаченную подписку для пользователя: {data}")
+            
+            user_id = data.get('user_id')
+            
+            if not user_id:
+                self.send_error(400, "Missing user_id")
+                return
+            
+            # Проверяем в файле подписок
+            has_paid_subscription = self.check_user_paid_subscription(user_id)
+            
+            print(f"Результат проверки оплаченной подписки: {has_paid_subscription}")
+            
+            # Отправляем ответ клиенту
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                'success': True, 
+                'has_paid_subscription': has_paid_subscription
+            }).encode('utf-8'))
+                
+        except Exception as e:
+            print(f"Ошибка при проверке оплаченной подписки: {e}")
+            self.send_error(500, str(e))
+
+    def confirm_payment(self):
+        """Подтверждает оплату и активирует подписку"""
+        try:
+            # Читаем данные запроса
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            print(f"Подтверждаем оплату: {data}")
+            
+            user_id = data.get('user_id')
+            amount = data.get('amount', 10)
+            payment_method = data.get('payment_method', 'tbank')
+            
+            if not user_id:
+                self.send_error(400, "Missing user_id")
+                return
+            
+            # Активируем подписку
+            success = self.activate_user_subscription(user_id, amount, payment_method)
+            
+            if success:
+                # Отправляем уведомление админу
+                admin_message = f"""💰 <b>НОВАЯ ОПЛАТА ПОДПИСКИ</b>
+
+👤 <b>Пользователь ID:</b> {user_id}
+💰 <b>Сумма:</b> {amount}₽
+🏦 <b>Способ оплаты:</b> {payment_method}
+🕐 <b>Время:</b> {self.get_current_timestamp()}
+
+✅ Подписка активирована!"""
+                
+                self.send_telegram_notification(admin_message)
+                
+                print(f"✅ Подписка активирована для пользователя {user_id}")
+                
+                # Отправляем успешный ответ клиенту
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    'success': True, 
+                    'message': 'Subscription activated successfully'
+                }).encode('utf-8'))
+            else:
+                self.send_error(500, "Failed to activate subscription")
+                
+        except Exception as e:
+            print(f"Ошибка при подтверждении оплаты: {e}")
+            self.send_error(500, str(e))
+
+    def check_user_paid_subscription(self, user_id):
+        """Проверяет, есть ли у пользователя оплаченная подписка"""
+        try:
+            # Читаем файл с подписками
+            try:
+                with open('paid_subscriptions.json', 'r', encoding='utf-8') as f:
+                    subscriptions = json.load(f)
+            except FileNotFoundError:
+                # Если файла нет, создаем пустой
+                subscriptions = {}
+            
+            # Проверяем, есть ли пользователь в списке
+            return str(user_id) in subscriptions
+            
+        except Exception as e:
+            print(f"Ошибка при проверке подписки пользователя: {e}")
+            return False
+
+    def activate_user_subscription(self, user_id, amount, payment_method):
+        """Активирует подписку для пользователя"""
+        try:
+            # Читаем существующие подписки
+            try:
+                with open('paid_subscriptions.json', 'r', encoding='utf-8') as f:
+                    subscriptions = json.load(f)
+            except FileNotFoundError:
+                subscriptions = {}
+            
+            # Добавляем пользователя с подпиской
+            subscriptions[str(user_id)] = {
+                'activated_at': self.get_current_timestamp(),
+                'amount': amount,
+                'payment_method': payment_method,
+                'status': 'active'
+            }
+            
+            # Сохраняем обновленные подписки
+            with open('paid_subscriptions.json', 'w', encoding='utf-8') as f:
+                json.dump(subscriptions, f, ensure_ascii=False, indent=2)
+            
+            return True
+            
+        except Exception as e:
+            print(f"Ошибка при активации подписки: {e}")
+            return False
+
+    def get_current_timestamp(self):
+        """Возвращает текущее время в формате строки"""
+        from datetime import datetime
+        return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 def start_server():
     # Переходим в директорию с файлами
