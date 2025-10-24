@@ -482,9 +482,7 @@
             const message = document.createElement('p');
             message.innerHTML = `
                 Разблокируйте все видеоуроки за <strong>${SUBSCRIPTION_PRICE}₽</strong><br><br>
-                • Доступ ко всем урокам навсегда<br>
-                • Без рекламы<br>
-                • Поддержка 24/7
+                • Доступ ко всем урокам навсегда
             `;
             message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
             
@@ -498,6 +496,28 @@
                 justify-content: center;
                 align-items: center;
             `;
+            
+            // Кнопка оплаты
+            const paymentBtn = document.createElement('button');
+            paymentBtn.innerHTML = `💳 Оплатить ${SUBSCRIPTION_PRICE}₽`;
+            paymentBtn.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin: 15px 10px 10px 10px;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+                transition: all 0.3s ease;
+            `;
+            paymentBtn.onclick = function() {
+                // Показываем кнопки Т-банка
+                initTbankPaymentButtons(paymentContainer);
+                paymentBtn.style.display = 'none';
+            };
             
             const cancelBtn = document.createElement('button');
             cancelBtn.innerHTML = 'Отмена';
@@ -520,6 +540,7 @@
             content.appendChild(title);
             content.appendChild(message);
             content.appendChild(paymentContainer);
+            content.appendChild(paymentBtn);
             content.appendChild(cancelBtn);
             modal.appendChild(content);
             
