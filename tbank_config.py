@@ -20,7 +20,7 @@ TBANK_SECRET_KEY = os.getenv('TBANK_SECRET_KEY', 'TY#iAnEUV*3CS&Bl')
 TBANK_TERMINAL_KEY = os.getenv('TBANK_TERMINAL_KEY', '200000001691412')  # Terminal Key для новой интеграции
 
 # URL для API Т-банк из config.env
-TBANK_API_URL = os.getenv('TBANK_API_URL', 'https://api.tbank.ru/v1/payments')
+TBANK_API_URL = os.getenv('TBANK_API_URL', 'https://securepay.tinkoff.ru/v2')
 TBANK_WEBHOOK_URL = os.getenv('TBANK_WEBHOOK_URL', 'https://hochupravaeasy.ru/api/tbank-webhook')
 
 # URL для перенаправления после оплаты

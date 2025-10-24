@@ -726,7 +726,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             
             try:
                 payment = TbankPayment()
-                result = payment.init_payment(amount, user_id, description)
+                # Используем специальный метод для T-Pay
+                result = payment.init_tpay_payment(amount, user_id, description)
                 
                 if result and result.get('success'):
                     print(f"Платеж инициирован успешно: {result}")

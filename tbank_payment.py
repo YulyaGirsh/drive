@@ -24,7 +24,7 @@ class TbankPayment:
         try:
             order_id = f"easydrive_{user_id}_{int(time.time())}"
             
-            # Формируем данные для инициализации платежа
+            # Формируем данные для инициализации платежа T-Pay
             init_data = {
                 "TerminalKey": TBANK_TERMINAL_KEY,
                 "Amount": amount * 100,  # Сумма в копейках
@@ -38,7 +38,8 @@ class TbankPayment:
                 "SuccessURL": f"{TBANK_SUCCESS_URL}?user_id={user_id}",
                 "FailURL": f"{TBANK_FAIL_URL}?user_id={user_id}",
                 "DATA": {
-                    "OperationInitiatorType": "0"
+                    "OperationInitiatorType": "0",
+                    "Source": "tpay"  # Указываем источник T-Pay
                 },
                 "Receipt": {
                     "Items": [
@@ -72,6 +73,63 @@ class TbankPayment:
         except Exception as e:
             print(f"Ошибка при инициализации платежа: {e}")
             return None
+    
+    def init_tpay_payment(self, amount, user_id, description=None):
+        """
+        Инициирует платеж через T-Pay (упрощенный метод)
+        """
+        try:
+            order_id = f"easydrive_{user_id}_{int(time.time())}"
+            
+            # Упрощенные данные для T-Pay
+            init_data = {
+                "TerminalKey": TBANK_TERMINAL_KEY,
+                "Amount": amount * 100,  # Сумма в копейках
+                "OrderId": order_id,
+                "Description": description or PAYMENT_DESCRIPTION,
+                "CustomerKey": str(user_id),
+                "Language": "ru",
+                "NotificationURL": self.webhook_url,
+                "SuccessURL": f"{TBANK_SUCCESS_URL}?user_id={user_id}",
+                "FailURL": f"{TBANK_FAIL_URL}?user_id={user_id}"
+            }
+            
+            # Создаем токен для подписи (упрощенный)
+            token = self._create_simple_token(init_data)
+            init_data["Token"] = token
+            
+            print(f"Инициируем T-Pay платеж: {init_data}")
+            
+            # Отправляем запрос в Т-банк
+            return self._send_init_request(init_data)
+            
+        except Exception as e:
+            print(f"Ошибка при инициализации T-Pay платежа: {e}")
+            return None
+    
+    def _create_simple_token(self, data):
+        """
+        Создает упрощенный токен для T-Pay
+        """
+        # Поля для создания токена (без самого токена)
+        token_fields = [
+            "TerminalKey", "Amount", "OrderId", "Description", 
+            "CustomerKey", "Language", "NotificationURL", "SuccessURL", "FailURL"
+        ]
+        
+        # Создаем строку для токена
+        token_string = ""
+        for field in token_fields:
+            if field in data and data[field] is not None:
+                token_string += str(data[field])
+        
+        # Добавляем секретный ключ
+        token_string += self.secret_key
+        
+        # Создаем SHA-256 хеш
+        token = hashlib.sha256(token_string.encode('utf-8')).hexdigest()
+        
+        return token
     
     def create_payment(self, amount, user_id, description=None):
         """
@@ -174,14 +232,21 @@ class TbankPayment:
         token_fields = [
             "TerminalKey", "Amount", "OrderId", "Description", 
             "CustomerKey", "Recurrent", "PayType", "Language",
-            "NotificationURL", "SuccessURL", "FailURL"
+            "NotificationURL", "SuccessURL", "FailURL", "DATA"
         ]
         
         # Создаем строку для токена
         token_string = ""
         for field in token_fields:
             if field in data and data[field] is not None:
-                token_string += str(data[field])
+                if field == "DATA" and isinstance(data[field], dict):
+                    # Для DATA объекта создаем строку из ключей и значений
+                    data_str = ""
+                    for key, value in sorted(data[field].items()):
+                        data_str += f"{key}={value}"
+                    token_string += data_str
+                else:
+                    token_string += str(data[field])
         
         # Добавляем секретный ключ
         token_string += self.secret_key
