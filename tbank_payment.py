@@ -111,20 +111,23 @@ class TbankPayment:
         """
         Создает упрощенный токен для T-Pay
         """
-        # Поля для создания токена (без самого токена)
-        token_fields = [
-            "TerminalKey", "Amount", "OrderId", "Description", 
-            "CustomerKey", "Language", "NotificationURL", "SuccessURL", "FailURL"
-        ]
+        # Согласно документации Т-банка, токен создается из полей в алфавитном порядке
+        # Исключаем поле Token из генерации
+        token_data = {k: v for k, v in data.items() if k != "Token"}
+        
+        # Сортируем ключи в алфавитном порядке
+        sorted_keys = sorted(token_data.keys())
         
         # Создаем строку для токена
         token_string = ""
-        for field in token_fields:
-            if field in data and data[field] is not None:
-                token_string += str(data[field])
+        for key in sorted_keys:
+            if token_data[key] is not None:
+                token_string += str(token_data[key])
         
         # Добавляем секретный ключ
         token_string += self.secret_key
+        
+        print(f"Строка для токена: {token_string}")
         
         # Создаем SHA-256 хеш
         token = hashlib.sha256(token_string.encode('utf-8')).hexdigest()

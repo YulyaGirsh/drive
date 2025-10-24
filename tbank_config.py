@@ -16,8 +16,8 @@ if config_file.exists():
 
 TBANK_MERCHANT_ID = os.getenv('TBANK_MERCHANT_ID', '200000001691412')
 TBANK_API_KEY = os.getenv('TBANK_API_KEY', '1761136519162DEMO')
-TBANK_SECRET_KEY = os.getenv('TBANK_SECRET_KEY', 'TY#iAnEUV*3CS&Bl')
-TBANK_TERMINAL_KEY = os.getenv('TBANK_TERMINAL_KEY', '200000001691412')  # Terminal Key для новой интеграции
+TBANK_SECRET_KEY = os.getenv('TBANK_SECRET_KEY', 'c^A3qE_zoaH0u%gP')
+TBANK_TERMINAL_KEY = os.getenv('TBANK_TERMINAL_KEY', '1761136519204')  # Terminal Key для новой интеграции
 
 # URL для API Т-банк из config.env
 TBANK_API_URL = os.getenv('TBANK_API_URL', 'https://securepay.tinkoff.ru/v2')
