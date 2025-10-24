@@ -88,6 +88,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.create_tbank_payment()
             elif self.path == '/api/tbank-init-payment':
                 self.init_tbank_payment()
+            elif self.path == '/api/tbank-confirm-payment':
+                self.confirm_tbank_payment()
             elif self.path == '/api/tbank-webhook':
                 self.handle_tbank_webhook()
             elif self.path == '/api/v2/heartbeat':
@@ -759,6 +761,64 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             print(f"Ошибка при инициализации платежа Т-банк: {e}")
             self.send_error(500, str(e))
+    
+    def confirm_tbank_payment(self):
+        """
+        Подтверждает списание платежа через Т-банк API /v2/Confirm
+        """
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            payment_id = data.get('payment_id')
+            amount = data.get('amount')
+            ip_address = data.get('ip_address')
+            
+            if not payment_id:
+                self.send_error(400, "Missing payment_id")
+                return
+            
+            # Подтверждаем платеж через Т-банк
+            print(f"Подтверждаем платеж {payment_id} на сумму {amount}₽")
+            
+            try:
+                payment = TbankPayment()
+                result = payment.confirm_payment(payment_id, amount, ip_address)
+                
+                if result and result.get('success'):
+                    print(f"Платеж подтвержден успешно: {result}")
+                    
+                    # Отправляем ответ клиенту
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                    self.end_headers()
+                    
+                    response_data = {
+                        'success': True,
+                        'payment_id': result.get('payment_id'),
+                        'order_id': result.get('order_id'),
+                        'status': result.get('status'),
+                        'amount': result.get('amount'),
+                        'message': 'Payment confirmed successfully'
+                    }
+                    
+                    print(f"Отправляем ответ: {response_data}")
+                    self.wfile.write(json.dumps(response_data).encode('utf-8'))
+                else:
+                    print(f"Ошибка подтверждения платежа: {result}")
+                    self.send_error(500, f"Payment confirmation failed: {result.get('error', 'Unknown error')}")
+                    
+            except Exception as e:
+                print(f"Ошибка при подтверждении платежа Т-банк: {e}")
+                self.send_error(500, str(e))
+                
+        except Exception as e:
+            print(f"Ошибка при подтверждении платежа Т-банк: {e}")
+            self.send_error(500, str(e))
 
     def handle_tbank_webhook(self):
         """Обрабатывает webhook от Т-банк"""
@@ -793,8 +853,72 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 user_id = None
             
-            if payment_status == 'success' and user_id:
-                # Активируем подписку
+            # Обрабатываем разные статусы платежа
+            if payment_status == 'AUTHORIZED' and user_id:
+                # Платеж авторизован, нужно подтвердить списание
+                payment_id = data.get('payment_id')
+                if payment_id:
+                    print(f"Платеж {payment_id} авторизован, подтверждаем списание...")
+                    
+                    try:
+                        payment = TbankPayment()
+                        confirm_result = payment.confirm_payment(payment_id, amount)
+                        
+                        if confirm_result and confirm_result.get('success'):
+                            print(f"Платеж {payment_id} успешно подтвержден")
+                            
+                            # Активируем подписку
+                            success = self.activate_user_subscription(user_id, amount / 100, 'tbank')
+                            
+                            if success:
+                                print(f"Подписка активирована для пользователя {user_id}")
+                                
+                                # Отправляем уведомление админу
+                                admin_message = f"""<b>НОВАЯ ОПЛАТА ПОДПИСКИ (Т-БАНК)</b>
+
+<b>Пользователь ID:</b> {user_id}
+<b>Сумма:</b> {amount / 100} руб
+<b>Способ оплаты:</b> Т-банк (T-Pay)
+<b>Время:</b> {self.get_current_timestamp()}
+<b>Статус:</b> Подтверждено
+
+Подписка активирована!"""
+                            else:
+                                admin_message = f"""<b>ОШИБКА АКТИВАЦИИ ПОДПИСКИ (Т-БАНК)</b>
+
+<b>Пользователь ID:</b> {user_id}
+<b>Сумма:</b> {amount / 100} руб
+<b>Способ оплаты:</b> Т-банк (T-Pay)
+<b>Время:</b> {self.get_current_timestamp()}
+<b>Статус:</b> Платеж подтвержден, но ошибка активации подписки"""
+                        else:
+                            print(f"Ошибка подтверждения платежа {payment_id}: {confirm_result}")
+                            admin_message = f"""<b>ОШИБКА ПОДТВЕРЖДЕНИЯ ПЛАТЕЖА (Т-БАНК)</b>
+
+<b>Пользователь ID:</b> {user_id}
+<b>Payment ID:</b> {payment_id}
+<b>Сумма:</b> {amount / 100} руб
+<b>Время:</b> {self.get_current_timestamp()}
+<b>Статус:</b> Ошибка подтверждения
+
+{confirm_result.get('error', 'Неизвестная ошибка')}"""
+                    except Exception as e:
+                        print(f"Ошибка при подтверждении платежа: {e}")
+                        admin_message = f"""<b>ОШИБКА ПОДТВЕРЖДЕНИЯ ПЛАТЕЖА (Т-БАНК)</b>
+
+<b>Пользователь ID:</b> {user_id}
+<b>Payment ID:</b> {payment_id}
+<b>Сумма:</b> {amount / 100} руб
+<b>Время:</b> {self.get_current_timestamp()}
+<b>Статус:</b> Исключение при подтверждении
+
+{str(e)}"""
+                    
+                    # Отправляем уведомление админу
+                    self.send_telegram_notification(admin_message)
+                    
+            elif payment_status == 'success' and user_id:
+                # Платеж успешен (одностадийный)
                 success = self.activate_user_subscription(user_id, amount / 100, 'tbank')
                 
                 if success:
