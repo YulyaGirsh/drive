@@ -651,13 +651,19 @@
 
         // Поиск индекса правильного ответа
         function findCorrectAnswerIndex(answers, correctAnswer) {
-            if (!answers || !correctAnswer) return 0;
+            if (!answers || !correctAnswer) {
+                console.warn('findCorrectAnswerIndex: пустые данные', {answers, correctAnswer});
+                return 0;
+            }
             
             for (let i = 0; i < answers.length; i++) {
                 if (answers[i] === correctAnswer) {
+                    console.log(`Найден правильный ответ: "${correctAnswer}" на позиции ${i}`);
                     return i;
                 }
             }
+            
+            console.warn('Правильный ответ не найден:', {answers, correctAnswer});
             return 0;
         }
 
@@ -973,6 +979,7 @@
 
         // Выбор ответа
         function selectAnswer(answerIndex) {
+            console.log(`Выбран ответ ${answerIndex} для вопроса ${examData.currentQuestion + 1}`);
             examData.answers[examData.currentQuestion] = answerIndex;
             
             // Убираем выделение с всех кнопок
@@ -990,6 +997,7 @@
             if (!examData.isAdditionalPhase) {
                 const question = examData.questions[examData.currentQuestion];
                 const isCorrect = answerIndex === question.correct;
+                console.log(`Вопрос ${examData.currentQuestion + 1}: выбран ${answerIndex}, правильный ${question.correct}, верно: ${isCorrect}`);
                 
                 if (!isCorrect) {
                     handleMistake(question.category);
@@ -1207,13 +1215,21 @@
             console.log('Ответы основного экзамена:', mainAnswers);
             console.log('Вопросы основного экзамена:', examData.questions.length);
             
-            mainAnswers.forEach((answer, index) => {
-                if (answer !== null && answer === examData.questions[index].correct) {
+            // Подсчитываем только по основным 20 вопросам
+            for (let i = 0; i < 20 && i < examData.questions.length; i++) {
+                if (mainAnswers[i] !== null && mainAnswers[i] === examData.questions[i].correct) {
                     correctMainAnswers++;
                 }
-            });
+            }
             
             console.log('Правильных ответов в основном экзамене:', correctMainAnswers);
+            console.log('Детальный подсчет:');
+            for (let i = 0; i < 20 && i < examData.questions.length; i++) {
+                const userAnswer = mainAnswers[i];
+                const correctAnswer = examData.questions[i].correct;
+                const isCorrect = userAnswer !== null && userAnswer === correctAnswer;
+                console.log(`Вопрос ${i + 1}: пользователь=${userAnswer}, правильный=${correctAnswer}, верно=${isCorrect}`);
+            }
             
             if (examData.isAdditionalPhase) {
                 // Проверяем дополнительные вопросы
