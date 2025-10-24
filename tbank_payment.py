@@ -109,22 +109,40 @@ class TbankPayment:
     
     def _create_simple_token(self, data):
         """
-        Создает упрощенный токен для T-Pay
+        Создает токен согласно официальной документации Т-банка
         """
-        # Согласно документации Т-банка, токен создается из полей в алфавитном порядке
         # Исключаем поле Token из генерации
         token_data = {k: v for k, v in data.items() if k != "Token"}
         
-        # Сортируем ключи в алфавитном порядке
-        sorted_keys = sorted(token_data.keys())
-        
-        # Создаем строку для токена
+        # Создаем строку для токена согласно примеру от техподдержки
+        # Порядок: Amount, Description, FailURL, OrderId, SuccessURL, TerminalKey, Password
         token_string = ""
-        for key in sorted_keys:
-            if token_data[key] is not None:
-                token_string += str(token_data[key])
         
-        # Добавляем секретный ключ
+        # Amount
+        if "Amount" in token_data and token_data["Amount"] is not None:
+            token_string += str(token_data["Amount"])
+        
+        # Description  
+        if "Description" in token_data and token_data["Description"] is not None:
+            token_string += str(token_data["Description"])
+        
+        # FailURL
+        if "FailURL" in token_data and token_data["FailURL"] is not None:
+            token_string += str(token_data["FailURL"])
+        
+        # OrderId
+        if "OrderId" in token_data and token_data["OrderId"] is not None:
+            token_string += str(token_data["OrderId"])
+        
+        # SuccessURL
+        if "SuccessURL" in token_data and token_data["SuccessURL"] is not None:
+            token_string += str(token_data["SuccessURL"])
+        
+        # TerminalKey
+        if "TerminalKey" in token_data and token_data["TerminalKey"] is not None:
+            token_string += str(token_data["TerminalKey"])
+        
+        # Password (секретный ключ)
         token_string += self.secret_key
         
         print(f"Строка для токена: {token_string}")

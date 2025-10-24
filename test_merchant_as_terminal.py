@@ -90,3 +90,4 @@ def test_merchant_as_terminal():
 if __name__ == "__main__":
     test_merchant_as_terminal()
 
+

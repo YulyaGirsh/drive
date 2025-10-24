@@ -44,6 +44,7 @@ REAL_CONFIG = {
     "merchant_id": TBANK_MERCHANT_ID,
     "api_key": TBANK_API_KEY,
     "secret_key": TBANK_SECRET_KEY,
+    "terminal_key": TBANK_TERMINAL_KEY,
     "api_url": TBANK_API_URL,
     "webhook_url": TBANK_WEBHOOK_URL,
     "success_url": TBANK_SUCCESS_URL,

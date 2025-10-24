@@ -1,0 +1,69 @@
+{
+  "test_info": {
+    "timestamp": "2025-10-24T14:07:06.370651",
+    "server_url": "https://hochupravaeasy.ru",
+    "tbank_api_url": "https://securepay.tinkoff.ru/v2",
+    "terminal_key": "1761136519204",
+    "merchant_id": "200000001691412"
+  },
+  "api_test": {
+    "status_code": 200,
+    "response": {
+      "Success": false,
+      "ErrorCode": "204",
+      "Message": "Неверные параметры.",
+      "Details": "Неверный токен. Проверьте пару TerminalKey/SecretKey."
+    },
+    "headers": {
+      "server": "nginx",
+      "date": "Fri, 24 Oct 2025 09:07:04 GMT",
+      "content-type": "application/json;charset=utf-8",
+      "content-length": "176",
+      "set-cookie": "JSESSIONID=node0cuf87mvp9rq2tqapfyom17fc3390040.node0; Path=/, merchant_api_cookieId=fdd1b1d9-8c84-409c-af45-946e9bce4817; Secure; HttpOnly",
+      "expires": "Thu, 01 Jan 1970 00:00:00 GMT",
+      "access-control-allow-origin": "*",
+      "balancer": "mapi-int.tcsbank.ru",
+      "x-envoy-upstream-service-time": "37",
+      "x-k8s-istio-drop-ok": "true",
+      "x-k8s-istio-sage-group": "eacq_prepl"
+    },
+    "request_data": {
+      "TerminalKey": "1761136519204",
+      "Amount": 100,
+      "OrderId": "test_1761296823",
+      "Description": "Test payment",
+      "SuccessURL": "https://hochupravaeasy.ru/success",
+      "FailURL": "https://hochupravaeasy.ru/fail",
+      "Token": "0f4852da1644acb4e4a76059e4901d05bbbb51b645e735fc14c15a0971801f09"
+    },
+    "sign_string": "Amount=100;Description=Test payment;FailURL=https://hochupravaeasy.ru/fail;OrderId=test_1761296823;SuccessURL=https://hochupravaeasy.ru/success;TerminalKey=1761136519204;Password=c^A3qE_zoaH0u%gP;"
+  },
+  "pages_test": {
+    "/success.html": {
+      "status_code": 200,
+      "accessible": true
+    },
+    "/fail.html": {
+      "status_code": 200,
+      "accessible": true
+    },
+    "/exam.html": {
+      "status_code": 200,
+      "accessible": true
+    },
+    "/tickets.html": {
+      "status_code": 200,
+      "accessible": true
+    },
+    "/api/tbank-webhook": {
+      "status_code": 404,
+      "accessible": false
+    }
+  },
+  "summary": {
+    "api_working": false,
+    "main_site_working": true,
+    "webhook_working": false,
+    "total_errors": 2
+  }
+}
