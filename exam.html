@@ -558,7 +558,7 @@
                 return questions.map((q, index) => ({
                     id: q.question_number || (index + 1),
                     text: q.question_text || '',
-                    image: q.image_path || null,
+                    image: q.image_path || q.image_url || null,
                     answers: q.answers || [],
                     correct: findCorrectAnswerIndex(q.answers, q.correct_answer),
                     hint: q.hint_text || '',
@@ -586,7 +586,7 @@
                     return ticketQuestions.map((q, index) => ({
                         id: q.question_number || (index + 1),
                         text: q.question_text || '',
-                        image: q.image_path || null,
+                        image: q.image_path || q.image_url || null,
                         answers: q.answers || [],
                         correct: findCorrectAnswerIndex(q.answers, q.correct_answer),
                         hint: q.hint_text || '',
@@ -614,7 +614,7 @@
                 return questions.map((q, index) => ({
                     id: q.question_number || (index + 1),
                     text: q.question_text || '',
-                    image: q.image_path || null,
+                    image: q.image_path || q.image_url || null,
                     answers: q.answers || [],
                     correct: findCorrectAnswerIndex(q.answers, q.correct_answer),
                     hint: q.hint_text || '',
@@ -635,7 +635,7 @@
                     return allQuestions.map((q, index) => ({
                         id: q.question_number || (index + 1),
                         text: q.question_text || '',
-                        image: q.image_path || null,
+                        image: q.image_path || q.image_url || null,
                         answers: q.answers || [],
                         correct: findCorrectAnswerIndex(q.answers, q.correct_answer),
                         hint: q.hint_text || '',
@@ -933,14 +933,20 @@
             
             // Добавляем изображение вопроса если есть
             const questionImage = document.getElementById('questionImage');
+            console.log('Изображение вопроса:', question.image);
             if (question.image) {
                 questionImage.src = question.image;
                 questionImage.style.display = 'block';
                 questionImage.onerror = function() {
+                    console.warn('Ошибка загрузки изображения:', question.image);
                     // Если изображение не загрузилось, показываем заглушку
                     this.style.display = 'none';
                 };
+                questionImage.onload = function() {
+                    console.log('Изображение успешно загружено:', question.image);
+                };
             } else {
+                console.log('У вопроса нет изображения');
                 questionImage.style.display = 'none';
             }
             
