@@ -362,6 +362,143 @@ class TbankPayment:
                 'error': str(e)
             }
     
+    def finish_authorize(self, payment_id, ip_address=None, send_email=False, source="cards", 
+                        card_data=None, encrypted_payment_data=None, amount=None, 
+                        device_channel="02", route="ACQ", info_email=None, data_params=None):
+        """
+        Завершает авторизацию платежа через API /v2/FinishAuthorize
+        """
+        try:
+            # Формируем данные для завершения авторизации
+            finish_data = {
+                "TerminalKey": TBANK_TERMINAL_KEY,
+                "PaymentId": payment_id,
+                "IP": ip_address or "127.0.0.1",
+                "SendEmail": send_email,
+                "Source": source,
+                "deviceChannel": device_channel,
+                "Route": route
+            }
+            
+            # Добавляем сумму, если указана
+            if amount:
+                finish_data["Amount"] = amount
+            
+            # Добавляем email, если указан
+            if info_email:
+                finish_data["InfoEmail"] = info_email
+            
+            # Добавляем данные карты, если указаны
+            if card_data:
+                finish_data["CardData"] = card_data
+            
+            # Добавляем зашифрованные данные платежа, если указаны
+            if encrypted_payment_data:
+                finish_data["EncryptedPaymentData"] = encrypted_payment_data
+            
+            # Добавляем дополнительные параметры 3DS
+            if data_params:
+                finish_data["DATA"] = data_params
+            
+            # Создаем токен для подписи
+            token = self._create_finish_authorize_token(finish_data)
+            finish_data["Token"] = token
+            
+            print(f"Завершаем авторизацию платежа: {finish_data}")
+            
+            # Отправляем запрос в Т-банк
+            return self._send_finish_authorize_request(finish_data)
+            
+        except Exception as e:
+            print(f"Ошибка при завершении авторизации платежа: {e}")
+            return None
+    
+    def _create_finish_authorize_token(self, data):
+        """
+        Создает токен для API /v2/FinishAuthorize
+        """
+        # Поля для создания токена (без самого токена)
+        token_fields = [
+            "TerminalKey", "PaymentId", "IP", "SendEmail", "Source", 
+            "Amount", "deviceChannel", "Route", "InfoEmail"
+        ]
+        
+        # Создаем строку для токена
+        token_string = ""
+        for field in token_fields:
+            if field in data and data[field] is not None:
+                token_string += str(data[field])
+        
+        # Добавляем секретный ключ
+        token_string += self.secret_key
+        
+        # Создаем SHA-256 хеш
+        token = hashlib.sha256(token_string.encode('utf-8')).hexdigest()
+        
+        return token
+    
+    def _send_finish_authorize_request(self, data):
+        """
+        Отправляет запрос завершения авторизации в Т-банк API /v2/FinishAuthorize
+        """
+        try:
+            # URL для завершения авторизации
+            url = "https://securepay.tinkoff.ru/v2/FinishAuthorize"
+            
+            # Подготавливаем данные
+            json_data = json.dumps(data, ensure_ascii=False).encode('utf-8')
+            
+            # Создаем запрос
+            req = urllib.request.Request(
+                url,
+                data=json_data,
+                headers={
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            )
+            
+            # Отправляем запрос
+            with urllib.request.urlopen(req) as response:
+                result = response.read().decode('utf-8')
+                result_data = json.loads(result)
+                
+                print(f"Ответ от Т-банк /v2/FinishAuthorize: {result_data}")
+                
+                # Проверяем успешность ответа
+                if result_data.get('Success'):
+                    return {
+                        'success': True,
+                        'payment_id': result_data.get('PaymentId'),
+                        'order_id': result_data.get('OrderId'),
+                        'status': result_data.get('Status'),
+                        'amount': result_data.get('Amount'),
+                        'acs_url': result_data.get('ACSUrl'),
+                        'pa_req': result_data.get('PaReq'),
+                        'md': result_data.get('MD')
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'error': result_data.get('Message', 'Неизвестная ошибка'),
+                        'details': result_data.get('Details', '')
+                    }
+                
+        except urllib.error.HTTPError as e:
+            error_response = e.read().decode('utf-8')
+            print(f"HTTP ошибка при завершении авторизации: {e.code} - {error_response}")
+            return {
+                'success': False,
+                'error': f'HTTP ошибка: {e.code}',
+                'details': error_response
+            }
+        except Exception as e:
+            print(f"Ошибка при завершении авторизации: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
     def _send_request(self, data):
         """
         Отправляет запрос в Т-банк API

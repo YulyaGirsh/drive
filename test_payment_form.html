@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестовая платежная форма Т-банк</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #ff8c00;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background: #e67e00;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>🧪 Тестовая платежная форма Т-банк</h1>
+        <p>Эта форма позволяет протестировать интеграцию с API Т-банка для собственной платежной формы.</p>
+        
+        <form id="paymentForm">
+            <div class="form-group">
+                <label for="user_id">User ID:</label>
+                <input type="number" id="user_id" value="123456789" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="amount">Сумма (руб):</label>
+                <input type="number" id="amount" value="10" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Описание:</label>
+                <input type="text" id="description" value="Тестовая подписка" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="card_number">Номер карты:</label>
+                <input type="text" id="card_number" placeholder="4300000000000777" maxlength="19">
+            </div>
+            
+            <div class="form-group">
+                <label for="exp_date">Срок действия (MMYY):</label>
+                <input type="text" id="exp_date" placeholder="0519" maxlength="4">
+            </div>
+            
+            <div class="form-group">
+                <label for="card_holder">Имя держателя карты:</label>
+                <input type="text" id="card_holder" placeholder="IVAN PETROV">
+            </div>
+            
+            <div class="form-group">
+                <label for="cvv">CVV:</label>
+                <input type="text" id="cvv" placeholder="111" maxlength="3">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="test@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="ip_address">IP адрес:</label>
+                <input type="text" id="ip_address" value="192.168.1.1">
+            </div>
+            
+            <button type="submit">💳 Инициировать платеж</button>
+        </form>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = '⏳ Инициируем платеж...';
+            
+            try {
+                // 1. Инициализация платежа
+                const initData = {
+                    user_id: parseInt(document.getElementById('user_id').value),
+                    amount: parseInt(document.getElementById('amount').value),
+                    description: document.getElementById('description').value,
+                    payment_method: 'tpay'
+                };
+                
+                console.log('Инициализируем платеж:', initData);
+                
+                const initResponse = await fetch('/api/tbank-init-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(initData)
+                });
+                
+                const initResult = await initResponse.json();
+                console.log('Результат инициализации:', initResult);
+                
+                if (initResult.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ Платеж инициализирован!</h3>
+                        <p><strong>Payment ID:</strong> ${initResult.payment_id}</p>
+                        <p><strong>Order ID:</strong> ${initResult.order_id}</p>
+                        <p><strong>Payment URL:</strong> <a href="${initResult.payment_url}" target="_blank">${initResult.payment_url}</a></p>
+                    `;
+                    
+                    // 2. Если есть данные карты, пробуем завершить авторизацию
+                    const cardNumber = document.getElementById('card_number').value;
+                    const expDate = document.getElementById('exp_date').value;
+                    const cardHolder = document.getElementById('card_holder').value;
+                    const cvv = document.getElementById('cvv').value;
+                    
+                    if (cardNumber && expDate) {
+                        resultDiv.innerHTML += '<br><p>🔄 Завершаем авторизацию с данными карты...</p>';
+                        
+                        // Формируем данные карты
+                        const cardData = `PAN=${cardNumber};ExpDate=${expDate};CardHolder=${cardHolder};CVV=${cvv}`;
+                        
+                        const finishData = {
+                            payment_id: initResult.payment_id,
+                            ip_address: document.getElementById('ip_address').value,
+                            send_email: !!document.getElementById('email').value,
+                            source: 'cards',
+                            card_data: cardData,
+                            amount: initResult.amount * 100, // В копейках
+                            device_channel: '02',
+                            route: 'ACQ',
+                            info_email: document.getElementById('email').value,
+                            data_params: {
+                                threeDSCompInd: 'Y',
+                                language: 'RU',
+                                timezone: new Date().getTimezoneOffset().toString(),
+                                screen_height: screen.height.toString(),
+                                screen_width: screen.width.toString(),
+                                cresCallbackUrl: window.location.origin + '/callback',
+                                colorDepth: screen.colorDepth.toString(),
+                                javaEnabled: 'false'
+                            }
+                        };
+                        
+                        console.log('Завершаем авторизацию:', finishData);
+                        
+                        const finishResponse = await fetch('/api/tbank-finish-authorize', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(finishData)
+                        });
+                        
+                        const finishResult = await finishResponse.json();
+                        console.log('Результат завершения авторизации:', finishResult);
+                        
+                        if (finishResult.success) {
+                            resultDiv.innerHTML += `
+                                <h3>✅ Авторизация завершена!</h3>
+                                <p><strong>Статус:</strong> ${finishResult.status}</p>
+                                <p><strong>Сумма:</strong> ${finishResult.amount / 100}₽</p>
+                            `;
+                            
+                            if (finishResult.acs_url) {
+                                resultDiv.innerHTML += `
+                                    <p><strong>🔐 Требуется 3DS аутентификация:</strong></p>
+                                    <p><a href="${finishResult.acs_url}" target="_blank">Перейти к 3DS</a></p>
+                                `;
+                            }
+                        } else {
+                            resultDiv.innerHTML += `
+                                <h3>❌ Ошибка авторизации</h3>
+                                <p>${finishResult.error}</p>
+                            `;
+                        }
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <h3>❌ Ошибка инициализации</h3>
+                        <p>${initResult.error}</p>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Ошибка</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

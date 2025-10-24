@@ -90,6 +90,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.init_tbank_payment()
             elif self.path == '/api/tbank-confirm-payment':
                 self.confirm_tbank_payment()
+            elif self.path == '/api/tbank-finish-authorize':
+                self.finish_tbank_authorize()
             elif self.path == '/api/tbank-webhook':
                 self.handle_tbank_webhook()
             elif self.path == '/api/v2/heartbeat':
@@ -818,6 +820,87 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 
         except Exception as e:
             print(f"Ошибка при подтверждении платежа Т-банк: {e}")
+            self.send_error(500, str(e))
+    
+    def finish_tbank_authorize(self):
+        """
+        Завершает авторизацию платежа через Т-банк API /v2/FinishAuthorize
+        """
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            payment_id = data.get('payment_id')
+            ip_address = data.get('ip_address')
+            send_email = data.get('send_email', False)
+            source = data.get('source', 'cards')
+            card_data = data.get('card_data')
+            encrypted_payment_data = data.get('encrypted_payment_data')
+            amount = data.get('amount')
+            device_channel = data.get('device_channel', '02')
+            route = data.get('route', 'ACQ')
+            info_email = data.get('info_email')
+            data_params = data.get('data_params')
+            
+            if not payment_id:
+                self.send_error(400, "Missing payment_id")
+                return
+            
+            # Завершаем авторизацию через Т-банк
+            print(f"Завершаем авторизацию платежа {payment_id}")
+            
+            try:
+                payment = TbankPayment()
+                result = payment.finish_authorize(
+                    payment_id=payment_id,
+                    ip_address=ip_address,
+                    send_email=send_email,
+                    source=source,
+                    card_data=card_data,
+                    encrypted_payment_data=encrypted_payment_data,
+                    amount=amount,
+                    device_channel=device_channel,
+                    route=route,
+                    info_email=info_email,
+                    data_params=data_params
+                )
+                
+                if result and result.get('success'):
+                    print(f"Авторизация завершена успешно: {result}")
+                    
+                    # Отправляем ответ клиенту
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                    self.end_headers()
+                    
+                    response_data = {
+                        'success': True,
+                        'payment_id': result.get('payment_id'),
+                        'order_id': result.get('order_id'),
+                        'status': result.get('status'),
+                        'amount': result.get('amount'),
+                        'acs_url': result.get('acs_url'),
+                        'pa_req': result.get('pa_req'),
+                        'md': result.get('md'),
+                        'message': 'Authorization finished successfully'
+                    }
+                    
+                    print(f"Отправляем ответ: {response_data}")
+                    self.wfile.write(json.dumps(response_data).encode('utf-8'))
+                else:
+                    print(f"Ошибка завершения авторизации: {result}")
+                    self.send_error(500, f"Authorization finish failed: {result.get('error', 'Unknown error')}")
+                    
+            except Exception as e:
+                print(f"Ошибка при завершении авторизации Т-банк: {e}")
+                self.send_error(500, str(e))
+                
+        except Exception as e:
+            print(f"Ошибка при завершении авторизации Т-банк: {e}")
             self.send_error(500, str(e))
 
     def handle_tbank_webhook(self):
