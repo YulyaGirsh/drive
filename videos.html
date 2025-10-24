@@ -397,11 +397,6 @@
             
             // Обновляем интерфейс в зависимости от подписки
             updateVideoButtons();
-            
-            // Показываем уведомление для браузерной версии
-            if (!tg) {
-                showBrowserNotification();
-            }
         });
         
         // Обновляем кнопки видео в зависимости от подписки
@@ -425,31 +420,6 @@
                     }
                 }
             });
-        }
-        
-        // Показываем уведомление для браузерной версии
-        function showBrowserNotification() {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
-                color: white;
-                padding: 15px;
-                margin: 10px 0;
-                border-radius: 10px;
-                text-align: center;
-                font-weight: 600;
-                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
-            `;
-            notification.innerHTML = `
-                📺 <strong>Полный доступ к видеоурокам</strong><br>
-                Первые 2 урока доступны бесплатно, остальные - по подписке за ${SUBSCRIPTION_PRICE}₽<br>
-                <button onclick="showPaymentModal()" style="background: #ffcc00; color: #333; border: none; padding: 8px 16px; border-radius: 20px; margin-top: 8px; cursor: pointer; font-weight: 600;">
-                    💳 Купить подписку
-                </button>
-            `;
-            
-            const videosContainer = document.querySelector('.videos-container');
-            videosContainer.insertBefore(notification, videosContainer.firstChild);
         }
         
         // Показываем модальное окно с предложением оплаты
