@@ -86,6 +86,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.confirm_payment()
             elif self.path == '/api/tbank-create-payment':
                 self.create_tbank_payment()
+            elif self.path == '/api/tbank-init-payment':
+                self.init_tbank_payment()
             elif self.path == '/api/tbank-webhook':
                 self.handle_tbank_webhook()
             elif self.path == '/api/v2/heartbeat':
@@ -695,6 +697,67 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 
         except Exception as e:
             print(f"Ошибка при создании платежа Т-банк: {e}")
+            self.send_error(500, str(e))
+    
+    def init_tbank_payment(self):
+        """
+        Инициирует платеж через Т-банк API /v2/Init для T-Pay
+        """
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            user_id = data.get('user_id')
+            amount = data.get('amount', 10)
+            description = data.get('description', 'Подписка EasyDrive')
+            payment_method = data.get('payment_method', 'tpay')
+            
+            if not user_id:
+                self.send_error(400, "Missing user_id")
+                return
+            
+            # Инициируем платеж через Т-банк
+            print(f"Инициируем платеж T-Pay для пользователя {user_id} на сумму {amount}₽")
+            
+            try:
+                payment = TbankPayment()
+                result = payment.init_payment(amount, user_id, description)
+                
+                if result and result.get('success'):
+                    print(f"Платеж инициирован успешно: {result}")
+                    
+                    # Отправляем ответ клиенту
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                    self.end_headers()
+                    
+                    response_data = {
+                        'success': True,
+                        'payment_id': result.get('payment_id'),
+                        'payment_url': result.get('payment_url'),
+                        'order_id': result.get('order_id'),
+                        'message': 'Payment initialized successfully',
+                        'amount': amount,
+                        'user_id': user_id,
+                        'payment_method': payment_method
+                    }
+                    
+                    print(f"Отправляем ответ: {response_data}")
+                    self.wfile.write(json.dumps(response_data).encode('utf-8'))
+                else:
+                    print(f"Ошибка инициализации платежа: {result}")
+                    self.send_error(500, f"Payment initialization failed: {result.get('error', 'Unknown error')}")
+                    
+            except Exception as e:
+                print(f"Ошибка при инициализации платежа Т-банк: {e}")
+                self.send_error(500, str(e))
+                
+        except Exception as e:
+            print(f"Ошибка при инициализации платежа Т-банк: {e}")
             self.send_error(500, str(e))
 
     def handle_tbank_webhook(self):

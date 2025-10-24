@@ -17,9 +17,65 @@ class TbankPayment:
         self.api_url = TBANK_API_URL
         self.webhook_url = TBANK_WEBHOOK_URL
     
+    def init_payment(self, amount, user_id, description=None):
+        """
+        Инициирует платеж через API /v2/Init для T-Pay
+        """
+        try:
+            order_id = f"easydrive_{user_id}_{int(time.time())}"
+            
+            # Формируем данные для инициализации платежа
+            init_data = {
+                "TerminalKey": TBANK_TERMINAL_KEY,
+                "Amount": amount * 100,  # Сумма в копейках
+                "OrderId": order_id,
+                "Description": description or PAYMENT_DESCRIPTION,
+                "CustomerKey": str(user_id),
+                "Recurrent": "Y",  # Сохраняем карту для будущих платежей
+                "PayType": "O",  # Одностадийная оплата
+                "Language": "ru",
+                "NotificationURL": self.webhook_url,
+                "SuccessURL": f"{TBANK_SUCCESS_URL}?user_id={user_id}",
+                "FailURL": f"{TBANK_FAIL_URL}?user_id={user_id}",
+                "DATA": {
+                    "OperationInitiatorType": "0"
+                },
+                "Receipt": {
+                    "Items": [
+                        {
+                            "Name": description or "Подписка EasyDrive",
+                            "Price": amount * 100,
+                            "Quantity": 1,
+                            "Amount": amount * 100,
+                            "PaymentMethod": "full_payment",
+                            "PaymentObject": "service",
+                            "Tax": "none"
+                        }
+                    ],
+                    "FfdVersion": "1.05",
+                    "Taxation": "osn",
+                    "Payments": {
+                        "Electronic": amount * 100
+                    }
+                }
+            }
+            
+            # Создаем токен для подписи
+            token = self._create_init_token(init_data)
+            init_data["Token"] = token
+            
+            print(f"Инициируем платеж: {init_data}")
+            
+            # Отправляем запрос в Т-банк
+            return self._send_init_request(init_data)
+            
+        except Exception as e:
+            print(f"Ошибка при инициализации платежа: {e}")
+            return None
+    
     def create_payment(self, amount, user_id, description=None):
         """
-        Создает платеж в Т-банк
+        Создает платеж в Т-банк (старый метод для совместимости)
         """
         try:
             # Формируем данные платежа
@@ -109,6 +165,91 @@ class TbankPayment:
         ).hexdigest()
         
         return signature
+    
+    def _create_init_token(self, data):
+        """
+        Создает токен для API /v2/Init
+        """
+        # Поля для создания токена (без самого токена)
+        token_fields = [
+            "TerminalKey", "Amount", "OrderId", "Description", 
+            "CustomerKey", "Recurrent", "PayType", "Language",
+            "NotificationURL", "SuccessURL", "FailURL"
+        ]
+        
+        # Создаем строку для токена
+        token_string = ""
+        for field in token_fields:
+            if field in data and data[field] is not None:
+                token_string += str(data[field])
+        
+        # Добавляем секретный ключ
+        token_string += self.secret_key
+        
+        # Создаем SHA-256 хеш
+        token = hashlib.sha256(token_string.encode('utf-8')).hexdigest()
+        
+        return token
+    
+    def _send_init_request(self, data):
+        """
+        Отправляет запрос инициализации платежа в Т-банк API /v2/Init
+        """
+        try:
+            # URL для инициализации платежа
+            url = "https://securepay.tinkoff.ru/v2/Init"
+            
+            # Подготавливаем данные
+            json_data = json.dumps(data, ensure_ascii=False).encode('utf-8')
+            
+            # Создаем запрос
+            req = urllib.request.Request(
+                url,
+                data=json_data,
+                headers={
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            )
+            
+            # Отправляем запрос
+            with urllib.request.urlopen(req) as response:
+                result = response.read().decode('utf-8')
+                result_data = json.loads(result)
+                
+                print(f"Ответ от Т-банк /v2/Init: {result_data}")
+                
+                # Проверяем успешность ответа
+                if result_data.get('Success'):
+                    return {
+                        'success': True,
+                        'payment_id': result_data.get('PaymentId'),
+                        'payment_url': result_data.get('PaymentURL'),
+                        'order_id': data.get('OrderId'),
+                        'amount': data.get('Amount'),
+                        'status': result_data.get('Status')
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'error': result_data.get('Message', 'Неизвестная ошибка'),
+                        'details': result_data.get('Details', '')
+                    }
+                
+        except urllib.error.HTTPError as e:
+            error_response = e.read().decode('utf-8')
+            print(f"HTTP ошибка при инициализации платежа: {e.code} - {error_response}")
+            return {
+                'success': False,
+                'error': f'HTTP ошибка: {e.code}',
+                'details': error_response
+            }
+        except Exception as e:
+            print(f"Ошибка при инициализации платежа: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
     
     def _send_request(self, data):
         """

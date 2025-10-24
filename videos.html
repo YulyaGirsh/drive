@@ -514,9 +514,8 @@
                 transition: all 0.3s ease;
             `;
             paymentBtn.onclick = function() {
-                // Показываем кнопки Т-банка
-                initTbankPaymentButtons(paymentContainer);
-                paymentBtn.style.display = 'none';
+                // Инициируем платеж через T-Pay
+                initiateTpayPayment();
             };
             
             const cancelBtn = document.createElement('button');
@@ -555,6 +554,54 @@
                     modal.remove();
                 }
             });
+        }
+        
+        // Инициирование платежа через T-Pay
+        async function initiateTpayPayment() {
+            try {
+                // Получаем данные пользователя
+                let currentUserData = userData;
+                if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    currentUserData = tg.initDataUnsafe.user;
+                }
+                if (!currentUserData) {
+                    currentUserData = {
+                        id: Date.now(),
+                        first_name: 'Test',
+                        last_name: 'User'
+                    };
+                }
+                
+                console.log('Инициируем платеж T-Pay для пользователя:', currentUserData);
+                
+                // Отправляем запрос на инициализацию платежа
+                const response = await fetch('/api/tbank-init-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUserData.id,
+                        amount: SUBSCRIPTION_PRICE,
+                        description: 'Подписка на видеоуроки EasyDrive',
+                        payment_method: 'tpay'
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Ответ от бэкенда:', result);
+                
+                if (result.success && result.payment_url) {
+                    // Перенаправляем на страницу оплаты T-Pay
+                    window.open(result.payment_url, '_blank');
+                } else {
+                    alert('Ошибка инициализации платежа: ' + (result.error || 'Неизвестная ошибка'));
+                }
+                
+            } catch (error) {
+                console.error('Ошибка при инициировании платежа T-Pay:', error);
+                alert('Ошибка при инициировании платежа. Попробуйте еще раз.');
+            }
         }
         
         // Инициализация кнопок Т-банка
