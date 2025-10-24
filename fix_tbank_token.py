@@ -21,35 +21,20 @@ def create_correct_token(data, secret_key):
     # Сортируем ключи в алфавитном порядке
     sorted_keys = sorted(token_data.keys())
     
-    # Создаем строку для токена согласно примеру от техподдержки
-    # Порядок: Amount, Description, FailURL, OrderId, SuccessURL, TerminalKey, Password
+    # Создаем строку для токена согласно инструкции техподдержки:
+    # "Все корневые объекты массива отсортированы в алфавитном порядке по ключу, 
+    # и значения конкатенированы в одну строку"
+    
+    # Сортируем ключи в алфавитном порядке
+    sorted_keys = sorted(token_data.keys())
+    
+    # Конкатенируем значения в алфавитном порядке ключей
     token_string = ""
+    for key in sorted_keys:
+        if token_data[key] is not None:
+            token_string += str(token_data[key])
     
-    # Amount
-    if "Amount" in token_data and token_data["Amount"] is not None:
-        token_string += str(token_data["Amount"])
-    
-    # Description  
-    if "Description" in token_data and token_data["Description"] is not None:
-        token_string += str(token_data["Description"])
-    
-    # FailURL
-    if "FailURL" in token_data and token_data["FailURL"] is not None:
-        token_string += str(token_data["FailURL"])
-    
-    # OrderId
-    if "OrderId" in token_data and token_data["OrderId"] is not None:
-        token_string += str(token_data["OrderId"])
-    
-    # SuccessURL
-    if "SuccessURL" in token_data and token_data["SuccessURL"] is not None:
-        token_string += str(token_data["SuccessURL"])
-    
-    # TerminalKey
-    if "TerminalKey" in token_data and token_data["TerminalKey"] is not None:
-        token_string += str(token_data["TerminalKey"])
-    
-    # Password (секретный ключ)
+    # Добавляем секретный ключ в конец
     token_string += secret_key
     
     print(f"Строка для токена: {token_string}")
