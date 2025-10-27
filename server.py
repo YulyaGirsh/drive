@@ -705,64 +705,79 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     
     def init_tbank_payment(self):
         """
-        Инициирует платеж через Т-банк API /v2/Init для T-Pay
+        Инициирует платеж через Т-банк API /v2/Init
+        Получает данные от фронтенда, генерирует токен на бэкенде, отправляет в Т-банк
         """
         try:
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data.decode('utf-8'))
             
-            user_id = data.get('user_id')
-            amount = data.get('amount', 10)
-            description = data.get('description', 'Подписка EasyDrive')
-            payment_method = data.get('payment_method', 'tpay')
+            print(f"Получены данные от фронтенда: {data}")
             
-            if not user_id:
-                self.send_error(400, "Missing user_id")
+            # Извлекаем параметры из данных фронтенда
+            terminal_key = data.get('TerminalKey')
+            amount = data.get('Amount')
+            order_id = data.get('OrderId')
+            description = data.get('Description')
+            success_url = data.get('SuccessURL')
+            fail_url = data.get('FailURL')
+            language = data.get('Language', 'ru')
+            customer_key = data.get('CustomerKey')
+            
+            if not all([terminal_key, amount, order_id]):
+                self.send_error(400, "Missing required parameters: TerminalKey, Amount, OrderId")
                 return
             
-            # Инициируем платеж через Т-банк
-            print(f"Инициируем платеж T-Pay для пользователя {user_id} на сумму {amount}₽")
+            # Генерируем токен на бэкенде (секрет здесь!)
+            from tbank_payment import TbankPayment
+            payment = TbankPayment()
             
-            try:
-                payment = TbankPayment()
-                # Используем специальный метод для T-Pay
-                result = payment.init_tpay_payment(amount, user_id, description)
+            # Формируем данные для запроса в Т-банк
+            tbank_data = {
+                'TerminalKey': terminal_key,
+                'Amount': amount,
+                'OrderId': order_id,
+                'Description': description,
+                'SuccessURL': success_url,
+                'FailURL': fail_url,
+                'Language': language,
+                'CustomerKey': customer_key
+            }
+            
+            # Генерируем токен
+            token = payment._create_simple_token(tbank_data)
+            tbank_data['Token'] = token
+            
+            print(f"Отправляем запрос в Т-банк: {tbank_data}")
+            
+            # Отправляем в Т-банк
+            import urllib.request
+            import urllib.parse
+            
+            url = 'https://rest-api-test.tinkoff.ru/v2/Init'
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(tbank_data).encode('utf-8'),
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            with urllib.request.urlopen(req, timeout=10) as response:
+                result = json.loads(response.read().decode('utf-8'))
+                print(f"Ответ от Т-банка: {result}")
                 
-                if result and result.get('success'):
-                    print(f"Платеж инициирован успешно: {result}")
-                    
-                    # Отправляем ответ клиенту
-                    self.send_response(200)
-                    self.send_header('Content-Type', 'application/json')
-                    self.send_header('Access-Control-Allow-Origin', '*')
-                    self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-                    self.end_headers()
-                    
-                    response_data = {
-                        'success': True,
-                        'payment_id': result.get('payment_id'),
-                        'payment_url': result.get('payment_url'),
-                        'order_id': result.get('order_id'),
-                        'message': 'Payment initialized successfully',
-                        'amount': amount,
-                        'user_id': user_id,
-                        'payment_method': payment_method
-                    }
-                    
-                    print(f"Отправляем ответ: {response_data}")
-                    self.wfile.write(json.dumps(response_data).encode('utf-8'))
-                else:
-                    print(f"Ошибка инициализации платежа: {result}")
-                    self.send_error(500, f"Payment initialization failed: {result.get('error', 'Unknown error')}")
-                    
-            except Exception as e:
-                print(f"Ошибка при инициализации платежа Т-банк: {e}")
-                self.send_error(500, str(e))
+                # Отправляем ответ клиенту
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps(result).encode('utf-8'))
                 
         except Exception as e:
             print(f"Ошибка при инициализации платежа Т-банк: {e}")
+            import traceback
+            traceback.print_exc()
+            self.send_error(500, str(e))
             self.send_error(500, str(e))
     
     def confirm_tbank_payment(self):
