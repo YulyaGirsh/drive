@@ -768,7 +768,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             import urllib.request
             import urllib.parse
             
-            url = 'https://rest-api-test.tinkoff.ru/v2/Init'
+            url = 'https://securepay.tinkoff.ru/v2/Init'
             req = urllib.request.Request(
                 url,
                 data=json.dumps(tbank_data).encode('utf-8'),
