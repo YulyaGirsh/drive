@@ -961,7 +961,7 @@
                 const result = await response.json();
                 console.log('Ответ от бэкенда:', result);
                 
-                if (result.Success) {
+                if (result.success) {
                     // Сохраняем подписку в локальное хранилище
                     const paidSubKey = `paid_subscription_${currentUserData.id}`;
                     const subscriptionData = {
