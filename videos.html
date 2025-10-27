@@ -925,8 +925,7 @@
         // Обработка оплаты картой через тестовый терминал
         async function processCardPayment() {
             console.log('='.repeat(60));
-            console.log('🚀 ЗАПУСК ПРОЦЕССА ОПЛАТЫ КАРТОЙ');
-            console.log('='.repeat(60));
+                console.log('🚀 Запуск оплаты картой');
             
             try {
                 console.log('📋 Шаг 1: Получение данных пользователя');
@@ -977,8 +976,8 @@
                     cvv_length: cardCVV ? cardCVV.length : 0
                 });
                 
-                console.log('📋 Шаг 3: Отправка РЕАЛЬНОГО запроса в Т-банк API');
-                console.log('🎯 Используем ТЕСТОВЫЙ терминал (активация в ЛК не требуется для тестовых платежей)');
+                console.log('📋 Шаг 3: Отправка запроса через БЭКЕНД');
+                console.log('🎯 Используем ТЕСТОВЫЙ терминал 1761136519162DEMO');
                 
                 // Всегда отправляем РЕАЛЬНЫЙ запрос в Т-банк API (не демо!)
                 const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
@@ -1061,37 +1060,8 @@
                     const errorMsg = result.Message || result.Details || 'Неизвестная ошибка';
                     console.error('Сообщение:', errorMsg);
                     
-                    // ВРЕМЕННО: активируем подписку даже при ошибке токена
-                    // для демонстрации работы (после активации терминала убрать!)
-                    if (testCardMatch && testCardMatch[1].result === 'success') {
-                        console.log('⚠️ Ошибка токена, но активируем подписку (DEMO)');
-                        
-                        const paidSubKey = `paid_subscription_v4_${currentUserData.id}`;
-                        const subscriptionData = {
-                            user_id: currentUserData.id,
-                            date: new Date().toISOString(),
-                            amount: SUBSCRIPTION_PRICE,
-                            payment_method: 'card',
-                            terminal_key: TBANK_TERMINAL_KEY,
-                            payment_id: `error_${Date.now()}`,
-                            error: errorMsg
-                        };
-                        localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
-                        
-                        hasPaidSubscription = true;
-                        updateVideoButtons();
-                        
-                        alert('✅ Подписка активирована (DEMO)\n\n' +
-                              '⚠️ ОШИБКА Т-БАНКА: ' + errorMsg + '\n' +
-                              'Запрос отправлен в Т-банк и должен быть виден в личном кабинете\n\n' +
-                              'Для активации терминала:\n' +
-                              '1. Откройте https://business.tbank.ru/\n' +
-                              '2. Нажмите "Тестировать" для тестового терминала');
-                        return true;
-                    }
-                    
-                    alert('❌ Платеж не прошел: ' + errorMsg + 
-                          '\n\nАктивируйте терминал в личном кабинете Т-банка');
+                    // Обработка ошибки от Т-банка
+                    alert('❌ Платеж не прошел: ' + errorMsg + '\n\nПроверьте настройки терминала в личном кабинете Т-банка');
                     return false;
                 }
                 
