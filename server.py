@@ -43,6 +43,10 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         else:
             # Обычная обработка статических файлов
             super().do_GET()
+    
+    def log_message(self, format, *args):
+        """Логируем все запросы для отладки"""
+        print(f"{args[0]} {args[1]}")
 
     def do_POST(self):
         # Обработка POST запросов
