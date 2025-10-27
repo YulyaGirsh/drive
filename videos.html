@@ -239,9 +239,10 @@
         const FREE_VIDEOS_COUNT = 2; // Первые 2 видео доступны всем
         const SUBSCRIPTION_PRICE = 10; // Цена подписки в рублях
         
-        // Конфигурация Т-банка
-        const TBANK_TERMINAL_KEY = '200000001691412'; // Terminal Key из личного кабинета
-        const TBANK_API_URL = 'https://api.tbank.ru/v1/payments';
+        // Конфигурация Т-банка (тестовый терминал)
+        const TBANK_TERMINAL_KEY = '1761136519162DEMO'; // Тестовый Terminal Key
+        const TBANK_SECRET_KEY = 'TY#iAnEUV*3CS&Bl'; // Тестовый Secret Key
+        const TBANK_API_URL = 'https://securepay.tinkoff.ru/v2';
         
         // Базовый URL для API запросов (используем Telegram API)
         const API_BASE_URL = 'https://api.telegram.org/bot' + 'YOUR_BOT_TOKEN';
@@ -254,7 +255,7 @@
         let isSubscribed = false; // Проверяем подписку
         let hasPaidSubscription = false; // Проверяем оплаченную подписку
         
-        // Инициализация Т-банка
+        // Инициализация Т-банка (закомментировано, используем прямую интеграцию)
         const initConfig = {
             terminalKey: TBANK_TERMINAL_KEY,
             product: 'eacq',
@@ -264,22 +265,13 @@
         };
         
         function onPaymentIntegrationLoad() {
-            PaymentIntegration.init(initConfig)
-                .then(async (integration) => {
-                    console.log('Т-банк интеграция инициализирована:', integration);
-                    tbankIntegration = integration;
-                    
-                    // Настраиваем callback для создания платежей
-                    await integration.payments.setPaymentStartCallback(async (paymentType) => {
-                        console.log('Начинаем платеж, тип:', paymentType);
-                        return await createTbankPayment();
-                    });
-                    
-                    console.log('Т-банк готов к работе');
-                })
-                .catch((error) => {
-                    console.error('Ошибка инициализации Т-банка:', error);
-                });
+            console.log('Т-банк интеграция загружена');
+            // Упрощенная инициализация для тестового терминала
+            tbankIntegration = {
+                terminalKey: TBANK_TERMINAL_KEY,
+                secretKey: TBANK_SECRET_KEY
+            };
+            console.log('Т-банк готов к работе с тестовым терминалом');
         }
         
         // Создание платежа через Т-банк API
@@ -476,31 +468,20 @@
             icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
             
             const title = document.createElement('h2');
-            title.textContent = 'Получите полный доступ';
+            title.textContent = 'Доступ к видеоуроку';
             title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
             
             const message = document.createElement('p');
             message.innerHTML = `
-                Разблокируйте все видеоуроки за <strong>${SUBSCRIPTION_PRICE}₽</strong><br><br>
-                • Доступ ко всем урокам навсегда
+                Для просмотра этого видеоурока требуется оплата <strong>${SUBSCRIPTION_PRICE}₽</strong><br><br>
+                Оплата производится картой на тестовом терминале
             `;
             message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
             
-            // Контейнер для кнопок Т-банка
-            const paymentContainer = document.createElement('div');
-            paymentContainer.id = 'tbank-payment-container';
-            paymentContainer.style.cssText = `
-                margin: 20px 0;
-                min-height: 100px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            `;
-            
-            // Кнопка оплаты
-            const paymentBtn = document.createElement('button');
-            paymentBtn.innerHTML = `💳 Оплатить ${SUBSCRIPTION_PRICE}₽`;
-            paymentBtn.style.cssText = `
+            // Кнопка оплаты картой
+            const cardPaymentBtn = document.createElement('button');
+            cardPaymentBtn.innerHTML = `💳 Оплатить картой ${SUBSCRIPTION_PRICE}₽`;
+            cardPaymentBtn.style.cssText = `
                 background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
                 color: white;
                 border: none;
@@ -512,10 +493,11 @@
                 margin: 15px 10px 10px 10px;
                 box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
                 transition: all 0.3s ease;
+                width: 100%;
             `;
-            paymentBtn.onclick = function() {
-                // Инициируем платеж через T-Pay
-                initiateTpayPayment();
+            cardPaymentBtn.onclick = function() {
+                modal.remove();
+                showCardPaymentModal();
             };
             
             const cancelBtn = document.createElement('button');
@@ -529,6 +511,7 @@
                 cursor: pointer;
                 font-size: 14px;
                 margin-top: 15px;
+                width: 100%;
             `;
             cancelBtn.onclick = function() {
                 modal.remove();
@@ -538,15 +521,11 @@
             content.appendChild(icon);
             content.appendChild(title);
             content.appendChild(message);
-            content.appendChild(paymentContainer);
-            content.appendChild(paymentBtn);
+            content.appendChild(cardPaymentBtn);
             content.appendChild(cancelBtn);
             modal.appendChild(content);
             
             document.body.appendChild(modal);
-            
-            // Инициализируем кнопки Т-банка
-            initTbankPaymentButtons(paymentContainer);
             
             // Закрытие по клику на фон
             modal.addEventListener('click', function(e) {
@@ -743,10 +722,34 @@
                 width: 100%;
                 box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
             `;
-            payBtn.onclick = function(e) {
+            payBtn.onclick = async function(e) {
                 e.preventDefault();
-                processCardPayment();
-                modal.remove();
+                // Проверяем, что все поля заполнены перед обработкой
+                const cardNumber = document.getElementById('cardNumber')?.value;
+                const cardExpiry = document.getElementById('cardExpiry')?.value;
+                const cardCVV = document.getElementById('cardCVV')?.value;
+                const cardName = document.getElementById('cardName')?.value;
+                
+                if (!cardNumber || !cardExpiry || !cardCVV || !cardName) {
+                    alert('❌ Пожалуйста, заполните все поля карты');
+                    return;
+                }
+                
+                // Меняем состояние кнопки на "Обработка..."
+                payBtn.disabled = true;
+                payBtn.innerHTML = '⏳ Обработка...';
+                
+                // Обрабатываем платеж
+                const success = await processCardPayment();
+                
+                // Если платеж успешен, закрываем модальное окно
+                if (success) {
+                    modal.remove();
+                } else {
+                    // Если есть ошибка, возвращаем кнопку в исходное состояние
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = `💳 Оплатить ${SUBSCRIPTION_PRICE}₽`;
+                }
             };
             
             const cancelBtn = document.createElement('button');
@@ -919,77 +922,124 @@
             });
         }
         
-        // Обработка оплаты картой
+        // Обработка оплаты картой через тестовый терминал
         async function processCardPayment() {
-            // Получаем данные пользователя
-            let currentUserData = userData;
-            
-            if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                currentUserData = tg.initDataUnsafe.user;
-            }
-            
-            if (!currentUserData) {
-                currentUserData = {
-                    id: Date.now(),
-                    first_name: 'Test',
-                    last_name: 'User'
-                };
-            }
-            
-            // Получаем данные карты
-            const cardNumber = document.getElementById('cardNumber')?.value;
-            const cardExpiry = document.getElementById('cardExpiry')?.value;
-            const cardCVV = document.getElementById('cardCVV')?.value;
-            const cardName = document.getElementById('cardName')?.value;
-            
-            if (!cardNumber || !cardExpiry || !cardCVV || !cardName) {
-                alert('❌ Пожалуйста, заполните все поля карты');
-                return;
-            }
-            
             try {
-                const response = await fetch(`${API_BASE_URL}/api/tbank-create-payment`, {
+                // Получаем данные пользователя
+                let currentUserData = userData;
+                
+                if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    currentUserData = tg.initDataUnsafe.user;
+                }
+                
+                if (!currentUserData) {
+                    currentUserData = {
+                        id: Date.now(),
+                        first_name: 'Test',
+                        last_name: 'User'
+                    };
+                }
+                
+                // Получаем данные карты
+                const cardNumber = document.getElementById('cardNumber')?.value;
+                const cardExpiry = document.getElementById('cardExpiry')?.value;
+                const cardCVV = document.getElementById('cardCVV')?.value;
+                const cardName = document.getElementById('cardName')?.value;
+                
+                // Инициализируем платеж через Т-банк API
+                const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
+                const amount = SUBSCRIPTION_PRICE * 100; // Сумма в копейках
+                
+                // Создаем токен для запроса
+                const tokenData = {
+                    TerminalKey: TBANK_TERMINAL_KEY,
+                    Amount: amount,
+                    OrderId: orderId,
+                    Description: 'Подписка на видеоуроки EasyDrive',
+                    CustomerKey: currentUserData.id.toString(),
+                    Language: 'ru'
+                };
+                
+                const token = await createTbankToken(tokenData);
+                
+                // Отправляем запрос на инициализацию платежа
+                const initData = {
+                    ...tokenData,
+                    Token: token
+                };
+                
+                console.log('Отправляем запрос на инициализацию платежа:', initData);
+                
+                const response = await fetch(`${TBANK_API_URL}/Init`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        user_id: currentUserData.id,
-                        amount: SUBSCRIPTION_PRICE,
-                        payment_method: 'card',
-                        card_data: {
-                            number: cardNumber,
-                            expiry: cardExpiry,
-                            cvv: cardCVV,
-                            holder: cardName
-                        }
-                    })
+                    body: JSON.stringify(initData)
                 });
                 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Ответ сервера:', result);
-                    if (result.success) {
-                        hasPaidSubscription = true;
-                        updateVideoButtons();
-                        alert('✅ Оплата картой подтверждена! Теперь у вас есть доступ ко всем видеоурокам!');
-                    } else {
-                        alert('❌ Ошибка подтверждения оплаты: ' + (result.message || 'Неизвестная ошибка'));
-                    }
+                const result = await response.json();
+                console.log('Ответ от Т-банк:', result);
+                
+                if (result.Success) {
+                    // Сохраняем подписку в локальное хранилище
+                    const paidSubKey = `paid_subscription_${currentUserData.id}`;
+                    const subscriptionData = {
+                        user_id: currentUserData.id,
+                        date: new Date().toISOString(),
+                        amount: SUBSCRIPTION_PRICE,
+                        payment_method: 'card',
+                        terminal_key: TBANK_TERMINAL_KEY
+                    };
+                    localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
+                    
+                    hasPaidSubscription = true;
+                    updateVideoButtons();
+                    alert('✅ Оплата картой подтверждена! Теперь у вас есть доступ ко всем видеоурокам!');
+                    return true; // Возвращаем true при успешном платеже
                 } else {
-                    const errorText = await response.text();
-                    console.error('Ошибка сервера:', response.status, errorText);
-                    alert(`❌ Ошибка сервера (${response.status}): ${errorText || 'Сервер недоступен'}`);
+                    alert('❌ Ошибка оплаты: ' + (result.Message || result.Details || 'Неизвестная ошибка'));
+                    return false; // Возвращаем false при ошибке
                 }
                 
             } catch (error) {
-                console.error('Ошибка подтверждения оплаты картой:', error);
-                if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                    alert('❌ Сервер недоступен. Убедитесь, что сервер запущен на localhost:8000');
-                } else {
-                    alert('❌ Ошибка при подтверждении оплаты картой. Попробуйте еще раз.');
+                console.error('Ошибка оплаты картой:', error);
+                alert('❌ Ошибка при обработке оплаты картой. Попробуйте еще раз.');
+                return false; // Возвращаем false при ошибке
+            }
+        }
+        
+        // Создание токена для Т-банк API
+        async function createTbankToken(data) {
+            // Функция для создания SHA-256 хеша
+            const hashString = async (message) => {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(message);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            };
+            
+            // Сортируем ключи в алфавитном порядке
+            const sortedKeys = Object.keys(data).sort();
+            
+            // Создаем строку для токена
+            let tokenString = '';
+            for (const key of sortedKeys) {
+                if (data[key] !== null && data[key] !== undefined) {
+                    tokenString += String(data[key]);
                 }
             }
+            
+            // Добавляем секретный ключ
+            tokenString += TBANK_SECRET_KEY;
+            
+            console.log('Строка для токена:', tokenString);
+            
+            // Создаем SHA-256 хеш
+            const token = await hashString(tokenString);
+            
+            return token;
         }
         
         // Обработка оплаты СБП
