@@ -199,8 +199,9 @@
         const SUBSCRIPTION_PRICE = 10; // Цена подписки в рублях
         
         // Конфигурация Т-банка
-        const TBANK_TERMINAL_KEY = '200000001691412'; // Terminal Key из личного кабинета
-        const TBANK_API_URL = 'https://api.tbank.ru/v1/payments';
+        const TBANK_TERMINAL_KEY = '1761136519204'; // Рабочий терминал
+        const TBANK_API_URL = 'https://securepay.tinkoff.ru/v2'; // Рабочий хост
+        const BACKEND_API_URL = '/api/tbank-init-payment'; // Эндпоинт бэкенда
         
         // Базовый URL для API запросов (используем Telegram API)
         const API_BASE_URL = 'https://api.telegram.org/bot' + 'YOUR_BOT_TOKEN';
@@ -365,6 +366,131 @@
             }
         }
         
+        // Функция обработки оплаты картой (как в videos.html)
+        async function processCardPayment() {
+            console.log('🚀 Запуск оплаты картой');
+            
+            try {
+                console.log('📋 Шаг 1: Получение данных пользователя');
+                // Получаем данные пользователя
+                let currentUserData = userData;
+                
+                if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    currentUserData = tg.initDataUnsafe.user;
+                }
+                
+                if (!currentUserData) {
+                    console.log('⚠️ Данные пользователя не найдены, используем тестовые');
+                    currentUserData = {
+                        id: Date.now(),
+                        first_name: 'Test',
+                        last_name: 'User'
+                    };
+                }
+                
+                console.log('👤 Данные пользователя:', {
+                    id: currentUserData.id,
+                    name: currentUserData.first_name,
+                    last_name: currentUserData.last_name || '(нет)'
+                });
+                
+                console.log('📋 Шаг 2: Пропускаем получение данных карты - оплата через форму Т-Банка');
+                
+                console.log('📋 Шаг 3: Отправка запроса через БЭКЕНД');
+                console.log('🎯 Используем РАБОЧИЙ терминал 1761136519204');
+                
+                // Всегда отправляем РЕАЛЬНЫЙ запрос в Т-банк API (не демо!)
+                const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
+                const amount = SUBSCRIPTION_PRICE * 100;
+                    
+                const tokenData = {
+                    TerminalKey: TBANK_TERMINAL_KEY,
+                    Amount: amount,
+                    OrderId: orderId,
+                    Description: 'Подписка на восстановление навыков EasyDrive',
+                    SuccessURL: 'https://securepay.tinkoff.ru/html/payForm/success.html',
+                    FailURL: 'https://securepay.tinkoff.ru/html/payForm/fail.html'
+                };
+                
+                // Отправляем на БЭКЕНД - токен генерируется там!
+                const backendData = {
+                    ...tokenData,
+                    Language: 'ru',
+                    CustomerKey: currentUserData.id.toString()
+                };
+                
+                console.log('📤 Отправляем запрос на БЭКЕНД...');
+                console.log('URL:', BACKEND_API_URL);
+                
+                const response = await fetch(BACKEND_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(backendData)
+                });
+                
+                console.log('📥 Получен ответ от БЭКЕНДА');
+                
+                if (!response.ok) {
+                    throw new Error(`Backend error: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('📦 Полный ответ от бэкенда:', JSON.stringify(result, null, 2));
+                
+                if (result.Success) {
+                    console.log('✅ Платеж успешно инициализирован в Т-банк!');
+                    console.log('💳 Payment ID:', result.PaymentId);
+                    console.log('🔗 Payment URL:', result.PaymentURL);
+                    
+                    if (result.PaymentId) {
+                        console.log('✅ Платеж создан в Т-банк и будет виден в личном кабинете');
+                        
+                        // Для тестовых карт Т-банк может вернуть PaymentURL
+                        if (result.PaymentURL) {
+                            console.log('📋 Перенаправляем на страницу оплаты Т-банка');
+                            // Открываем страницу оплаты в текущей вкладке
+                            window.location.href = result.PaymentURL;
+                            return true;
+                        }
+                    }
+                    
+                    // Сохраняем подписку в localStorage ДО перехода на страницу оплаты
+                    const paidSubKey = `paid_subscription_v9_${currentUserData.id}`;
+                    const subscriptionData = {
+                        user_id: currentUserData.id,
+                        date: new Date().toISOString(),
+                        amount: SUBSCRIPTION_PRICE,
+                        payment_method: 'card',
+                        terminal_key: TBANK_TERMINAL_KEY,
+                        payment_id: result.PaymentId
+                    };
+                    localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
+                    console.log('✅ Подписка сохранена в localStorage');
+                    
+                    // НЕ показываем alert, т.к. сразу открывается страница оплаты
+                    return true;
+                } else {
+                    console.error('❌ Т-банк вернул ошибку:', result);
+                    const errorMsg = result.Message || result.Details || 'Неизвестная ошибка';
+                    console.error('Сообщение:', errorMsg);
+                    
+                    // Обработка ошибки от Т-банка
+                    alert('❌ Платеж не прошел: ' + errorMsg + '\n\nПроверьте настройки терминала в личном кабинете Т-банка');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('='.repeat(60));
+                console.error('❌ КРИТИЧЕСКАЯ ОШИБКА ПРИ ОПЛАТЕ');
+                console.error('='.repeat(60));
+                console.error('Тип ошибки:', error.name);
+                console.error('Сообщение:', error.message);
+                console.error('Стек:', error.stack);
+                alert('❌ Ошибка при обработке оплаты картой. Попробуйте еще раз.');
+                return false; // Возвращаем false при ошибке
+            }
+        }
+
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', async function() {
             // Проверяем подписку и оплаченную подписку
@@ -456,31 +582,20 @@
             icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
             
             const title = document.createElement('h2');
-            title.textContent = 'Получите полный доступ';
+            title.textContent = 'Доступ к видеоуроку';
             title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
             
             const message = document.createElement('p');
             message.innerHTML = `
-                Разблокируйте все уроки восстановления навыков за <strong>${SUBSCRIPTION_PRICE}₽</strong><br><br>
-                • Доступ ко всем урокам навсегда
+                Для просмотра этого видеоурока требуется оплата <strong>${SUBSCRIPTION_PRICE}₽</strong><br><br>
+                Оплата производится картой на тестовом терминале
             `;
             message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
             
-            // Контейнер для кнопок Т-банка
-            const paymentContainer = document.createElement('div');
-            paymentContainer.id = 'tbank-payment-container';
-            paymentContainer.style.cssText = `
-                margin: 20px 0;
-                min-height: 100px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            `;
-            
-            // Кнопка оплаты
-            const paymentBtn = document.createElement('button');
-            paymentBtn.innerHTML = `💳 Оплатить ${SUBSCRIPTION_PRICE}₽`;
-            paymentBtn.style.cssText = `
+            // Кнопка оплаты картой
+            const cardPaymentBtn = document.createElement('button');
+            cardPaymentBtn.innerHTML = `💳 Оплатить картой ${SUBSCRIPTION_PRICE}₽`;
+            cardPaymentBtn.style.cssText = `
                 background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
                 color: white;
                 border: none;
@@ -492,10 +607,12 @@
                 margin: 15px 10px 10px 10px;
                 box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
                 transition: all 0.3s ease;
+                width: 100%;
             `;
-            paymentBtn.onclick = function() {
-                // Инициируем платеж через T-Pay
-                initiateTpayPayment();
+            cardPaymentBtn.onclick = function() {
+                modal.remove();
+                // Сразу запускаем оплату через Т-Банк
+                processCardPayment();
             };
             
             const cancelBtn = document.createElement('button');
@@ -518,15 +635,11 @@
             content.appendChild(icon);
             content.appendChild(title);
             content.appendChild(message);
-            content.appendChild(paymentContainer);
-            content.appendChild(paymentBtn);
+            content.appendChild(cardPaymentBtn);
             content.appendChild(cancelBtn);
             modal.appendChild(content);
             
             document.body.appendChild(modal);
-            
-            // Инициализируем кнопки Т-банка
-            initTbankPaymentButtons(paymentContainer);
             
             // Закрытие по клику на фон
             modal.addEventListener('click', function(e) {
