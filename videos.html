@@ -944,42 +944,22 @@
                 const cardExpiry = document.getElementById('cardExpiry')?.value;
                 const cardCVV = document.getElementById('cardCVV')?.value;
                 
-                // Инициализируем платеж через Т-банк API
-                const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
-                const amount = SUBSCRIPTION_PRICE * 100; // Сумма в копейках
+                console.log('Отправляем запрос на бэкенд для инициализации платежа');
                 
-                // Создаем токен для запроса
-                const tokenData = {
-                    TerminalKey: TBANK_TERMINAL_KEY,
-                    Amount: amount,
-                    OrderId: orderId,
-                    Description: 'Подписка на видеоуроки EasyDrive',
-                    CustomerKey: currentUserData.id.toString(),
-                    Language: 'ru',
-                    SuccessURL: 'https://hochupravaeasy.ru/success',
-                    FailURL: 'https://hochupravaeasy.ru/fail'
-                };
-                
-                const token = await createTbankToken(tokenData);
-                
-                // Отправляем запрос на инициализацию платежа
-                const initData = {
-                    ...tokenData,
-                    Token: token
-                };
-                
-                console.log('Отправляем запрос на инициализацию платежа:', initData);
-                
-                const response = await fetch(`${TBANK_API_URL}/Init`, {
+                // Отправляем запрос на наш бэкенд (он уже правильно настроен для Т-банк)
+                const response = await fetch('/api/tbank-init-payment', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(initData)
+                    body: JSON.stringify({
+                        amount: SUBSCRIPTION_PRICE,
+                        user_id: currentUserData.id
+                    })
                 });
                 
                 const result = await response.json();
-                console.log('Ответ от Т-банк:', result);
+                console.log('Ответ от бэкенда:', result);
                 
                 if (result.Success) {
                     // Сохраняем подписку в локальное хранилище
