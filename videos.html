@@ -976,56 +976,21 @@
                     cvv_length: cardCVV ? cardCVV.length : 0
                 });
                 
-                console.log('📋 Шаг 3: Проверка тестовой карты и обработка платежа');
+                console.log('📋 Шаг 3: Отправка реального запроса в Т-банк API');
                 
-                // ВРЕМЕННЫЙ РЕЖИМ ДЕМО (пока нет правильных данных терминала)
-                // Проверяем, является ли это тестовой картой
+                // Всегда отправляем реальный запрос в Т-банк API
+                // ПРИМЕЧАНИЕ: Платежи могут не пройти из-за неправильных ключей терминала,
+                // но запросы будут видны в личном кабинете Т-банка
+                
+                const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
+                const amount = SUBSCRIPTION_PRICE * 100;
+                
+                // Логируем информацию о тестовой карте, если обнаружена
                 if (testCardMatch) {
                     const [cardPattern, testInfo] = testCardMatch;
                     console.log('🎯 Обнаружена тестовая карта:', cardPattern);
-                    console.log('📊 Ожидаемый результат:', testInfo.result);
-                    console.log('📝 Сообщение:', testInfo.message);
-                    
-                    // Симулируем результат согласно тестовой карте
-                    const simulatedResult = {
-                        Success: testInfo.result === 'success',
-                        PaymentId: `test_${Date.now()}`,
-                        PaymentURL: 'https://securepay.tinkoff.ru/payment-form/test',
-                        Message: testInfo.message
-                    };
-                    
-                    console.log('🎭 Симулированный результат (DEMO режим):', JSON.stringify(simulatedResult, null, 2));
-                    const result = simulatedResult;
-                    
-                    if (result.Success) {
-                        console.log('✅ Тестовый платеж успешен (DEMO)!');
-                        
-                        const paidSubKey = `paid_subscription_v3_${currentUserData.id}`;
-                        const subscriptionData = {
-                            user_id: currentUserData.id,
-                            date: new Date().toISOString(),
-                            amount: SUBSCRIPTION_PRICE,
-                            payment_method: 'card',
-                            terminal_key: 'DEMO',
-                            payment_id: result.PaymentId
-                        };
-                        localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
-                        
-                        hasPaidSubscription = true;
-                        updateVideoButtons();
-                        console.log('✅ Подписка активирована (DEMO режим)!');
-                        alert('✅ ' + testInfo.message + '! Демо-режим: подписка активирована');
-                        return true;
-                    } else {
-                        console.log('❌ Тестовый платеж не удался');
-                        alert('❌ ' + testInfo.message);
-                        return false;
-                    }
+                    console.log('ℹ️ Ожидается:', testInfo.message);
                 }
-                
-                // Для НЕ тестовых карт пытаемся отправить в реальный API
-                const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
-                const amount = SUBSCRIPTION_PRICE * 100;
                     
                 const tokenData = {
                     TerminalKey: TBANK_TERMINAL_KEY,
@@ -1094,7 +1059,35 @@
                     console.error('❌ Т-банк вернул ошибку:', result);
                     const errorMsg = result.Message || result.Details || 'Неизвестная ошибка';
                     console.error('Сообщение:', errorMsg);
-                    alert('❌ Ошибка от Т-банка: ' + errorMsg);
+                    
+                    // Если это тестовая карта и ошибка токена - активируем в демо-режиме
+                    if (testCardMatch && errorMsg.includes('Неверный токен')) {
+                        const [cardPattern, testInfo] = testCardMatch;
+                        console.log('⚠️ Неверные ключи терминала, но активируем подписку в DEMO-режиме');
+                        console.log('🎯 Тестовая карта:', cardPattern);
+                        
+                        const paidSubKey = `paid_subscription_v3_${currentUserData.id}`;
+                        const subscriptionData = {
+                            user_id: currentUserData.id,
+                            date: new Date().toISOString(),
+                            amount: SUBSCRIPTION_PRICE,
+                            payment_method: 'card',
+                            terminal_key: 'DEMO_TEST',
+                            payment_id: `demo_${Date.now()}`,
+                            error: errorMsg
+                        };
+                        localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
+                        
+                        hasPaidSubscription = true;
+                        updateVideoButtons();
+                        
+                        alert('✅ Подписка активирована (DEMO)! ' + testInfo.message + 
+                              '\n\n⚠️ ВАЖНО: Для реальных платежей нужны правильные ключи терминала.');
+                        return true;
+                    }
+                    
+                    alert('❌ Ошибка от Т-банка: ' + errorMsg + 
+                          '\n\nПроверьте правильность TerminalKey и SecretKey в config.env');
                     return false;
                 }
                 
