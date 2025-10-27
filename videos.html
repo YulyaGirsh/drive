@@ -241,7 +241,7 @@
         
         // Конфигурация Т-банка (используем БЭКЕНД для безопасности!)
         // ВАЖНО: Secret Key НЕ должен быть в браузере!
-        const TBANK_TERMINAL_KEY = '1761136519204'; // Рабочий терминал (для тестов)
+        const TBANK_TERMINAL_KEY = '1761136519162DEMO'; // ТЕСТОВЫЙ терминал
         const TBANK_API_URL = 'https://rest-api-test.tinkoff.ru/v2'; // Тестовый хост
         const BACKEND_API_URL = '/api/tbank-init-payment'; // Эндпоинт бэкенда
         
@@ -269,8 +269,8 @@
             console.log('Т-банк интеграция загружена');
             // Упрощенная инициализация для тестового терминала
             tbankIntegration = {
-                terminalKey: TBANK_TERMINAL_KEY,
-                secretKey: TBANK_SECRET_KEY
+                terminalKey: TBANK_TERMINAL_KEY
+                // secretKey убран - генерируется на бэкенде!
             };
             console.log('Т-банк готов к работе с тестовым терминалом');
         }
