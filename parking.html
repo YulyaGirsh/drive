@@ -336,34 +336,31 @@
             }
         }
         
-        // Проверяем оплаченную подписку
-        async function checkPaidSubscription() {
+        // Проверяем оплаченную подписку из localStorage
+        function checkPaidSubscription() {
             if (!userData) {
                 return false;
             }
             
             try {
-                const response = await fetch('/api/check-paid-subscription', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: userData.id
-                    })
-                });
+                // Проверяем ту же подписку, что и в videos.html
+                const paidSubKey = `paid_subscription_v9_${userData.id}`;
+                const subscriptionData = localStorage.getItem(paidSubKey);
                 
-                if (response.ok) {
-                    const result = await response.json();
-                    hasPaidSubscription = result.has_paid_subscription;
-                    return hasPaidSubscription;
+                if (subscriptionData) {
+                    const parsed = JSON.parse(subscriptionData);
+                    console.log('Подписка найдена в localStorage:', parsed);
+                    hasPaidSubscription = true;
+                    return true;
                 } else {
-                    console.error('Ошибка проверки оплаченной подписки:', response.status);
+                    console.log('Подписка не найдена в localStorage');
+                    hasPaidSubscription = false;
                     return false;
                 }
                 
             } catch (error) {
                 console.error('Ошибка проверки оплаченной подписки:', error);
+                hasPaidSubscription = false;
                 return false;
             }
         }
@@ -372,7 +369,7 @@
         document.addEventListener('DOMContentLoaded', async function() {
             // Проверяем подписку и оплаченную подписку
             await checkSubscription();
-            await checkPaidSubscription();
+            checkPaidSubscription(); // Теперь синхронная функция
             
             // Обновляем интерфейс в зависимости от подписки
             updateVideoButtons();
@@ -380,6 +377,9 @@
         
         // Обновляем кнопки видео в зависимости от подписки
         function updateVideoButtons() {
+            // Проверяем подписку перед обновлением
+            checkPaidSubscription();
+            
             const videoButtons = document.querySelectorAll('.video-button');
             
             videoButtons.forEach((button, index) => {
