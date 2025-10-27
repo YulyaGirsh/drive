@@ -962,13 +962,6 @@
                 // Всегда отправляем РЕАЛЬНЫЙ запрос в Т-банк API (не демо!)
                 const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
                 const amount = SUBSCRIPTION_PRICE * 100;
-                
-                // Логируем информацию о тестовой карте, если обнаружена
-                if (testCardMatch) {
-                    const [cardPattern, testInfo] = testCardMatch;
-                    console.log('🎯 Обнаружена тестовая карта:', cardPattern);
-                    console.log('ℹ️ Ожидается результат:', testInfo.message);
-                }
                     
                 const tokenData = {
                     TerminalKey: TBANK_TERMINAL_KEY,
