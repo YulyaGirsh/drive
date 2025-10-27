@@ -356,7 +356,7 @@
             }
             
             // Проверяем локальное хранилище для платной подписки
-            const paidSubKey = `paid_subscription_v3_${userData.id}`;
+            const paidSubKey = `paid_subscription_v4_${userData.id}`;
             const paidSubData = localStorage.getItem(paidSubKey);
             
             if (paidSubData) {
@@ -1038,7 +1038,7 @@
                         }
                     }
                     
-                    const paidSubKey = `paid_subscription_v3_${currentUserData.id}`;
+                    const paidSubKey = `paid_subscription_v4_${currentUserData.id}`;
                     const subscriptionData = {
                         user_id: currentUserData.id,
                         date: new Date().toISOString(),
@@ -1394,7 +1394,7 @@
                 }
                 
                 // Сохраняем подписку в локальное хранилище
-                const paidSubKey = `paid_subscription_v3_${currentUserData.id}`;
+                const paidSubKey = `paid_subscription_v4_${currentUserData.id}`;
                 const subscriptionData = {
                     user_id: currentUserData.id,
                     date: new Date().toISOString(),
