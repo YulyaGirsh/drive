@@ -976,119 +976,89 @@
                     cvv_length: cardCVV ? cardCVV.length : 0
                 });
                 
-                console.log('📋 Шаг 3: Проверка тестовой карты и симуляция результата');
+                console.log('📋 Шаг 3: Отправка реального запроса в Т-банк API');
                 
-                // Проверяем, является ли это тестовой картой
+                // Всегда отправляем реальный запрос в Т-банк API (и для тестовых карт тоже)
+                const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
+                const amount = SUBSCRIPTION_PRICE * 100;
+                
+                // Проверяем, является ли это тестовой картой (только для логирования)
                 if (testCardMatch) {
                     const [cardPattern, testInfo] = testCardMatch;
                     console.log('🎯 Обнаружена тестовая карта:', cardPattern);
                     console.log('📊 Ожидаемый результат:', testInfo.result);
                     console.log('📝 Сообщение:', testInfo.message);
+                }
                     
-                    // Симулируем результат согласно тестовой карте
-                    const simulatedResult = {
-                        Success: testInfo.result === 'success',
-                        PaymentId: `test_payment_${Date.now()}`,
-                        PaymentURL: 'https://securepay.tinkoff.ru/payment-form/test',
-                        Message: testInfo.message
-                    };
-                    
-                    console.log('🎭 Симулированный результат:', JSON.stringify(simulatedResult, null, 2));
-                    
-                    // Используем симулированный результат
-                    const result = simulatedResult;
+                const tokenData = {
+                    TerminalKey: TBANK_TERMINAL_KEY,
+                    Amount: amount,
+                    OrderId: orderId,
+                    Description: 'Подписка на видеоуроки EasyDrive',
+                    SuccessURL: 'https://hochupravaeasy.ru/success',
+                    FailURL: 'https://hochupravaeasy.ru/fail'
+                };
                 
-                    // Для успешных тестовых карт активируем подписку
-                    if (result.Success) {
-                        console.log('✅ Тестовый платеж успешен!');
+                console.log('🔐 Генерируем токен для запроса...');
+                const token = await createTbankToken(tokenData);
+                
+                const initData = {
+                    ...tokenData,
+                    Token: token,
+                    Language: 'ru',
+                    CustomerKey: currentUserData.id.toString()
+                };
+                
+                console.log('📤 Отправляем запрос в Т-банк API...');
+                console.log('URL:', `${TBANK_API_URL}/Init`);
+                
+                const response = await fetch(`${TBANK_API_URL}/Init`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(initData)
+                });
+                
+                console.log('📥 Получен ответ от Т-банк');
+                const result = await response.json();
+                console.log('📦 Полный ответ:', JSON.stringify(result, null, 2));
+                
+                if (result.Success) {
+                    console.log('✅ Платеж успешно инициализирован в Т-банк!');
+                    console.log('💳 Payment ID:', result.PaymentId);
+                    console.log('🔗 Payment URL:', result.PaymentURL);
+                    
+                    if (result.PaymentId) {
+                        console.log('✅ Платеж создан в Т-банк и будет виден в личном кабинете');
                         
-                        // Сохраняем подписку в локальное хранилище
-                        const paidSubKey = `paid_subscription_v2_${currentUserData.id}`;
-                        const subscriptionData = {
-                            user_id: currentUserData.id,
-                            date: new Date().toISOString(),
-                            amount: SUBSCRIPTION_PRICE,
-                            payment_method: 'card',
-                            terminal_key: 'TEST',
-                            payment_id: result.PaymentId
-                        };
-                        localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
-                        
-                        hasPaidSubscription = true;
-                        updateVideoButtons();
-                        console.log('✅ Подписка активирована!');
-                        alert('✅ ' + testInfo.message + '! Теперь у вас есть доступ ко всем видеоурокам!');
-                        return true;
-                    } else {
-                        console.log('❌ Тестовый платеж не удался');
-                        console.error('Сообщение от Т-банк:', result.Message);
-                        alert('❌ ' + testInfo.message);
-                        return false;
-                    }
-                } else {
-                    // Для НЕ тестовых карт пробуем отправить в Т-банк API
-                    console.log('🔄 Неизвестная карта, отправляем запрос в Т-банк API...');
-                    
-                    const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
-                    const amount = SUBSCRIPTION_PRICE * 100;
-                    
-                    const tokenData = {
-                        TerminalKey: TBANK_TERMINAL_KEY,
-                        Amount: amount,
-                        OrderId: orderId,
-                        Description: 'Подписка на видеоуроки EasyDrive',
-                        SuccessURL: 'https://hochupravaeasy.ru/success',
-                        FailURL: 'https://hochupravaeasy.ru/fail'
-                    };
-                    
-                    const token = await createTbankToken(tokenData);
-                    
-                    const initData = {
-                        ...tokenData,
-                        Token: token,
-                        Language: 'ru',
-                        CustomerKey: currentUserData.id.toString()
-                    };
-                    
-                    const response = await fetch(`${TBANK_API_URL}/Init`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(initData)
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.Success) {
-                        console.log('✅ Платеж успешно инициализирован!');
-                        
-                        if (result.PaymentId) {
-                            console.log('💳 Payment ID получен:', result.PaymentId);
-                            if (result.PaymentURL) {
-                                window.open(result.PaymentURL, '_blank');
-                                alert('✅ Откройте страницу оплаты в новой вкладке');
-                            }
+                        // Для тестовых карт Т-банк может вернуть PaymentURL
+                        if (result.PaymentURL) {
+                            console.log('📋 Открываем страницу оплаты Т-банка');
+                            window.open(result.PaymentURL, '_blank');
+                            alert('✅ Платеж создан! Откройте страницу оплаты в новой вкладке');
                         }
-                        
-                        const paidSubKey = `paid_subscription_v2_${currentUserData.id}`;
-                        const subscriptionData = {
-                            user_id: currentUserData.id,
-                            date: new Date().toISOString(),
-                            amount: SUBSCRIPTION_PRICE,
-                            payment_method: 'card',
-                            terminal_key: TBANK_TERMINAL_KEY,
-                            payment_id: result.PaymentId
-                        };
-                        localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
-                        
-                        hasPaidSubscription = true;
-                        updateVideoButtons();
-                        alert('✅ Оплата подтверждена! Доступ ко всем видеоурокам открыт!');
-                        return true;
-                    } else {
-                        console.error('❌ Платеж не удался:', result);
-                        alert('❌ Ошибка оплаты: ' + (result.Message || 'Неизвестная ошибка'));
-                        return false;
                     }
+                    
+                    const paidSubKey = `paid_subscription_v2_${currentUserData.id}`;
+                    const subscriptionData = {
+                        user_id: currentUserData.id,
+                        date: new Date().toISOString(),
+                        amount: SUBSCRIPTION_PRICE,
+                        payment_method: 'card',
+                        terminal_key: TBANK_TERMINAL_KEY,
+                        payment_id: result.PaymentId
+                    };
+                    localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
+                    
+                    hasPaidSubscription = true;
+                    updateVideoButtons();
+                    alert('✅ Платеж создан! Платеж будет виден в личном кабинете Т-банка.');
+                    return true;
+                } else {
+                    console.error('❌ Т-банк вернул ошибку:', result);
+                    const errorMsg = result.Message || result.Details || 'Неизвестная ошибка';
+                    console.error('Сообщение:', errorMsg);
+                    alert('❌ Ошибка от Т-банка: ' + errorMsg);
+                    return false;
                 }
                 
             } catch (error) {
