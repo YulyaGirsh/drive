@@ -957,7 +957,9 @@
                     OrderId: orderId,
                     Description: 'Подписка на видеоуроки EasyDrive',
                     CustomerKey: currentUserData.id.toString(),
-                    Language: 'ru'
+                    Language: 'ru',
+                    SuccessURL: 'https://hochupravaeasy.ru/success',
+                    FailURL: 'https://hochupravaeasy.ru/fail'
                 };
                 
                 const token = await createTbankToken(tokenData);
