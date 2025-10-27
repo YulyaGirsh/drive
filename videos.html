@@ -989,13 +989,27 @@
                 
                 console.log('🔐 Данные для генерации токена:', tokenData);
                 
+                console.log('🔐 Начинаем генерацию токена...');
                 const token = await createTbankToken(tokenData);
+                console.log('✅ Токен сгенерирован, добавляем к данным для отправки');
                 
                 // Отправляем запрос на инициализацию платежа
                 const initData = {
                     ...tokenData,
                     Token: token
                 };
+                
+                console.log('📤 Полные данные для отправки в Т-банк:', {
+                    TerminalKey: initData.TerminalKey,
+                    Amount: initData.Amount,
+                    OrderId: initData.OrderId,
+                    Description: initData.Description,
+                    CustomerKey: initData.CustomerKey,
+                    Language: initData.Language,
+                    SuccessURL: initData.SuccessURL,
+                    FailURL: initData.FailURL,
+                    Token: initData.Token.substring(0, 20) + '...'
+                });
                 
                 console.log('📤 Отправляем запрос на инициализацию платежа в Т-банк');
                 console.log('URL:', `${TBANK_API_URL}/Init`);
