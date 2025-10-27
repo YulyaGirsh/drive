@@ -239,7 +239,7 @@
         const FREE_VIDEOS_COUNT = 2; // Первые 2 видео доступны всем
         const SUBSCRIPTION_PRICE = 10; // Цена подписки в рублях
         
-        // Конфигурация Т-банка (тестовый терминал)
+        // Конфигурация Т-банка (ТЕСТОВЫЙ терминал для реальных запросов)
         const TBANK_TERMINAL_KEY = '1761136519162DEMO'; // Тестовый Terminal Key
         const TBANK_SECRET_KEY = 'TY#iAnEUV*3CS&BI'; // Тестовый Secret Key
         const TBANK_API_URL = 'https://securepay.tinkoff.ru/v2';
@@ -976,12 +976,10 @@
                     cvv_length: cardCVV ? cardCVV.length : 0
                 });
                 
-                console.log('📋 Шаг 3: Отправка реального запроса в Т-банк API');
+                console.log('📋 Шаг 3: Отправка РЕАЛЬНОГО запроса в Т-банк API');
+                console.log('🎯 Используем ТЕСТОВЫЙ терминал для реальных платежей');
                 
-                // Всегда отправляем реальный запрос в Т-банк API
-                // ПРИМЕЧАНИЕ: Платежи могут не пройти из-за неправильных ключей терминала,
-                // но запросы будут видны в личном кабинете Т-банка
-                
+                // Всегда отправляем РЕАЛЬНЫЙ запрос в Т-банк API (не демо!)
                 const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
                 const amount = SUBSCRIPTION_PRICE * 100;
                 
@@ -989,7 +987,7 @@
                 if (testCardMatch) {
                     const [cardPattern, testInfo] = testCardMatch;
                     console.log('🎯 Обнаружена тестовая карта:', cardPattern);
-                    console.log('ℹ️ Ожидается:', testInfo.message);
+                    console.log('ℹ️ Ожидается результат:', testInfo.message);
                 }
                     
                 const tokenData = {
@@ -1060,34 +1058,14 @@
                     const errorMsg = result.Message || result.Details || 'Неизвестная ошибка';
                     console.error('Сообщение:', errorMsg);
                     
-                    // Если это тестовая карта и ошибка токена - активируем в демо-режиме
-                    if (testCardMatch && errorMsg.includes('Неверный токен')) {
-                        const [cardPattern, testInfo] = testCardMatch;
-                        console.log('⚠️ Неверные ключи терминала, но активируем подписку в DEMO-режиме');
-                        console.log('🎯 Тестовая карта:', cardPattern);
-                        
-                        const paidSubKey = `paid_subscription_v3_${currentUserData.id}`;
-                        const subscriptionData = {
-                            user_id: currentUserData.id,
-                            date: new Date().toISOString(),
-                            amount: SUBSCRIPTION_PRICE,
-                            payment_method: 'card',
-                            terminal_key: 'DEMO_TEST',
-                            payment_id: `demo_${Date.now()}`,
-                            error: errorMsg
-                        };
-                        localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
-                        
-                        hasPaidSubscription = true;
-                        updateVideoButtons();
-                        
-                        alert('✅ Подписка активирована (DEMO)! ' + testInfo.message + 
-                              '\n\n⚠️ ВАЖНО: Для реальных платежей нужны правильные ключи терминала.');
-                        return true;
-                    }
+                    // НЕ активируем подписку при ошибке - это РЕАЛЬНЫЙ режим!
+                    console.log('❌ Платеж отменен - ошибка от Т-банка');
                     
-                    alert('❌ Ошибка от Т-банка: ' + errorMsg + 
-                          '\n\nПроверьте правильность TerminalKey и SecretKey в config.env');
+                    alert('❌ Платеж не прошел: ' + errorMsg + 
+                          '\n\nПроверьте в личном кабинете Т-банка:\n' +
+                          '1. Нажмите кнопку "Тестировать" для тестового терминала\n' +
+                          '2. Убедитесь, что терминал активирован\n' +
+                          '3. Проверьте правильность ключей');
                     return false;
                 }
                 
