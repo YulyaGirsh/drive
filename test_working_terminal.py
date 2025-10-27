@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Финальный тест с тестовым терминалом T-Bank
+Тест с рабочим терминалом Т-банка
 """
 
 import requests
@@ -13,7 +13,6 @@ def create_correct_token(data, secret_key):
     """Создает токен согласно официальной документации Т-банка"""
     token_data = {k: v for k, v in data.items() if k != "Token"}
     
-    # Создаем строку для токена согласно примеру от техподдержки
     token_string = ""
     
     # Amount
@@ -45,27 +44,26 @@ def create_correct_token(data, secret_key):
     
     print(f"Строка для токена: {token_string}")
     
-    # Создаем SHA-256 хеш
     token = hashlib.sha256(token_string.encode('utf-8')).hexdigest()
     
     return token
 
-def test_demo_terminal():
-    """Тестирует тестовый терминал"""
-    print("Тестирование тестового терминала T-Bank")
+def test_working_terminal():
+    """Тестирует рабочий терминал"""
+    print("Тестирование рабочего терминала T-Bank")
     print("=" * 50)
     
-    # Тестовые данные с новым терминалом
+    # Данные с рабочего терминала
     test_data = {
-        "TerminalKey": "1761136519162DEMO",
+        "TerminalKey": "1761136519204",
         "Amount": 100,
-        "OrderId": f"demo_test_{int(time.time())}",
-        "Description": "Test payment with demo terminal",
+        "OrderId": f"working_test_{int(time.time())}",
+        "Description": "Test payment with working terminal",
         "SuccessURL": "https://hochupravaeasy.ru/success",
         "FailURL": "https://hochupravaeasy.ru/fail"
     }
     
-    secret_key = "TY#iAnEUV*3CS&BI"
+    secret_key = "c^A3qE_zoaH0u%gP"
     
     print("Тестовые данные:")
     for key, value in test_data.items():
@@ -96,10 +94,10 @@ def test_demo_terminal():
             print(f"Результат: {json.dumps(result, indent=2, ensure_ascii=False)}")
             
             if result.get("Success"):
-                print("УСПЕХ! Тестовый терминал работает!")
+                print("✅ УСПЕХ! Рабочий терминал работает!")
                 return True
             else:
-                print(f"Ошибка: {result.get('Message', 'Unknown error')}")
+                print(f"❌ Ошибка: {result.get('Message', 'Unknown error')}")
                 print(f"Детали: {result.get('Details', 'No details')}")
                 return False
         else:
@@ -112,4 +110,4 @@ def test_demo_terminal():
         return False
 
 if __name__ == "__main__":
-    test_demo_terminal()
+    test_working_terminal()
