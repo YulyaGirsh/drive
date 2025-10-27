@@ -713,9 +713,18 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         Получает данные от фронтенда, генерирует токен на бэкенде, отправляет в Т-банк
         """
         try:
-            content_length = int(self.headers['Content-Length'])
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length == 0:
+                self.send_error(400, "Empty request body")
+                return
+                
             post_data = self.rfile.read(content_length)
-            data = json.loads(post_data.decode('utf-8'))
+            
+            # Декодируем и логируем сырые данные
+            raw_data = post_data.decode('utf-8')
+            print(f"Получены сырые данные: {raw_data[:200]}")
+            
+            data = json.loads(raw_data)
             
             print(f"Получены данные от фронтенда: {data}")
             
