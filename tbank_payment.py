@@ -109,14 +109,22 @@ class TbankPayment:
     
     def _create_simple_token(self, data):
         """
-        Создает токен согласно официальной документации Т-банка
-        """
-        # Исключаем поле Token из генерации
-        token_data = {k: v for k, v in data.items() if k != "Token"}
+        Создает токен согласно официальной документации Т-банка v2 API
         
-        # Создаем строку для токена согласно инструкции техподдержки:
-        # "Все корневые объекты массива отсортированы в алфавитном порядке по ключу, 
-        # и значения конкатенированы в одну строку"
+        Алгоритм:
+        1. Берем ТОЛЬКО корневые поля (исключаем Token и вложенные объекты: DATA, Receipt)
+        2. Сортируем по ключу в алфавитном порядке
+        3. Добавляем Password (секретный ключ) в конец
+        4. Конкатенируем значения в строку
+        5. Вычисляем SHA-256
+        """
+        # Исключаем поле Token и вложенные объекты
+        excluded_keys = {'Token', 'DATA', 'Receipt'}  # Игнорируем вложенные объекты
+        token_data = {k: v for k, v in data.items() 
+                      if k not in excluded_keys 
+                      and not isinstance(v, dict)  # Игнорируем вложенные объекты
+                      and not isinstance(v, list)   # Игнорируем массивы
+                      and v is not None}
         
         # Сортируем ключи в алфавитном порядке
         sorted_keys = sorted(token_data.keys())
@@ -124,17 +132,19 @@ class TbankPayment:
         # Конкатенируем значения в алфавитном порядке ключей
         token_string = ""
         for key in sorted_keys:
-            if token_data[key] is not None:
-                token_string += str(token_data[key])
+            value = token_data[key]
+            if value is not None:
+                token_string += str(value)
         
-        # Добавляем секретный ключ в конец
+        # Добавляем секретный ключ (Password) в конец
         token_string += self.secret_key
         
-        print(f"Строка для токена: {token_string}")
+        print(f"Строка для токена: {token_string[:200]}...")
         
         # Создаем SHA-256 хеш
         token = hashlib.sha256(token_string.encode('utf-8')).hexdigest()
         
+        print(f"Сгенерированный токен: {token}")
         return token
     
     def create_payment(self, amount, user_id, description=None):
