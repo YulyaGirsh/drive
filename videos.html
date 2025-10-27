@@ -244,8 +244,8 @@
         
         // Конфигурация Т-банка (используем БЭКЕНД для безопасности!)
         // ВАЖНО: Secret Key НЕ должен быть в браузере!
-        const TBANK_TERMINAL_KEY = '1761136519162DEMO'; // ТЕСТОВЫЙ терминал
-        const TBANK_API_URL = 'https://rest-api-test.tinkoff.ru/v2'; // Тестовый хост
+        const TBANK_TERMINAL_KEY = '1761136519204'; // Рабочий терминал
+        const TBANK_API_URL = 'https://securepay.tinkoff.ru/v2'; // Рабочий хост
         const BACKEND_API_URL = '/api/tbank-init-payment'; // Эндпоинт бэкенда
         
         // Базовый URL для API запросов (используем Telegram API)
@@ -957,7 +957,7 @@
                 console.log('📋 Шаг 2: Пропускаем получение данных карты - оплата через форму Т-Банка');
                 
                 console.log('📋 Шаг 3: Отправка запроса через БЭКЕНД');
-                console.log('🎯 Используем ТЕСТОВЫЙ терминал 1761136519162DEMO');
+                console.log('🎯 Используем РАБОЧИЙ терминал 1761136519204');
                 
                 // Всегда отправляем РЕАЛЬНЫЙ запрос в Т-банк API (не демо!)
                 const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
