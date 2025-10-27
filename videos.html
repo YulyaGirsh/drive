@@ -696,10 +696,10 @@
             `;
             
             const nameField = document.createElement('div');
-            nameField.style.cssText = 'margin-bottom: 15px;';
+            nameField.style.cssText = 'margin-bottom: 15px; display: none;'; // Поле скрыто для тестовых платежей
             nameField.innerHTML = `
-                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Имя на карте:</label>
-                <input type="text" id="cardName" placeholder="IVAN IVANOV" 
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Имя на карте (опционально):</label>
+                <input type="text" id="cardName" placeholder="Необязательно для тестовых карт" 
                        style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
             `;
             
@@ -724,14 +724,13 @@
             `;
             payBtn.onclick = async function(e) {
                 e.preventDefault();
-                // Проверяем, что все поля заполнены перед обработкой
+                // Проверяем, что обязательные поля заполнены (имя не обязательно для тестовых карт)
                 const cardNumber = document.getElementById('cardNumber')?.value;
                 const cardExpiry = document.getElementById('cardExpiry')?.value;
                 const cardCVV = document.getElementById('cardCVV')?.value;
-                const cardName = document.getElementById('cardName')?.value;
                 
-                if (!cardNumber || !cardExpiry || !cardCVV || !cardName) {
-                    alert('❌ Пожалуйста, заполните все поля карты');
+                if (!cardNumber || !cardExpiry || !cardCVV) {
+                    alert('❌ Пожалуйста, заполните номер карты, срок действия и CVV');
                     return;
                 }
                 
@@ -940,11 +939,10 @@
                     };
                 }
                 
-                // Получаем данные карты
+                // Получаем данные карты (имя не требуется для тестовых платежей)
                 const cardNumber = document.getElementById('cardNumber')?.value;
                 const cardExpiry = document.getElementById('cardExpiry')?.value;
                 const cardCVV = document.getElementById('cardCVV')?.value;
-                const cardName = document.getElementById('cardName')?.value;
                 
                 // Инициализируем платеж через Т-банк API
                 const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
