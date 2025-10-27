@@ -975,16 +975,15 @@
                     user_id: currentUserData.id
                 });
                 
-                // Создаем токен для запроса
+                // Создаем токен для запроса (только поля для токена!)
                 const tokenData = {
                     TerminalKey: TBANK_TERMINAL_KEY,
                     Amount: amount,
                     OrderId: orderId,
                     Description: 'Подписка на видеоуроки EasyDrive',
-                    CustomerKey: currentUserData.id.toString(),
-                    Language: 'ru',
                     SuccessURL: 'https://hochupravaeasy.ru/success',
                     FailURL: 'https://hochupravaeasy.ru/fail'
+                    // CustomerKey и Language НЕ должны быть в токене!
                 };
                 
                 console.log('🔐 Данные для генерации токена:', tokenData);
@@ -996,7 +995,9 @@
                 // Отправляем запрос на инициализацию платежа
                 const initData = {
                     ...tokenData,
-                    Token: token
+                    Token: token,
+                    Language: 'ru',  // Добавляем Language только в запрос, не в токен
+                    CustomerKey: currentUserData.id.toString()  // Добавляем CustomerKey только в запрос, не в токен
                 };
                 
                 console.log('📤 Полные данные для отправки в Т-банк:', {
