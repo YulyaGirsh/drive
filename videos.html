@@ -1075,21 +1075,27 @@
             
             // Конкатенируем значения в алфавитном порядке ключей
             let tokenString = '';
+            console.log('🔐 Шаг 1: Формируем строку для токена из полей');
             for (const key of sortedKeys) {
-                tokenString += String(token_data[key]);
+                const value = String(token_data[key]);
+                tokenString += value;
+                console.log(`  ${key}: ${value}`);
             }
+            
+            console.log('📝 Промежуточная строка (до добавления секрета):', tokenString);
+            console.log('🔑 Добавляем Secret Key:', TBANK_SECRET_KEY);
             
             // Добавляем секретный ключ в конец
             tokenString += TBANK_SECRET_KEY;
             
-            console.log('Поля для токена (по алфавиту):', sortedKeys);
-            console.log('Строка для токена (первые 100 символов):', tokenString.substring(0, 100));
-            console.log('Полная строка для токена:', tokenString);
+            console.log('📋 Полная строка для токена (первые 200 символов):', tokenString.substring(0, 200));
+            console.log('📊 Длина строки:', tokenString.length);
             
             // Создаем SHA-256 хеш
             const token = await hashString(tokenString);
             
-            console.log('Сгенерированный токен:', token);
+            console.log('✅ Сгенерированный токен:', token);
+            console.log('📏 Длина токена:', token.length);
             
             return token;
         }
