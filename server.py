@@ -746,6 +746,9 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             from tbank_payment import TbankPayment
             payment = TbankPayment()
             
+            print(f"DEBUG: Secret Key = {payment.secret_key}")
+            print(f"DEBUG: Terminal Key = {terminal_key}")
+            
             # Формируем данные для запроса в Т-банк
             tbank_data = {
                 'TerminalKey': terminal_key,
@@ -762,6 +765,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             token = payment._create_simple_token(tbank_data)
             tbank_data['Token'] = token
             
+            print(f"DEBUG: Генерация токена для данных: {tbank_data}")
+            print(f"DEBUG: Сгенерированный токен: {token}")
             print(f"Отправляем запрос в Т-банк: {tbank_data}")
             
             # Отправляем в Т-банк
