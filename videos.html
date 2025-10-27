@@ -239,11 +239,11 @@
         const FREE_VIDEOS_COUNT = 2; // Первые 2 видео доступны всем
         const SUBSCRIPTION_PRICE = 10; // Цена подписки в рублях
         
-        // Конфигурация Т-банка (ТЕСТОВЫЙ терминал)
-        // ВАЖНО: Тестовые платежи НЕ отображаются в личном кабинете Т-банка!
-        const TBANK_TERMINAL_KEY = '1761136519162DEMO'; // Тестовый Terminal Key
-        const TBANK_SECRET_KEY = 'TY#iAnEUV*3CS&BI'; // Тестовый Secret Key
-        const TBANK_API_URL = 'https://securepay.tinkoff.ru/v2';
+        // Конфигурация Т-банка (используем БЭКЕНД для безопасности!)
+        // ВАЖНО: Secret Key НЕ должен быть в браузере!
+        const TBANK_TERMINAL_KEY = '1761136519204'; // Рабочий терминал (для тестов)
+        const TBANK_API_URL = 'https://rest-api-test.tinkoff.ru/v2'; // Тестовый хост
+        const BACKEND_API_URL = '/api/tbank-init-payment'; // Эндпоинт бэкенда
         
         // Базовый URL для API запросов (используем Telegram API)
         const API_BASE_URL = 'https://api.telegram.org/bot' + 'YOUR_BOT_TOKEN';
@@ -1000,28 +1000,30 @@
                     FailURL: 'https://hochupravaeasy.ru/fail'
                 };
                 
-                console.log('🔐 Генерируем токен для запроса...');
-                const token = await createTbankToken(tokenData);
-                
-                const initData = {
+                // Отправляем на БЭКЕНД - токен генерируется там!
+                const backendData = {
                     ...tokenData,
-                    Token: token,
                     Language: 'ru',
                     CustomerKey: currentUserData.id.toString()
                 };
                 
-                console.log('📤 Отправляем запрос в Т-банк API...');
-                console.log('URL:', `${TBANK_API_URL}/Init`);
+                console.log('📤 Отправляем запрос на БЭКЕНД...');
+                console.log('URL:', BACKEND_API_URL);
                 
-                const response = await fetch(`${TBANK_API_URL}/Init`, {
+                const response = await fetch(BACKEND_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(initData)
+                    body: JSON.stringify(backendData)
                 });
                 
-                console.log('📥 Получен ответ от Т-банк');
+                console.log('📥 Получен ответ от БЭКЕНДА');
+                
+                if (!response.ok) {
+                    throw new Error(`Backend error: ${response.status}`);
+                }
+                
                 const result = await response.json();
-                console.log('📦 Полный ответ:', JSON.stringify(result, null, 2));
+                console.log('📦 Полный ответ от бэкенда:', JSON.stringify(result, null, 2));
                 
                 if (result.Success) {
                     console.log('✅ Платеж успешно инициализирован в Т-банк!');
@@ -1105,88 +1107,7 @@
             }
         }
         
-        // Создание токена для Т-банк API (ПРАВИЛЬНЫЙ порядок полей)
-        async function createTbankToken(data) {
-            // Функция для создания SHA-256 хеша
-            const hashString = async (message) => {
-                const encoder = new TextEncoder();
-                const data = encoder.encode(message);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            };
-            
-            // Исключаем поле Token из генерации
-            const token_data = {};
-            for (const key in data) {
-                if (key !== "Token" && data[key] !== null && data[key] !== undefined) {
-                    token_data[key] = data[key];
-                }
-            }
-            
-            // ВАЖНО: используем СТРОГО ОПРЕДЕЛЕННЫЙ порядок полей (не алфавит!)
-            let tokenString = '';
-            console.log('🔐 Шаг 1: Формируем строку для токена из полей (в строгом порядке)');
-            
-            // Amount
-            if (token_data["Amount"] !== null && token_data["Amount"] !== undefined) {
-                const value = String(token_data["Amount"]);
-                tokenString += value;
-                console.log(`  Amount: ${value}`);
-            }
-            
-            // Description
-            if (token_data["Description"] !== null && token_data["Description"] !== undefined) {
-                const value = String(token_data["Description"]);
-                tokenString += value;
-                console.log(`  Description: ${value}`);
-            }
-            
-            // FailURL
-            if (token_data["FailURL"] !== null && token_data["FailURL"] !== undefined) {
-                const value = String(token_data["FailURL"]);
-                tokenString += value;
-                console.log(`  FailURL: ${value}`);
-            }
-            
-            // OrderId
-            if (token_data["OrderId"] !== null && token_data["OrderId"] !== undefined) {
-                const value = String(token_data["OrderId"]);
-                tokenString += value;
-                console.log(`  OrderId: ${value}`);
-            }
-            
-            // SuccessURL
-            if (token_data["SuccessURL"] !== null && token_data["SuccessURL"] !== undefined) {
-                const value = String(token_data["SuccessURL"]);
-                tokenString += value;
-                console.log(`  SuccessURL: ${value}`);
-            }
-            
-            // TerminalKey
-            if (token_data["TerminalKey"] !== null && token_data["TerminalKey"] !== undefined) {
-                const value = String(token_data["TerminalKey"]);
-                tokenString += value;
-                console.log(`  TerminalKey: ${value}`);
-            }
-            
-            console.log('📝 Промежуточная строка (до добавления секрета):', tokenString);
-            console.log('🔑 Добавляем Secret Key:', TBANK_SECRET_KEY);
-            
-            // Добавляем секретный ключ в конец
-            tokenString += TBANK_SECRET_KEY;
-            
-            console.log('📋 Полная строка для токена (первые 200 символов):', tokenString.substring(0, 200));
-            console.log('📊 Длина строки:', tokenString.length);
-            
-            // Создаем SHA-256 хеш
-            const token = await hashString(tokenString);
-            
-            console.log('✅ Сгенерированный токен:', token);
-            console.log('📏 Длина токена:', token.length);
-            
-            return token;
-        }
+        // Токен генерируется на бэкенде - не на фронтенде!
         
         // Обработка оплаты СБП
         async function processSBPPayment() {
