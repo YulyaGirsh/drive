@@ -963,36 +963,57 @@
                     cvv_length: cardCVV ? cardCVV.length : 0
                 });
                 
-                console.log('='.repeat(60));
-                console.log('🔄 ОТПРАВКА ЗАПРОСА НА БЭКЕНД');
-                console.log('='.repeat(60));
-                console.log('Данные для отправки:', {
-                    amount: SUBSCRIPTION_PRICE,
-                    user_id: currentUserData.id,
-                    user_name: currentUserData.first_name
+                console.log('📋 Шаг 3: Инициализация платежа напрямую через Т-банк API');
+                
+                // Инициализируем платеж напрямую через Т-банк API
+                const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
+                const amount = SUBSCRIPTION_PRICE * 100; // Сумма в копейках
+                
+                console.log('📝 Параметры платежа:', {
+                    orderId,
+                    amount,
+                    user_id: currentUserData.id
                 });
                 
-                // Отправляем запрос на наш бэкенд (он уже правильно настроен для Т-банк)
-                const fetchUrl = '/api/tbank-init-payment';
-                console.log('URL:', fetchUrl);
+                // Создаем токен для запроса
+                const tokenData = {
+                    TerminalKey: TBANK_TERMINAL_KEY,
+                    Amount: amount,
+                    OrderId: orderId,
+                    Description: 'Подписка на видеоуроки EasyDrive',
+                    CustomerKey: currentUserData.id.toString(),
+                    Language: 'ru',
+                    SuccessURL: 'https://hochupravaeasy.ru/success',
+                    FailURL: 'https://hochupravaeasy.ru/fail'
+                };
                 
-                const response = await fetch(fetchUrl, {
+                console.log('🔐 Данные для генерации токена:', tokenData);
+                
+                const token = await createTbankToken(tokenData);
+                
+                // Отправляем запрос на инициализацию платежа
+                const initData = {
+                    ...tokenData,
+                    Token: token
+                };
+                
+                console.log('📤 Отправляем запрос на инициализацию платежа в Т-банк');
+                console.log('URL:', `${TBANK_API_URL}/Init`);
+                
+                const response = await fetch(`${TBANK_API_URL}/Init`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        amount: SUBSCRIPTION_PRICE,
-                        user_id: currentUserData.id
-                    })
+                    body: JSON.stringify(initData)
                 });
                 
-                console.log('📥 Статус ответа от бэкенда:', response.status, response.statusText);
+                console.log('📥 Статус ответа от Т-банк:', response.status, response.statusText);
                 
                 const result = await response.json();
-                console.log('📦 Ответ от бэкенда:', JSON.stringify(result, null, 2));
+                console.log('📦 Ответ от Т-банк:', JSON.stringify(result, null, 2));
                 
-                if (result.success) {
+                if (result.Success) {
                     console.log('✅ Платеж успешно инициализирован!');
                     // Сохраняем подписку в локальное хранилище
                     const paidSubKey = `paid_subscription_${currentUserData.id}`;
@@ -1012,8 +1033,9 @@
                     return true; // Возвращаем true при успешном платеже
                 } else {
                     console.error('❌ Платеж не удался:', result);
-                    console.error('Сообщение об ошибке:', result.message || result.error || 'Неизвестная ошибка');
-                    alert('❌ Ошибка оплаты: ' + (result.message || result.error || 'Неизвестная ошибка'));
+                    console.error('Сообщение об ошибке от Т-банк:', result.Message || result.Details || 'Неизвестная ошибка');
+                    const errorMsg = result.Message || result.Details || 'Неизвестная ошибка';
+                    alert('❌ Ошибка оплаты: ' + errorMsg);
                     return false; // Возвращаем false при ошибке
                 }
                 
