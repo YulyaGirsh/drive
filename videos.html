@@ -356,7 +356,7 @@
             }
             
             // Проверяем локальное хранилище для платной подписки
-            const paidSubKey = `paid_subscription_${userData.id}`;
+            const paidSubKey = `paid_subscription_v2_${userData.id}`;
             const paidSubData = localStorage.getItem(paidSubKey);
             
             if (paidSubData) {
@@ -1003,7 +1003,7 @@
                         console.log('✅ Тестовый платеж успешен!');
                         
                         // Сохраняем подписку в локальное хранилище
-                        const paidSubKey = `paid_subscription_${currentUserData.id}`;
+                        const paidSubKey = `paid_subscription_v2_${currentUserData.id}`;
                         const subscriptionData = {
                             user_id: currentUserData.id,
                             date: new Date().toISOString(),
@@ -1069,7 +1069,7 @@
                             }
                         }
                         
-                        const paidSubKey = `paid_subscription_${currentUserData.id}`;
+                        const paidSubKey = `paid_subscription_v2_${currentUserData.id}`;
                         const subscriptionData = {
                             user_id: currentUserData.id,
                             date: new Date().toISOString(),
@@ -1416,7 +1416,7 @@
                 }
                 
                 // Сохраняем подписку в локальное хранилище
-                const paidSubKey = `paid_subscription_${currentUserData.id}`;
+                const paidSubKey = `paid_subscription_v2_${currentUserData.id}`;
                 const subscriptionData = {
                     user_id: currentUserData.id,
                     date: new Date().toISOString(),
