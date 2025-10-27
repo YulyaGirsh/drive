@@ -923,7 +923,12 @@
         
         // Обработка оплаты картой через тестовый терминал
         async function processCardPayment() {
+            console.log('='.repeat(60));
+            console.log('🚀 ЗАПУСК ПРОЦЕССА ОПЛАТЫ КАРТОЙ');
+            console.log('='.repeat(60));
+            
             try {
+                console.log('📋 Шаг 1: Получение данных пользователя');
                 // Получаем данные пользователя
                 let currentUserData = userData;
                 
@@ -932,6 +937,7 @@
                 }
                 
                 if (!currentUserData) {
+                    console.log('⚠️ Данные пользователя не найдены, используем тестовые');
                     currentUserData = {
                         id: Date.now(),
                         first_name: 'Test',
@@ -939,15 +945,38 @@
                     };
                 }
                 
+                console.log('👤 Данные пользователя:', {
+                    id: currentUserData.id,
+                    name: currentUserData.first_name,
+                    last_name: currentUserData.last_name || '(нет)'
+                });
+                
+                console.log('📋 Шаг 2: Получение данных карты');
                 // Получаем данные карты (имя не требуется для тестовых платежей)
                 const cardNumber = document.getElementById('cardNumber')?.value;
                 const cardExpiry = document.getElementById('cardExpiry')?.value;
                 const cardCVV = document.getElementById('cardCVV')?.value;
                 
-                console.log('Отправляем запрос на бэкенд для инициализации платежа');
+                console.log('💳 Данные карты:', {
+                    number: cardNumber ? `${cardNumber.substring(0, 4)}****${cardNumber.substring(-4)}` : '(пусто)',
+                    expiry: cardExpiry,
+                    cvv_length: cardCVV ? cardCVV.length : 0
+                });
+                
+                console.log('='.repeat(60));
+                console.log('🔄 ОТПРАВКА ЗАПРОСА НА БЭКЕНД');
+                console.log('='.repeat(60));
+                console.log('Данные для отправки:', {
+                    amount: SUBSCRIPTION_PRICE,
+                    user_id: currentUserData.id,
+                    user_name: currentUserData.first_name
+                });
                 
                 // Отправляем запрос на наш бэкенд (он уже правильно настроен для Т-банк)
-                const response = await fetch('/api/tbank-init-payment', {
+                const fetchUrl = '/api/tbank-init-payment';
+                console.log('URL:', fetchUrl);
+                
+                const response = await fetch(fetchUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -958,10 +987,13 @@
                     })
                 });
                 
+                console.log('📥 Статус ответа от бэкенда:', response.status, response.statusText);
+                
                 const result = await response.json();
-                console.log('Ответ от бэкенда:', result);
+                console.log('📦 Ответ от бэкенда:', JSON.stringify(result, null, 2));
                 
                 if (result.success) {
+                    console.log('✅ Платеж успешно инициализирован!');
                     // Сохраняем подписку в локальное хранилище
                     const paidSubKey = `paid_subscription_${currentUserData.id}`;
                     const subscriptionData = {
@@ -975,15 +1007,23 @@
                     
                     hasPaidSubscription = true;
                     updateVideoButtons();
+                    console.log('✅ Подписка активирована, доступ ко всем видео открыт!');
                     alert('✅ Оплата картой подтверждена! Теперь у вас есть доступ ко всем видеоурокам!');
                     return true; // Возвращаем true при успешном платеже
                 } else {
-                    alert('❌ Ошибка оплаты: ' + (result.Message || result.Details || 'Неизвестная ошибка'));
+                    console.error('❌ Платеж не удался:', result);
+                    console.error('Сообщение об ошибке:', result.message || result.error || 'Неизвестная ошибка');
+                    alert('❌ Ошибка оплаты: ' + (result.message || result.error || 'Неизвестная ошибка'));
                     return false; // Возвращаем false при ошибке
                 }
                 
             } catch (error) {
-                console.error('Ошибка оплаты картой:', error);
+                console.error('='.repeat(60));
+                console.error('❌ КРИТИЧЕСКАЯ ОШИБКА ПРИ ОПЛАТЕ');
+                console.error('='.repeat(60));
+                console.error('Тип ошибки:', error.name);
+                console.error('Сообщение:', error.message);
+                console.error('Стек:', error.stack);
                 alert('❌ Ошибка при обработке оплаты картой. Попробуйте еще раз.');
                 return false; // Возвращаем false при ошибке
             }
