@@ -1009,7 +1009,7 @@
             }
         }
         
-        // Создание токена для Т-банк API (правильный порядок полей)
+        // Создание токена для Т-банк API (по алфавиту согласно техподдержке)
         async function createTbankToken(data) {
             // Функция для создания SHA-256 хеша
             const hashString = async (message) => {
@@ -1020,46 +1020,34 @@
                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             };
             
-            // ВАЖНО: поля должны идти в СТРОГО определенном порядке (не по алфавиту!)
+            // Исключаем поле Token из генерации
+            const token_data = {};
+            for (const key in data) {
+                if (key !== "Token" && data[key] !== null && data[key] !== undefined) {
+                    token_data[key] = data[key];
+                }
+            }
+            
+            // ВАЖНО: сортируем ключи в алфавитном порядке
+            const sortedKeys = Object.keys(token_data).sort();
+            
+            // Конкатенируем значения в алфавитном порядке ключей
             let tokenString = '';
-            
-            // Amount
-            if (data["Amount"] !== null && data["Amount"] !== undefined) {
-                tokenString += String(data["Amount"]);
-            }
-            
-            // Description
-            if (data["Description"] !== null && data["Description"] !== undefined) {
-                tokenString += String(data["Description"]);
-            }
-            
-            // FailURL
-            if (data["FailURL"] !== null && data["FailURL"] !== undefined) {
-                tokenString += String(data["FailURL"]);
-            }
-            
-            // OrderId
-            if (data["OrderId"] !== null && data["OrderId"] !== undefined) {
-                tokenString += String(data["OrderId"]);
-            }
-            
-            // SuccessURL
-            if (data["SuccessURL"] !== null && data["SuccessURL"] !== undefined) {
-                tokenString += String(data["SuccessURL"]);
-            }
-            
-            // TerminalKey
-            if (data["TerminalKey"] !== null && data["TerminalKey"] !== undefined) {
-                tokenString += String(data["TerminalKey"]);
+            for (const key of sortedKeys) {
+                tokenString += String(token_data[key]);
             }
             
             // Добавляем секретный ключ в конец
             tokenString += TBANK_SECRET_KEY;
             
-            console.log('Строка для токена:', tokenString);
+            console.log('Поля для токена (по алфавиту):', sortedKeys);
+            console.log('Строка для токена (первые 100 символов):', tokenString.substring(0, 100));
+            console.log('Полная строка для токена:', tokenString);
             
             // Создаем SHA-256 хеш
             const token = await hashString(tokenString);
+            
+            console.log('Сгенерированный токен:', token);
             
             return token;
         }
