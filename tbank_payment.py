@@ -113,9 +113,9 @@ class TbankPayment:
         
         Алгоритм:
         1. Берем ТОЛЬКО корневые поля (исключаем Token и вложенные объекты: DATA, Receipt)
-        2. Сортируем по ключу в алфавитном порядке
-        3. Добавляем Password (секретный ключ) в конец
-        4. Конкатенируем значения в строку
+        2. Добавляем Password (секретный ключ) как параметр
+        3. Сортируем по ключу в алфавитном порядке
+        4. Конкатенируем ТОЛЬКО значения в строку
         5. Вычисляем SHA-256
         """
         # Исключаем поле Token и вложенные объекты
@@ -126,25 +126,26 @@ class TbankPayment:
                       and not isinstance(v, list)   # Игнорируем массивы
                       and v is not None}
         
+        # Добавляем Password как параметр (ВАЖНО!)
+        token_data['Password'] = self.secret_key
+        
         # Сортируем ключи в алфавитном порядке
         sorted_keys = sorted(token_data.keys())
         
-        # Конкатенируем значения в алфавитном порядке ключей
+        # Конкатенируем ТОЛЬКО значения параметров (не ключи!) в алфавитном порядке
         token_string = ""
         for key in sorted_keys:
             value = token_data[key]
             if value is not None:
                 token_string += str(value)
         
-        # Добавляем секретный ключ (Password) в конец
-        token_string += self.secret_key
-        
-        print(f"Строка для токена: {token_string[:200]}...")
+        print(f"DEBUG: Параметры для токена: {token_data}")
+        print(f"DEBUG: Строка для токена: {token_string[:200]}...")
         
         # Создаем SHA-256 хеш
         token = hashlib.sha256(token_string.encode('utf-8')).hexdigest()
         
-        print(f"Сгенерированный токен: {token}")
+        print(f"DEBUG: Сгенерированный токен: {token}")
         return token
     
     def create_payment(self, amount, user_id, description=None):
