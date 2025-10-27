@@ -758,7 +758,22 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 'SuccessURL': success_url,
                 'FailURL': fail_url,
                 'Language': language,
-                'CustomerKey': customer_key
+                'CustomerKey': customer_key,
+                'Receipt': {
+                    'Email': f'user_{customer_key}@example.com',
+                    'Items': [
+                        {
+                            'Name': 'Подписка на видеоуроки EasyDrive',
+                            'Price': amount,
+                            'Quantity': 1,
+                            'Amount': amount,
+                            'Tax': 'none',
+                            'Ean13': ''
+                        }
+                    ],
+                    'Taxation': 'usn_income',
+                    'FfdVersion': '1.05'
+                }
             }
             
             # Генерируем токен
