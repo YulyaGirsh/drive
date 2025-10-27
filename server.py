@@ -778,7 +778,6 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             import traceback
             traceback.print_exc()
             self.send_error(500, str(e))
-            self.send_error(500, str(e))
     
     def confirm_tbank_payment(self):
         """
