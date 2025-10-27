@@ -501,7 +501,8 @@
             `;
             cardPaymentBtn.onclick = function() {
                 modal.remove();
-                showCardPaymentModal();
+                // Сразу запускаем оплату через Т-Банк
+                processCardPayment();
             };
             
             const cancelBtn = document.createElement('button');
