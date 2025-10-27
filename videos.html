@@ -1009,7 +1009,7 @@
             }
         }
         
-        // Создание токена для Т-банк API
+        // Создание токена для Т-банк API (правильный порядок полей)
         async function createTbankToken(data) {
             // Функция для создания SHA-256 хеша
             const hashString = async (message) => {
@@ -1020,18 +1020,40 @@
                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             };
             
-            // Сортируем ключи в алфавитном порядке
-            const sortedKeys = Object.keys(data).sort();
-            
-            // Создаем строку для токена
+            // ВАЖНО: поля должны идти в СТРОГО определенном порядке (не по алфавиту!)
             let tokenString = '';
-            for (const key of sortedKeys) {
-                if (data[key] !== null && data[key] !== undefined) {
-                    tokenString += String(data[key]);
-                }
+            
+            // Amount
+            if (data["Amount"] !== null && data["Amount"] !== undefined) {
+                tokenString += String(data["Amount"]);
             }
             
-            // Добавляем секретный ключ
+            // Description
+            if (data["Description"] !== null && data["Description"] !== undefined) {
+                tokenString += String(data["Description"]);
+            }
+            
+            // FailURL
+            if (data["FailURL"] !== null && data["FailURL"] !== undefined) {
+                tokenString += String(data["FailURL"]);
+            }
+            
+            // OrderId
+            if (data["OrderId"] !== null && data["OrderId"] !== undefined) {
+                tokenString += String(data["OrderId"]);
+            }
+            
+            // SuccessURL
+            if (data["SuccessURL"] !== null && data["SuccessURL"] !== undefined) {
+                tokenString += String(data["SuccessURL"]);
+            }
+            
+            // TerminalKey
+            if (data["TerminalKey"] !== null && data["TerminalKey"] !== undefined) {
+                tokenString += String(data["TerminalKey"]);
+            }
+            
+            // Добавляем секретный ключ в конец
             tokenString += TBANK_SECRET_KEY;
             
             console.log('Строка для токена:', tokenString);
