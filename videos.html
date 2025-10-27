@@ -954,30 +954,7 @@
                     last_name: currentUserData.last_name || '(нет)'
                 });
                 
-                console.log('📋 Шаг 2: Получение данных карты');
-                // Получаем данные карты (имя не требуется для тестовых платежей)
-                const cardNumber = document.getElementById('cardNumber')?.value;
-                const cardExpiry = document.getElementById('cardExpiry')?.value;
-                const cardCVV = document.getElementById('cardCVV')?.value;
-                
-                // Список тестовых карт Т-банка с ожидаемыми результатами
-                const testCards = {
-                    '4000 0000 0000 0119': { result: 'success', message: 'Оплачено' },
-                    '5000 0000 0000 0009': { result: 'fail', message: 'Не получилось оплатить. На карте недостаточно средств' },
-                    '4300 0000 0000 0777': { result: 'success', message: 'Оплачено' }
-                };
-                
-                // Нормализуем номер карты для проверки
-                const normalizedCardNumber = cardNumber.replace(/\s/g, '');
-                const testCardMatch = Object.entries(testCards).find(([pattern, _]) => 
-                    normalizedCardNumber.includes(pattern.replace(/\s/g, ''))
-                );
-                
-                console.log('💳 Данные карты:', {
-                    number: cardNumber ? `${cardNumber.substring(0, 4)}****${cardNumber.substring(-4)}` : '(пусто)',
-                    expiry: cardExpiry,
-                    cvv_length: cardCVV ? cardCVV.length : 0
-                });
+                console.log('📋 Шаг 2: Пропускаем получение данных карты - оплата через форму Т-Банка');
                 
                 console.log('📋 Шаг 3: Отправка запроса через БЭКЕНД');
                 console.log('🎯 Используем ТЕСТОВЫЙ терминал 1761136519162DEMO');
