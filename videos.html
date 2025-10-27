@@ -1015,6 +1015,7 @@
                         }
                     }
                     
+                    // Сохраняем подписку в localStorage ДО перехода на страницу оплаты
                     const paidSubKey = `paid_subscription_v9_${currentUserData.id}`;
                     const subscriptionData = {
                         user_id: currentUserData.id,
@@ -1025,10 +1026,9 @@
                         payment_id: result.PaymentId
                     };
                     localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
+                    console.log('✅ Подписка сохранена в localStorage');
                     
-                    hasPaidSubscription = true;
-                    updateVideoButtons();
-                    alert('✅ Платеж создан! Платеж будет виден в личном кабинете Т-банка.');
+                    // НЕ показываем alert, т.к. сразу открывается страница оплаты
                     return true;
                 } else {
                     console.error('❌ Т-банк вернул ошибку:', result);
@@ -1284,7 +1284,7 @@
                 }
                 
                 // Сохраняем подписку в локальное хранилище
-                const paidSubKey = `paid_subscription_v5_${currentUserData.id}`;
+                const paidSubKey = `paid_subscription_v9_${currentUserData.id}`;
                 const subscriptionData = {
                     user_id: currentUserData.id,
                     date: new Date().toISOString(),
