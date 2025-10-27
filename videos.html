@@ -1065,7 +1065,7 @@
             }
         }
         
-        // Создание токена для Т-банк API (по алфавиту согласно техподдержке)
+        // Создание токена для Т-банк API (ПРАВИЛЬНЫЙ порядок полей)
         async function createTbankToken(data) {
             // Функция для создания SHA-256 хеша
             const hashString = async (message) => {
@@ -1084,16 +1084,50 @@
                 }
             }
             
-            // ВАЖНО: сортируем ключи в алфавитном порядке
-            const sortedKeys = Object.keys(token_data).sort();
-            
-            // Конкатенируем значения в алфавитном порядке ключей
+            // ВАЖНО: используем СТРОГО ОПРЕДЕЛЕННЫЙ порядок полей (не алфавит!)
             let tokenString = '';
-            console.log('🔐 Шаг 1: Формируем строку для токена из полей');
-            for (const key of sortedKeys) {
-                const value = String(token_data[key]);
+            console.log('🔐 Шаг 1: Формируем строку для токена из полей (в строгом порядке)');
+            
+            // Amount
+            if (token_data["Amount"] !== null && token_data["Amount"] !== undefined) {
+                const value = String(token_data["Amount"]);
                 tokenString += value;
-                console.log(`  ${key}: ${value}`);
+                console.log(`  Amount: ${value}`);
+            }
+            
+            // Description
+            if (token_data["Description"] !== null && token_data["Description"] !== undefined) {
+                const value = String(token_data["Description"]);
+                tokenString += value;
+                console.log(`  Description: ${value}`);
+            }
+            
+            // FailURL
+            if (token_data["FailURL"] !== null && token_data["FailURL"] !== undefined) {
+                const value = String(token_data["FailURL"]);
+                tokenString += value;
+                console.log(`  FailURL: ${value}`);
+            }
+            
+            // OrderId
+            if (token_data["OrderId"] !== null && token_data["OrderId"] !== undefined) {
+                const value = String(token_data["OrderId"]);
+                tokenString += value;
+                console.log(`  OrderId: ${value}`);
+            }
+            
+            // SuccessURL
+            if (token_data["SuccessURL"] !== null && token_data["SuccessURL"] !== undefined) {
+                const value = String(token_data["SuccessURL"]);
+                tokenString += value;
+                console.log(`  SuccessURL: ${value}`);
+            }
+            
+            // TerminalKey
+            if (token_data["TerminalKey"] !== null && token_data["TerminalKey"] !== undefined) {
+                const value = String(token_data["TerminalKey"]);
+                tokenString += value;
+                console.log(`  TerminalKey: ${value}`);
             }
             
             console.log('📝 Промежуточная строка (до добавления секрета):', tokenString);
