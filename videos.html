@@ -1008,9 +1008,10 @@
                         
                         // Для тестовых карт Т-банк может вернуть PaymentURL
                         if (result.PaymentURL) {
-                            console.log('📋 Открываем страницу оплаты Т-банка');
-                            window.open(result.PaymentURL, '_blank');
-                            alert('✅ Платеж создан! Откройте страницу оплаты в новой вкладке');
+                            console.log('📋 Перенаправляем на страницу оплаты Т-банка');
+                            // Открываем страницу оплаты в текущей вкладке
+                            window.location.href = result.PaymentURL;
+                            return true;
                         }
                     }
                     
