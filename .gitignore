@@ -54,3 +54,9 @@ config.env
 # Temporary files
 *.tmp
 *.temp
+
+# Local SSH scripts with credentials
+check_server.py
+check_server.ps1
+connect_to_server.py
+check_server_simple.bat
