@@ -6,8 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>EasyDrive - Подготовка к экзамену на права v11</title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=11">
+    <title>EasyDrive - Подготовка к экзамену на права v12</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=12">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         // Показываем заставку только при самом первом заходе
@@ -454,8 +454,9 @@
             const buttonContainer = document.createElement('div');
             buttonContainer.style.cssText = `
                 display: flex;
-                gap: 10px;
+                gap: 8px;
                 justify-content: center;
+                flex-wrap: wrap;
             `;
             
             const subscribeBtn = document.createElement('button');
@@ -464,12 +465,30 @@
                 background: #007bff;
                 color: white;
                 border: none;
-                padding: 12px 30px;
-                border-radius: 25px;
-                font-size: 16px;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 14px;
                 cursor: pointer;
                 font-weight: 600;
                 transition: all 0.3s ease;
+                min-width: 0;
+                flex: 1;
+            `;
+            
+            const checkBtn = document.createElement('button');
+            checkBtn.textContent = 'Проверить';
+            checkBtn.style.cssText = `
+                background: #28a745;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                min-width: 0;
+                flex: 1;
             `;
             
             const cancelBtn = document.createElement('button');
@@ -478,33 +497,56 @@
                 background: #e0e0e0;
                 color: #333;
                 border: none;
-                padding: 12px 30px;
-                border-radius: 25px;
-                font-size: 16px;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 14px;
                 cursor: pointer;
                 font-weight: 600;
                 transition: all 0.3s ease;
+                min-width: 0;
+                flex: 1;
             `;
             
             // Hover эффекты
             subscribeBtn.onmouseenter = () => subscribeBtn.style.background = '#0056b3';
             subscribeBtn.onmouseleave = () => subscribeBtn.style.background = '#007bff';
+            checkBtn.onmouseenter = () => checkBtn.style.background = '#218838';
+            checkBtn.onmouseleave = () => checkBtn.style.background = '#28a745';
             cancelBtn.onmouseenter = () => cancelBtn.style.background = '#d0d0d0';
             cancelBtn.onmouseleave = () => cancelBtn.style.background = '#e0e0e0';
             
             subscribeBtn.onclick = function() {
                 window.open('https://t.me/test_girsh', '_blank');
-                // Закрываем модальное окно через 1 секунду
-                setTimeout(() => {
+            };
+            
+            checkBtn.onclick = async function() {
+                // Очищаем кэш
+                const tg = window.Telegram?.WebApp;
+                if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    const userId = tg.initDataUnsafe.user.id;
+                    const cacheKey = `channel_subscription_test_girsh_${userId}`;
+                    localStorage.removeItem(cacheKey);
+                    console.log('Кэш очищен, перепроверяем подписку...');
+                }
+                
+                // Показываем загрузку
+                checkBtn.textContent = 'Проверяем...';
+                checkBtn.disabled = true;
+                
+                // Перепроверяем подписку
+                const isSubscribed = await checkChannelSubscription();
+                
+                if (isSubscribed) {
+                    console.log('Подписка подтверждена, открываем билеты');
                     modal.remove();
-                    // Очищаем кэш для повторной проверки
-                    const tg = window.Telegram?.WebApp;
-                    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                        const userId = tg.initDataUnsafe.user.id;
-                        const cacheKey = `channel_subscription_test_girsh_${userId}`;
-                        localStorage.removeItem(cacheKey);
-                    }
-                }, 1000);
+                    window.location.href = '1.html';
+                } else {
+                    console.log('Подписка не подтверждена');
+                    checkBtn.textContent = 'Проверить';
+                    checkBtn.disabled = false;
+                    // Можно добавить сообщение о том, что нужно подписаться
+                    alert('Пожалуйста, подпишитесь на канал @test_girsh и нажмите "Проверить" снова');
+                }
             };
             
             cancelBtn.onclick = function() {
@@ -512,6 +554,7 @@
             };
             
             buttonContainer.appendChild(subscribeBtn);
+            buttonContainer.appendChild(checkBtn);
             buttonContainer.appendChild(cancelBtn);
             content.appendChild(title);
             content.appendChild(message);
