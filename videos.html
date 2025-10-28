@@ -379,7 +379,7 @@
         // Проверяем подписку на канал (заменяем проверку оплаты)
         async function checkChannelSubscription() {
             try {
-                console.log('🔍 Начинаем проверку подписки на канал @test_girsh...');
+                console.log('🔍 Начинаем проверку подписки на канал @avtoshkolavtelefone...');
                 
                 // Получаем Telegram WebApp API (как в index.html)
                 const tg = window.Telegram?.WebApp;
@@ -400,7 +400,7 @@
                 // ВСЕГДА делаем запрос на сервер БЕЗ кэширования
                 const requestData = {
                     user_id: userId,
-                    channel: 'test_girsh'
+                    channel: 'avtoshkolavtelefone'
                 };
                 
                 console.log('📤 Отправляем запрос на /api/check-channel-subscription...');
@@ -566,7 +566,7 @@
             const message = document.createElement('p');
             message.innerHTML = `
                 Для просмотра этого видеоурока необходимо подписаться на канал<br><br>
-                <strong>@test_girsh</strong><br><br>
+                <strong>@avtoshkolavtelefone</strong><br><br>
                 Подпишитесь на канал, чтобы получить доступ!
             `;
             message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
@@ -590,7 +590,7 @@
                 flex: 1;
             `;
             subscribeBtn.onclick = function() {
-                window.open('https://t.me/test_girsh', '_blank');
+                window.open('https://t.me/avtoshkolavtelefone', '_blank');
             };
             
             // Кнопка проверить
@@ -641,7 +641,7 @@
                     checkBtn.disabled = false;
                     
                     // Показываем уведомление
-                    alert('Пожалуйста, подпишитесь на канал @test_girsh и нажмите "Проверить" снова');
+                    alert('Пожалуйста, подпишитесь на канал @avtoshkolavtelefone и нажмите "Проверить" снова');
                 }
             };
             

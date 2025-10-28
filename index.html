@@ -350,7 +350,7 @@
 
         async function checkChannelSubscription() {
             try {
-                console.log('🔍 Начинаем проверку подписки на канал @test_girsh...');
+                console.log('🔍 Начинаем проверку подписки на канал @avtoshkolavtelefone...');
                 
                 // Получаем Telegram WebApp API
                 const tg = window.Telegram?.WebApp;
@@ -371,7 +371,7 @@
                 // ВСЕГДА делаем запрос на сервер БЕЗ кэширования
                 const requestData = {
                     user_id: userId,
-                    channel: 'test_girsh'
+                    channel: 'avtoshkolavtelefone'
                 };
                 
                 console.log('📤 Отправляем запрос на /api/check-channel-subscription...');
@@ -454,7 +454,7 @@
             const message = document.createElement('p');
             message.innerHTML = `
                 Для доступа к билетам необходимо подписаться на канал<br><br>
-                <strong>@test_girsh</strong><br><br>
+                <strong>@avtoshkolavtelefone</strong><br><br>
                 Подпишитесь на канал, чтобы получить доступ!
             `;
             message.style.cssText = `
@@ -528,7 +528,7 @@
             cancelBtn.onmouseleave = () => cancelBtn.style.background = '#e0e0e0';
             
             subscribeBtn.onclick = function() {
-                window.open('https://t.me/test_girsh', '_blank');
+                window.open('https://t.me/avtoshkolavtelefone', '_blank');
             };
             
                 checkBtn.onclick = async function() {
@@ -554,7 +554,7 @@
                     console.log('❌ Подписка не подтверждена');
                     checkBtn.textContent = 'Проверить';
                     checkBtn.disabled = false;
-                    alert('Пожалуйста, подпишитесь на канал @test_girsh и нажмите "Проверить" снова');
+                    alert('Пожалуйста, подпишитесь на канал @avtoshkolavtelefone и нажмите "Проверить" снова');
                 }
             };
             
