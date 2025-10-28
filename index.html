@@ -468,7 +468,7 @@
                 display: flex;
                 gap: 8px;
                 justify-content: center;
-                flex-wrap: wrap;
+                margin-bottom: 10px;
             `;
             
             const subscribeBtn = document.createElement('button');
@@ -515,8 +515,8 @@
                 cursor: pointer;
                 font-weight: 600;
                 transition: all 0.3s ease;
-                min-width: 0;
-                flex: 1;
+                width: 100%;
+                margin-top: 10px;
             `;
             
             // Hover эффекты
@@ -564,10 +564,10 @@
             
             buttonContainer.appendChild(subscribeBtn);
             buttonContainer.appendChild(checkBtn);
-            buttonContainer.appendChild(cancelBtn);
             content.appendChild(title);
             content.appendChild(message);
             content.appendChild(buttonContainer);
+            content.appendChild(cancelBtn);
             modal.appendChild(content);
             document.body.appendChild(modal);
         }
