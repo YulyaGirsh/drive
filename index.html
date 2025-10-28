@@ -6,8 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>EasyDrive - Подготовка к экзамену на права v14</title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=14">
+    <title>EasyDrive - Подготовка к экзамену на права v15</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=15">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         // Показываем заставку только при самом первом заходе
@@ -339,40 +339,25 @@
             }
         }
 
-        async function checkChannelSubscription(forceRefresh = false) {
+        async function checkChannelSubscription() {
             try {
+                console.log('🔍 Начинаем проверку подписки на канал @test_girsh...');
+                
                 // Получаем Telegram WebApp API
                 const tg = window.Telegram?.WebApp;
                 
                 if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-                    console.log('Telegram WebApp не доступен');
+                    console.log('❌ Telegram WebApp не доступен');
                     return false;
                 }
 
                 const userData = tg.initDataUnsafe.user;
                 const userId = userData.id;
                 
-                console.log('Проверяем подписку пользователя:', userId, 'forceRefresh:', forceRefresh);
+                console.log('👤 ID пользователя:', userId);
                 
-                // Проверяем кэш localStorage (если не принудительная проверка)
-                const cacheKey = `channel_subscription_test_girsh_${userId}`;
-                const cached = localStorage.getItem(cacheKey);
-                
-                if (!forceRefresh && cached) {
-                    const data = JSON.parse(cached);
-                    const now = Date.now();
-                    const cacheAge = now - data.timestamp;
-                    const cacheMaxAge = 5 * 60 * 1000; // 5 минут
-                    
-                    if (cacheAge < cacheMaxAge) {
-                        console.log('Используем кэшированные данные подписки:', data.subscribed);
-                        return data.subscribed;
-                    }
-                } else if (forceRefresh) {
-                    console.log('Принудительное обновление - пропускаем кэш');
-                }
-                
-                // Отправляем запрос на сервер
+                // ВСЕГДА делаем запрос на сервер БЕЗ кэширования
+                console.log('📡 Отправляем запрос на сервер...');
                 const response = await fetch('/api/check-channel-subscription', {
                     method: 'POST',
                     headers: {
@@ -384,30 +369,24 @@
                     })
                 });
                 
-                console.log('Ответ от сервера, статус:', response.status, response.statusText);
+                console.log('📥 Ответ от сервера, статус:', response.status, response.statusText);
                 
                 if (!response.ok) {
-                    console.error('Ошибка проверки подписки:', response.status);
+                    console.error('❌ Ошибка проверки подписки:', response.status);
                     const errorText = await response.text();
                     console.error('Текст ошибки:', errorText);
                     return false;
                 }
                 
                 const result = await response.json();
-                console.log('Результат проверки подписки:', result);
-                console.log('result.subscribed:', result.subscribed);
-                console.log('Тип result.subscribed:', typeof result.subscribed);
-                
-                // Сохраняем в кэш
-                localStorage.setItem(cacheKey, JSON.stringify({
-                    subscribed: result.subscribed,
-                    timestamp: Date.now()
-                }));
+                console.log('📦 Результат от сервера:', result);
+                console.log('✅ result.subscribed:', result.subscribed);
+                console.log('🔢 Тип result.subscribed:', typeof result.subscribed);
                 
                 return result.subscribed;
                 
             } catch (error) {
-                console.error('Ошибка при проверке подписки:', error);
+                console.error('❌ Ошибка при проверке подписки:', error);
                 return false;
             }
         }
@@ -528,21 +507,19 @@
             };
             
                 checkBtn.onclick = async function() {
-                console.log('Кнопка "Проверить" нажата');
+                console.log('🔘 Кнопка "Проверить" нажата');
                 
                 // Показываем загрузку
                 checkBtn.textContent = 'Проверяем...';
                 checkBtn.disabled = true;
                 
-                // Перепроверяем подписку С ПРИНУДИТЕЛЬНЫМ ОБНОВЛЕНИЕМ (игнорируем кэш)
-                console.log('Запускаем принудительную проверку подписки...');
-                const isSubscribed = await checkChannelSubscription(true);
-                console.log('Результат проверки в кнопке:', isSubscribed);
-                console.log('Тип результата:', typeof isSubscribed);
+                // Перепроверяем подписку (БЕЗ кэша, всегда запрос к серверу)
+                console.log('🔄 Запускаем проверку подписки...');
+                const isSubscribed = await checkChannelSubscription();
+                console.log('📊 Результат проверки:', isSubscribed);
                 
                 // Явно приводим к boolean
                 const subscribed = Boolean(isSubscribed);
-                console.log('Подписка после приведения:', subscribed);
                 
                 if (subscribed) {
                     console.log('✅ Подписка подтверждена, открываем билеты');
@@ -552,7 +529,6 @@
                     console.log('❌ Подписка не подтверждена');
                     checkBtn.textContent = 'Проверить';
                     checkBtn.disabled = false;
-                    // Можно добавить сообщение о том, что нужно подписаться
                     alert('Пожалуйста, подпишитесь на канал @test_girsh и нажмите "Проверить" снова');
                 }
             };
