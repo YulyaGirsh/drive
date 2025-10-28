@@ -1151,6 +1151,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     print(f"❌ Не удалось исправить JSON")
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
                     self.end_headers()
                     self.wfile.write(json.dumps({
                         'subscribed': False,
@@ -1169,6 +1170,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             if not user_id:
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
                 self.wfile.write(json.dumps({
                     'subscribed': False,
@@ -1179,12 +1181,13 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             if not channel:
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
                 self.wfile.write(json.dumps({
                     'subscribed': False,
                     'error': 'Missing channel'
                 }).encode('utf-8'))
-                return
+                    
             
             # Конфигурация бота
             bot_token = "8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0"
@@ -1199,15 +1202,12 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             print(f"Отправляем запрос проверки подписки на @{channel}: {telegram_url}")
             print(f"Данные запроса: {telegram_data}")
             
-            # Отправляем запрос
-            req = urllib.request.Request(
-                telegram_url,
-                data=json.dumps(telegram_data, ensure_ascii=False).encode('utf-8'),
-                headers={'Content-Type': 'application/json; charset=utf-8'}
-            )
+            # Отправляем запрос через GET (GET метод для getChatMember)
+            full_url = f"{telegram_url}?chat_id=@{channel}&user_id={user_id}"
+            print(f"🔗 Полный URL: {full_url}")
             
             try:
-                with urllib.request.urlopen(req) as response:
+                with urllib.request.urlopen(full_url) as response:
                     result = response.read().decode('utf-8')
                     result_data = json.loads(result)
                     
@@ -1234,6 +1234,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                         
                         self.send_response(200)
                         self.send_header('Content-Type', 'application/json')
+                        self.send_header('Access-Control-Allow-Origin', '*')
                         self.end_headers()
                         self.wfile.write(json.dumps(response_data).encode('utf-8'))
                     else:
@@ -1241,6 +1242,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                         # Если бот не может проверить подписку, считаем что пользователь не подписан
                         self.send_response(200)
                         self.send_header('Content-Type', 'application/json')
+                        self.send_header('Access-Control-Allow-Origin', '*')
                         self.end_headers()
                         self.wfile.write(json.dumps({
                             'subscribed': False,
