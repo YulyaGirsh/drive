@@ -354,8 +354,12 @@
                 // Получаем Telegram WebApp API
                 const tg = window.Telegram?.WebApp;
                 
+                console.log('📦 Telegram WebApp:', tg);
+                console.log('📦 initDataUnsafe:', tg?.initDataUnsafe);
+                console.log('📦 user:', tg?.initDataUnsafe?.user);
+                
                 if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-                    console.log('❌ Telegram WebApp не доступен');
+                    console.log('❌ Telegram WebApp не доступен - возвращаем false');
                     return false;
                 }
 
@@ -363,6 +367,7 @@
                 const userId = userData.id;
                 
                 console.log('👤 ID пользователя:', userId);
+                console.log('📤 Отправляем запрос на /api/check-channel-subscription...');
                 
                 // ВСЕГДА делаем запрос на сервер БЕЗ кэширования
                 const requestData = {
