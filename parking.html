@@ -1331,16 +1331,22 @@
             }
         ];
 
-        function openVideo(videoNumber) {
+        async function openVideo(videoNumber) {
             console.log('🎬 openVideo: Открываем видео номер:', videoNumber);
             console.log('🔍 openVideo: FREE_VIDEOS_COUNT =', FREE_VIDEOS_COUNT);
-            console.log('🔍 openVideo: hasPaidSubscription =', hasPaidSubscription);
             console.log('🔍 openVideo: userData =', userData);
             
             // Простая проверка
             if (videoNumber === undefined || videoNumber === null || videoNumber < 0 || videoNumber >= videos.length) {
                 alert('Неверный номер видео!');
                 return;
+            }
+            
+            // ПЕРЕД проверкой доступа - обновляем статус подписки
+            if (videoNumber >= FREE_VIDEOS_COUNT) {
+                console.log('🔄 openVideo: Обновляем проверку подписки перед открытием видео');
+                await checkPaidSubscription();
+                console.log('🔍 openVideo: hasPaidSubscription после проверки =', hasPaidSubscription);
             }
             
             // Проверяем доступ к видео
