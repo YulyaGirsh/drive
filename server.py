@@ -1108,9 +1108,38 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             
-            print(f"📥 Получены сырые данные: {post_data.decode('utf-8')[:200]}")
+            # Декодируем данные
+            try:
+                raw_data = post_data.decode('utf-8')
+            except Exception as e:
+                print(f"❌ Ошибка декодирования: {e}")
+                raw_data = str(post_data)
             
-            data = json.loads(post_data.decode('utf-8'))
+            print(f"📥 Получены сырые данные: {raw_data[:200]}")
+            print(f"📊 Длина данных: {len(raw_data)}")
+            print(f"📋 Байты данных: {post_data[:100]}")
+            
+            # Пытаемся распарсить JSON
+            try:
+                data = json.loads(raw_data)
+            except json.JSONDecodeError as e:
+                print(f"❌ Ошибка парсинга JSON: {e}")
+                print(f"📝 Попытка исправления...")
+                # Пробуем исправить двойной escape
+                try:
+                    fixed_data = raw_data.replace('\\\\', '\\')
+                    data = json.loads(fixed_data)
+                    print(f"✅ Успешно исправлено и распарсено")
+                except:
+                    print(f"❌ Не удалось исправить JSON")
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        'subscribed': False,
+                        'error': f'Invalid JSON: {str(e)}'
+                    }).encode('utf-8'))
+                    return
             
             print(f"✅ Парсинг JSON успешен: {data}")
             print(f"👤 User ID: {data.get('user_id')}")
