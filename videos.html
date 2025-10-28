@@ -629,10 +629,10 @@
                     // Обновляем кнопки
                     updateVideoButtons();
                     
-                    // Если был попытка открыть конкретное видео, открываем его
+                    // Если был попытка открыть конкретное видео, показываем плашку с каналом
                     if (pendingVideoNumber) {
                         console.log('🎬 Открываем видео номер:', pendingVideoNumber);
-                        openVideo(pendingVideoNumber);
+                        showChannelVideoModal(pendingVideoNumber);
                         pendingVideoNumber = null;
                     }
                 } else {
@@ -672,6 +672,148 @@
             content.appendChild(title);
             content.appendChild(message);
             content.appendChild(buttonContainer);
+            modal.appendChild(content);
+            
+            document.body.appendChild(modal);
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        // Показываем модальное окно с приглашением в канал для видеоуроков
+        function showChannelVideoModal(videoNumber) {
+            const videoLink = channelVideoLinks[videoNumber];
+            const videoIndex = videoNumber - 1;
+            const videoTitle = videos[videoIndex]?.title || `Урок ${videoNumber}`;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 400px;
+                width: 100%;
+                text-align: center;
+                position: relative;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const icon = document.createElement('div');
+            icon.innerHTML = '🎬';
+            icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Видеоурок в закрытом канале';
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const videoBtn = document.createElement('button');
+            videoBtn.innerHTML = `🎥 ${videoTitle}`;
+            videoBtn.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 15px;
+                width: 100%;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+            `;
+            videoBtn.onclick = function() {
+                if (videoLink) {
+                    window.open(videoLink, '_blank');
+                }
+                modal.remove();
+            };
+            
+            const subtitle = document.createElement('p');
+            subtitle.innerHTML = 'Чтобы просматривать уроки, необходимо сначала вступить в канал по ссылке-приглашению';
+            subtitle.style.cssText = 'color: #666; margin-bottom: 15px; font-size: 14px; line-height: 1.4;';
+            
+            const channelBtn = document.createElement('button');
+            channelBtn.innerHTML = '📺 Вступить в канал';
+            channelBtn.style.cssText = `
+                background: #0088cc;
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 10px;
+                width: 100%;
+                box-shadow: 0 3px 10px rgba(0, 136, 204, 0.3);
+            `;
+            channelBtn.onclick = function() {
+                window.open('https://t.me/+MvaJTOomSptmZWQy', '_blank');
+                modal.remove();
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerHTML = 'Отмена';
+            cancelBtn.style.cssText = `
+                background: #f0f0f0;
+                color: #666;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 14px;
+                width: 100%;
+            `;
+            cancelBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            content.appendChild(closeBtn);
+            content.appendChild(icon);
+            content.appendChild(title);
+            content.appendChild(videoBtn);
+            content.appendChild(subtitle);
+            content.appendChild(channelBtn);
+            content.appendChild(cancelBtn);
             modal.appendChild(content);
             
             document.body.appendChild(modal);
@@ -1683,6 +1825,28 @@
             }
         ];
         
+        // Массив со ссылками на уроки в Telegram канале
+        const channelVideoLinks = {
+            3: "https://t.me/c/2935174205/7",
+            4: "https://t.me/c/2935174205/17",
+            5: "https://t.me/c/2935174205/19",
+            6: "https://t.me/c/2935174205/21",
+            7: "https://t.me/c/2935174205/23",
+            8: "https://t.me/c/2935174205/25",
+            9: "https://t.me/c/2935174205/27",
+            10: "https://t.me/c/2935174205/29",
+            11: "https://t.me/c/2935174205/31",
+            12: "https://t.me/c/2935174205/33",
+            13: "https://t.me/c/2935174205/35",
+            14: "https://t.me/c/2935174205/37",
+            15: "https://t.me/c/2935174205/39",
+            16: "https://t.me/c/2935174205/41",
+            17: "https://t.me/c/2935174205/43",
+            18: "https://t.me/c/2935174205/45",
+            19: "https://t.me/c/2935174205/56",
+            20: "https://t.me/c/2935174205/58"
+        };
+        
         // Массив с конспектами
         const conspects = {
             1: "Тема 01. Общие положения.pdf",
@@ -1728,6 +1892,13 @@
                 console.log('🔒 Видео заблокировано, сохраняем номер:', videoNumber);
                 pendingVideoNumber = videoNumber; // Сохраняем номер видео
                 showPaymentModal();
+                return;
+            }
+            
+            // Для всех видео (кроме первых двух) после проверки подписки показываем плашку с каналом
+            if (videoNumber > FREE_VIDEOS_COUNT && hasPaidSubscription) {
+                console.log('📺 Показываем плашку с приглашением в канал');
+                showChannelVideoModal(videoNumber);
                 return;
             }
             
