@@ -76,6 +76,12 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_api_post(self):
         try:
+            # Логируем каждый POST запрос
+            print(f"\n{'='*60}")
+            print(f"📥 POST ЗАПРОС: {self.path}")
+            print(f"📋 Headers: {dict(self.headers)}")
+            print(f"{'='*60}")
+            
             if self.path == '/api/send-telegram':
                 self.send_telegram_message()
             elif self.path == '/api/lawyer-order':
