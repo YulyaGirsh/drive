@@ -1243,7 +1243,10 @@ def start_server():
     # Переходим в директорию с файлами
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     
-    with socketserver.TCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
+    class ReuseAddrTCPServer(socketserver.TCPServer):
+        allow_reuse_address = True
+    
+    with ReuseAddrTCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
         print(f"Сервер запущен на http://localhost:{PORT}")
         print(f"Откройте приложение в браузере: http://localhost:{PORT}")
         print("Для остановки нажмите Ctrl+C")
