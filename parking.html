@@ -384,24 +384,11 @@
                 console.error('❌ Ошибка проверки подписки на сервере:', error);
             }
             
-            // Если на сервере не нашли, проверяем localStorage
-            const paidSubKey = `paid_subscription_v11_${userData.id}`;
-            const subscriptionData = localStorage.getItem(paidSubKey);
-            
-            console.log('📦 checkPaidSubscription: Данные из localStorage:', subscriptionData);
-            
-            if (subscriptionData) {
-                const parsed = JSON.parse(subscriptionData);
-                console.log('✅ checkPaidSubscription: Подписка найдена в localStorage:', parsed);
-                hasPaidSubscription = true;
-                console.log('✅ hasPaidSubscription установлено в:', hasPaidSubscription);
-                return true;
-            } else {
-                console.log('❌ checkPaidSubscription: Подписка НЕ найдена');
-                hasPaidSubscription = false;
-                console.log('❌ hasPaidSubscription установлено в:', hasPaidSubscription);
-                return false;
-            }
+            // НЕ проверяем localStorage - только сервер
+            console.log('❌ checkPaidSubscription: Подписка НЕ найдена на сервере');
+            hasPaidSubscription = false;
+            console.log('❌ hasPaidSubscription установлено в:', hasPaidSubscription);
+            return false;
         }
         
         // Функция обработки оплаты картой (как в videos.html)
