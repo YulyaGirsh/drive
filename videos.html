@@ -464,8 +464,19 @@
                 
                 if (videoNumber > FREE_VIDEOS_COUNT) {
                     // Получаем оригинальный текст кнопки
-                    const titleText = button.getAttribute('data-original-title') || button.textContent.replace('🔒 Требуется подписка на канал', '').trim();
-                    button.setAttribute('data-original-title', titleText);
+                    let titleText = button.getAttribute('data-original-title');
+                    
+                    // Если нет сохранённого текста, получаем из DOM
+                    if (!titleText) {
+                        const titleElement = button.querySelector('.video-title');
+                        if (titleElement) {
+                            // Удаляем <small> и <br> из текста
+                            titleText = titleElement.textContent.replace(/🔒 Требуется подписка на канал/g, '').replace(/\s+/g, ' ').trim();
+                        } else {
+                            titleText = button.textContent.replace(/🔒 Требуется подписка на канал/g, '').replace(/\s+/g, ' ').trim();
+                        }
+                        button.setAttribute('data-original-title', titleText);
+                    }
                     
                     if (!hasPaidSubscription) {
                         // Блокируем кнопку для неоплативших пользователей
