@@ -6,8 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>EasyDrive - Подготовка к экзамену на права v12</title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=12">
+    <title>EasyDrive - Подготовка к экзамену на права v13</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=13">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         // Показываем заставку только при самом первом заходе
@@ -382,13 +382,19 @@
                     })
                 });
                 
+                console.log('Ответ от сервера, статус:', response.status, response.statusText);
+                
                 if (!response.ok) {
                     console.error('Ошибка проверки подписки:', response.status);
+                    const errorText = await response.text();
+                    console.error('Текст ошибки:', errorText);
                     return false;
                 }
                 
                 const result = await response.json();
                 console.log('Результат проверки подписки:', result);
+                console.log('result.subscribed:', result.subscribed);
+                console.log('Тип result.subscribed:', typeof result.subscribed);
                 
                 // Сохраняем в кэш
                 localStorage.setItem(cacheKey, JSON.stringify({
@@ -519,7 +525,7 @@
                 window.open('https://t.me/test_girsh', '_blank');
             };
             
-            checkBtn.onclick = async function() {
+                checkBtn.onclick = async function() {
                 // Очищаем кэш
                 const tg = window.Telegram?.WebApp;
                 if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
@@ -535,8 +541,14 @@
                 
                 // Перепроверяем подписку
                 const isSubscribed = await checkChannelSubscription();
+                console.log('Результат проверки в кнопке:', isSubscribed);
+                console.log('Тип результата:', typeof isSubscribed);
                 
-                if (isSubscribed) {
+                // Явно приводим к boolean
+                const subscribed = Boolean(isSubscribed);
+                console.log('Подписка после приведения:', subscribed);
+                
+                if (subscribed) {
                     console.log('Подписка подтверждена, открываем билеты');
                     modal.remove();
                     window.location.href = '1.html';
