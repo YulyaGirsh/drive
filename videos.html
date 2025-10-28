@@ -6,8 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>EasyDrive - Видеоуроки v26</title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=26">
+    <title>EasyDrive - Видеоуроки v27</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=27">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -242,8 +242,9 @@
         const CHANNEL_USERNAME = '+w4RmUNIUdKFlMDBi';
         const FREE_VIDEOS_COUNT = 2; // Первые 2 видео доступны всем
         const SUBSCRIPTION_PRICE = 10; // Цена подписки в рублях
-        const CACHE_VERSION = 'v26'; // Версия для кэша - изменить при обновлении!
+        const CACHE_VERSION = 'v27'; // Версия для кэша - изменить при обновлении!
         console.log('🚀 videos.html загружен, версия:', CACHE_VERSION);
+        console.log('🔧 Функция checkChannelSubscription определена:', typeof checkChannelSubscription);
         
         // Принудительная очистка Service Worker и кэша
         if ('serviceWorker' in navigator) {
@@ -1967,6 +1968,6 @@
     </script>
     
     <!-- Индикатор версии в правом нижнем углу -->
-    <div id="version-indicator" style="position: fixed; bottom: 5px; right: 5px; color: rgba(128, 128, 128, 0.3); font-size: 10px; font-family: monospace; z-index: 9999; pointer-events: none;">v26</div>
+    <div id="version-indicator" style="position: fixed; bottom: 5px; right: 5px; color: rgba(128, 128, 128, 0.3); font-size: 10px; font-family: monospace; z-index: 9999; pointer-events: none;">v27</div>
 </body>
 </html>
