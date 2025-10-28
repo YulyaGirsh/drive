@@ -6,8 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>EasyDrive - Видеоуроки v20</title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=20">
+    <title>EasyDrive - Видеоуроки v21</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=21">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -412,29 +412,50 @@
         
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', async function() {
-            // Проверяем подписку на канал
+            console.log('📄 Страница загружена, инициализация...');
+            
+            // Сначала блокируем все видео кроме первых двух (по умолчанию)
+            updateVideoButtons();
+            
+            // Затем проверяем подписку на канал
+            console.log('🔍 Начинаем проверку подписки...');
             await checkChannelSubscription();
             
-            // Обновляем интерфейс в зависимости от подписки
+            // Обновляем интерфейс после проверки
+            console.log('✅ Проверка завершена, обновляем интерфейс...');
             updateVideoButtons();
         });
         
         // Обновляем кнопки видео в зависимости от подписки
         function updateVideoButtons() {
+            console.log('🔄 Обновляем кнопки видео. hasPaidSubscription:', hasPaidSubscription);
             const videoButtons = document.querySelectorAll('.video-button');
             
             videoButtons.forEach((button, index) => {
                 const videoNumber = index + 1;
                 
                 if (videoNumber > FREE_VIDEOS_COUNT) {
+                    // Получаем оригинальный текст кнопки
+                    const titleText = button.getAttribute('data-original-title') || button.textContent.replace('🔒 Требуется подписка на канал', '').trim();
+                    button.setAttribute('data-original-title', titleText);
+                    
                     if (!hasPaidSubscription) {
                         // Блокируем кнопку для неоплативших пользователей
                         button.style.opacity = '0.6';
                         button.style.cursor = 'not-allowed';
                         button.innerHTML = `
                             <div class="video-title">
-                                ${button.querySelector('.video-title').textContent}
+                                ${titleText}
                                 <br><small style="color: #ffcc00;">🔒 Требуется подписка на канал</small>
+                            </div>
+                        `;
+                    } else {
+                        // Разблокируем кнопку для подписчиков
+                        button.style.opacity = '1';
+                        button.style.cursor = 'pointer';
+                        button.innerHTML = `
+                            <div class="video-title">
+                                ${titleText}
                             </div>
                         `;
                     }
