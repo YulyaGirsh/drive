@@ -6,8 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>EasyDrive - Подготовка к экзамену на права v13</title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=13">
+    <title>EasyDrive - Подготовка к экзамену на права v14</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=14">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         // Показываем заставку только при самом первом заходе
@@ -339,7 +339,7 @@
             }
         }
 
-        async function checkChannelSubscription() {
+        async function checkChannelSubscription(forceRefresh = false) {
             try {
                 // Получаем Telegram WebApp API
                 const tg = window.Telegram?.WebApp;
@@ -352,13 +352,13 @@
                 const userData = tg.initDataUnsafe.user;
                 const userId = userData.id;
                 
-                console.log('Проверяем подписку пользователя:', userId);
+                console.log('Проверяем подписку пользователя:', userId, 'forceRefresh:', forceRefresh);
                 
-                // Проверяем кэш localStorage
+                // Проверяем кэш localStorage (если не принудительная проверка)
                 const cacheKey = `channel_subscription_test_girsh_${userId}`;
                 const cached = localStorage.getItem(cacheKey);
                 
-                if (cached) {
+                if (!forceRefresh && cached) {
                     const data = JSON.parse(cached);
                     const now = Date.now();
                     const cacheAge = now - data.timestamp;
@@ -368,6 +368,8 @@
                         console.log('Используем кэшированные данные подписки:', data.subscribed);
                         return data.subscribed;
                     }
+                } else if (forceRefresh) {
+                    console.log('Принудительное обновление - пропускаем кэш');
                 }
                 
                 // Отправляем запрос на сервер
@@ -526,21 +528,15 @@
             };
             
                 checkBtn.onclick = async function() {
-                // Очищаем кэш
-                const tg = window.Telegram?.WebApp;
-                if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    const userId = tg.initDataUnsafe.user.id;
-                    const cacheKey = `channel_subscription_test_girsh_${userId}`;
-                    localStorage.removeItem(cacheKey);
-                    console.log('Кэш очищен, перепроверяем подписку...');
-                }
+                console.log('Кнопка "Проверить" нажата');
                 
                 // Показываем загрузку
                 checkBtn.textContent = 'Проверяем...';
                 checkBtn.disabled = true;
                 
-                // Перепроверяем подписку
-                const isSubscribed = await checkChannelSubscription();
+                // Перепроверяем подписку С ПРИНУДИТЕЛЬНЫМ ОБНОВЛЕНИЕМ (игнорируем кэш)
+                console.log('Запускаем принудительную проверку подписки...');
+                const isSubscribed = await checkChannelSubscription(true);
                 console.log('Результат проверки в кнопке:', isSubscribed);
                 console.log('Тип результата:', typeof isSubscribed);
                 
@@ -549,11 +545,11 @@
                 console.log('Подписка после приведения:', subscribed);
                 
                 if (subscribed) {
-                    console.log('Подписка подтверждена, открываем билеты');
+                    console.log('✅ Подписка подтверждена, открываем билеты');
                     modal.remove();
                     window.location.href = '1.html';
                 } else {
-                    console.log('Подписка не подтверждена');
+                    console.log('❌ Подписка не подтверждена');
                     checkBtn.textContent = 'Проверить';
                     checkBtn.disabled = false;
                     // Можно добавить сообщение о том, что нужно подписаться
