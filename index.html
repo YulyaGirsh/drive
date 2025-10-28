@@ -576,24 +576,216 @@
             window.location.href = 'videos.html';
         }
 
-        function openTeacher() {
-            window.open('https://t.me/EasyDrivePDD', '_blank');
-        }
-
-        function openLawyer() {
-            window.location.href = 'lawyer.html';
-        }
-
-        function openPsychologist() {
-            window.location.href = 'psychologist.html';
-        }
-
         function openParking() {
             window.location.href = 'parking.html';
         }
 
-        function openTranslations() {
+        // Глобальная переменная для оплаченной подписки
+        let hasPaidSubscription = false;
+        const SUBSCRIPTION_PRICE = 10; // Цена подписки в рублях
+
+        // Проверяем оплаченную подписку (как в parking.html)
+        async function checkPaidSubscription() {
+            console.log('🔍 checkPaidSubscription: Начинаем проверку оплаты');
+            
+            const tg = window.Telegram?.WebApp;
+            console.log('📦 Telegram WebApp:', tg);
+            
+            let currentUserData = null;
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+                console.log('✅ Получены данные пользователя:', currentUserData);
+            } else {
+                console.log('⚠️ Telegram WebApp не доступен');
+                hasPaidSubscription = false;
+                return false;
+            }
+            
+            if (!currentUserData) {
+                console.log('❌ checkPaidSubscription: Нет данных пользователя');
+                hasPaidSubscription = false;
+                return false;
+            }
+            
+            console.log('🔍 checkPaidSubscription: Проверяем подписку через сервер для user_id:', currentUserData.id);
+            
+            try {
+                const response = await fetch('/api/check-paid-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUserData.id })
+                });
+                
+                if (response.ok) {
+                    const serverData = await response.json();
+                    console.log('📦 Ответ сервера о подписке:', serverData);
+                    
+                    if (serverData.has_paid_subscription) {
+                        console.log('✅ Подписка найдена на сервере');
+                        hasPaidSubscription = true;
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Ошибка проверки подписки на сервере:', error);
+            }
+            
+            console.log('❌ checkPaidSubscription: Подписка НЕ найдена на сервере');
+            hasPaidSubscription = false;
+            return false;
+        }
+
+        // Модальное окно оплаты
+        function showPaymentModal(targetUrl) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 500px;
+                width: 100%;
+                text-align: center;
+                position: relative;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const icon = document.createElement('div');
+            icon.innerHTML = '💳';
+            icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Доступ к разделу';
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const message = document.createElement('p');
+            message.innerHTML = `
+                Для доступа к этому разделу требуется оплата <strong>${SUBSCRIPTION_PRICE}₽</strong>
+            `;
+            message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
+            
+            // Кнопка оплаты - перенаправляем на parking.html
+            const cardPaymentBtn = document.createElement('button');
+            cardPaymentBtn.innerHTML = `💳 Оплатить ${SUBSCRIPTION_PRICE}₽`;
+            cardPaymentBtn.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin: 15px 10px 10px 10px;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+                transition: all 0.3s ease;
+                width: 100%;
+            `;
+            cardPaymentBtn.onclick = function() {
+                modal.remove();
+                window.location.href = 'parking.html';
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerHTML = 'Отмена';
+            cancelBtn.style.cssText = `
+                background: #f0f0f0;
+                color: #666;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 14px;
+                margin-top: 10px;
+                width: 100%;
+            `;
+            cancelBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            content.appendChild(closeBtn);
+            content.appendChild(icon);
+            content.appendChild(title);
+            content.appendChild(message);
+            content.appendChild(cardPaymentBtn);
+            content.appendChild(cancelBtn);
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+
+        // Обновленные функции для разделов с оплатой
+        async function openTeacher() {
+            console.log('🔍 Проверяем подписку для Преподавателя ПДД');
+            const hasPaid = await checkPaidSubscription();
+            if (hasPaid) {
+                window.open('https://t.me/EasyDrivePDD', '_blank');
+            } else {
+                showPaymentModal();
+            }
+        }
+
+        async function openLawyer() {
+            console.log('🔍 Проверяем подписку для Автоюриста');
+            const hasPaid = await checkPaidSubscription();
+            if (hasPaid) {
+                window.location.href = 'lawyer.html';
+            } else {
+                showPaymentModal();
+            }
+        }
+
+        async function openPsychologist() {
+            console.log('🔍 Проверяем подписку для Автопсихолога');
+            const hasPaid = await checkPaidSubscription();
+            if (hasPaid) {
+                window.location.href = 'psychologist.html';
+            } else {
+                showPaymentModal();
+            }
+        }
+
+        async function openTranslations() {
+            console.log('🔍 Проверяем подписку для Трансляций');
+            const hasPaid = await checkPaidSubscription();
+            if (hasPaid) {
             window.location.href = 'translations.html';
+            } else {
+                showPaymentModal();
+            }
         }
 
         // Показываем содержимое после загрузки страницы
@@ -602,6 +794,6 @@
         });
     </script>
     <!-- Индикатор версии в правом нижнем углу -->
-    <div id="version-indicator" style="position: fixed; bottom: 5px; right: 5px; color: rgba(128, 128, 128, 0.3); font-size: 10px; font-family: monospace; z-index: 9999; pointer-events: none;">v25</div>
+    <div id="version-indicator" style="position: fixed; bottom: 5px; right: 5px; color: rgba(128, 128, 128, 0.3); font-size: 10px; font-family: monospace; z-index: 9999; pointer-events: none;">v26</div>
 </body>
 </html>
