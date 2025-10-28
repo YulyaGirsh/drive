@@ -572,7 +572,7 @@
             message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
             
             const buttonContainer = document.createElement('div');
-            buttonContainer.style.cssText = 'display: flex; gap: 10px; margin-top: 20px;';
+            buttonContainer.style.cssText = 'display: flex; gap: 10px; margin-bottom: 10px;';
             
             // Кнопка подписаться
             const subscribeBtn = document.createElement('button');
@@ -657,7 +657,8 @@
                 font-size: 14px;
                 font-weight: 600;
                 transition: all 0.3s ease;
-                flex: 1;
+                width: 100%;
+                margin-top: 10px;
             `;
             cancelBtn.onclick = function() {
                 modal.remove();
@@ -665,13 +666,13 @@
             
             buttonContainer.appendChild(subscribeBtn);
             buttonContainer.appendChild(checkBtn);
-            buttonContainer.appendChild(cancelBtn);
             
             content.appendChild(closeBtn);
             content.appendChild(icon);
             content.appendChild(title);
             content.appendChild(message);
             content.appendChild(buttonContainer);
+            content.appendChild(cancelBtn);
             modal.appendChild(content);
             
             document.body.appendChild(modal);
