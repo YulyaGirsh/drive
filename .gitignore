@@ -60,3 +60,6 @@ check_server.py
 check_server.ps1
 connect_to_server.py
 check_server_simple.bat
+
+# Paid subscriptions data file
+paid_subscriptions.json
