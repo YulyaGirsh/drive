@@ -442,6 +442,9 @@
             });
         }
         
+        // Глобальная переменная для хранения номера видео, который пытаются открыть
+        let pendingVideoNumber = null;
+        
         // Показываем модальное окно с предложением подписки на канал
         function showPaymentModal() {
             const modal = document.createElement('div');
@@ -564,6 +567,13 @@
                     modal.remove();
                     // Обновляем кнопки
                     updateVideoButtons();
+                    
+                    // Если был попытка открыть конкретное видео, открываем его
+                    if (pendingVideoNumber) {
+                        console.log('🎬 Открываем видео номер:', pendingVideoNumber);
+                        openVideo(pendingVideoNumber);
+                        pendingVideoNumber = null;
+                    }
                 } else {
                     console.log('❌ Подписка не подтверждена');
                     checkBtn.textContent = 'Проверить';
@@ -1654,6 +1664,8 @@
             
             // Проверяем доступ к видео
             if (videoNumber > FREE_VIDEOS_COUNT && !hasPaidSubscription) {
+                console.log('🔒 Видео заблокировано, сохраняем номер:', videoNumber);
+                pendingVideoNumber = videoNumber; // Сохраняем номер видео
                 showPaymentModal();
                 return;
             }
