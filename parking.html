@@ -361,20 +361,27 @@
         
         // Проверяем оплаченную подписку из localStorage
         async function checkPaidSubscription() {
-            if (!userData) {
+            // Получаем СВЕЖИЕ данные пользователя из Telegram WebApp
+            let currentUserData = userData;
+            if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+                console.log('✅ Получены свежие данные пользователя из Telegram:', currentUserData);
+            }
+            
+            if (!currentUserData) {
                 console.log('❌ checkPaidSubscription: Нет данных пользователя');
                 hasPaidSubscription = false;
                 return false;
             }
             
-            console.log('🔍 checkPaidSubscription: Проверяем подписку через сервер для user_id:', userData.id);
+            console.log('🔍 checkPaidSubscription: Проверяем подписку через сервер для user_id:', currentUserData.id);
             
             try {
                 // Сначала проверяем через сервер
                 const response = await fetch('/api/check-paid-subscription', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userData.id })
+                    body: JSON.stringify({ user_id: currentUserData.id })
                 });
                 
                 if (response.ok) {
@@ -385,9 +392,9 @@
                         console.log('✅ Подписка найдена на сервере');
                         
                         // Сохраняем в localStorage
-                        const paidSubKey = `paid_subscription_v11_${userData.id}`;
+                        const paidSubKey = `paid_subscription_v11_${currentUserData.id}`;
                         const subscriptionData = {
-                            user_id: userData.id,
+                            user_id: currentUserData.id,
                             date: new Date().toISOString(),
                             from_server: true
                         };
