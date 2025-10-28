@@ -568,6 +568,20 @@
                         `;
                     } else {
                         console.log(`✅ updateVideoButtons: Разблокируем кнопку ${videoNumber}`);
+                        // Разблокируем кнопку для оплативших пользователей
+                        button.style.opacity = '1';
+                        button.style.cursor = 'pointer';
+                        // Восстанавливаем оригинальный текст
+                        const titleElement = button.querySelector('.video-title');
+                        if (titleElement) {
+                            const originalText = button.getAttribute('data-original-title') || titleElement.textContent.replace(/🔒 Требуется подписка/g, '').replace(/\s+/g, ' ').trim();
+                            button.setAttribute('data-original-title', originalText);
+                            button.innerHTML = `
+                                <div class="video-title">
+                                    ${originalText}
+                                </div>
+                            `;
+                        }
                     }
                 } else {
                     console.log(`🟢 updateVideoButtons: Кнопка ${videoNumber} - бесплатно`);
