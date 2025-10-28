@@ -1100,12 +1100,22 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def check_channel_subscription(self):
         """Проверяет подписку пользователя на канал (новая версия для работы с разными каналами)"""
         try:
+            print(f"\n{'='*60}")
+            print(f"🔍 ПРОВЕРКА ПОДПИСКИ НА КАНАЛ")
+            print(f"{'='*60}")
+            
             # Читаем данные запроса
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
+            
+            print(f"📥 Получены сырые данные: {post_data.decode('utf-8')[:200]}")
+            
             data = json.loads(post_data.decode('utf-8'))
             
-            print(f"Проверяем подписку на канал для пользователя: {data}")
+            print(f"✅ Парсинг JSON успешен: {data}")
+            print(f"👤 User ID: {data.get('user_id')}")
+            print(f"📺 Channel: {data.get('channel')}")
+            print(f"{'='*60}\n")
             
             user_id = data.get('user_id')
             channel = data.get('channel')  # 'test_girsh' или другой канал
@@ -1164,17 +1174,22 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                         # Пользователь подписан если статус не 'left' и не 'kicked'
                         is_subscribed = status not in ['left', 'kicked']
                         
-                        print(f"Статус подписки на @{channel}: {status}, Подписан: {is_subscribed}")
+                        print(f"📊 Статус подписки на @{channel}: {status}")
+                        print(f"✅ Подписан: {is_subscribed}")
                         
                         # Отправляем ответ клиенту
-                        self.send_response(200)
-                        self.send_header('Content-Type', 'application/json')
-                        self.end_headers()
-                        self.wfile.write(json.dumps({
+                        response_data = {
                             'subscribed': is_subscribed,
                             'status': status,
                             'channel': channel
-                        }).encode('utf-8'))
+                        }
+                        
+                        print(f"📤 Отправляем ответ клиенту: {response_data}\n")
+                        
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.end_headers()
+                        self.wfile.write(json.dumps(response_data).encode('utf-8'))
                     else:
                         print(f"Ошибка Telegram API: {result_data}")
                         # Если бот не может проверить подписку, считаем что пользователь не подписан
