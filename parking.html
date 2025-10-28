@@ -244,16 +244,19 @@
         // Создание платежа через Т-банк API
         async function createTbankPayment() {
             console.log('Создаем платеж, получаем свежие данные пользователя...');
+            console.log('📦 Глобальная tg:', tg);
+            console.log('📦 window.Telegram:', window.Telegram);
             
             // Получаем СВЕЖИЕ данные пользователя из Telegram WebApp
             let currentUserData = null;
-            const tg = window.Telegram?.WebApp;
             
             if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 currentUserData = tg.initDataUnsafe.user;
                 console.log('✅ Получены данные пользователя из Telegram WebApp:', currentUserData);
             } else {
                 console.log('⚠️ Telegram WebApp не доступен!');
+                console.log('tg =', tg);
+                console.log('tg.initDataUnsafe =', tg?.initDataUnsafe);
                 alert('Ошибка: не удалось получить данные пользователя. Откройте мини-приложение в Telegram.');
                 return;
             }
@@ -411,15 +414,18 @@
             console.log('🚀 Запуск оплаты картой');
             
             console.log('📋 Шаг 1: Получение СВЕЖИХ данных пользователя');
+            console.log('📦 Глобальная tg:', tg);
+            
             // Получаем СВЕЖИЕ данные пользователя из Telegram WebApp
             let currentUserData = null;
-            const tg = window.Telegram?.WebApp;
             
             if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 currentUserData = tg.initDataUnsafe.user;
                 console.log('✅ Получены данные пользователя:', currentUserData);
             } else {
                 console.log('❌ Telegram WebApp не доступен!');
+                console.log('tg =', tg);
+                console.log('tg.initDataUnsafe =', tg?.initDataUnsafe);
                 alert('Ошибка: не удалось получить данные пользователя. Откройте мини-приложение в Telegram.');
                 return;
             }
