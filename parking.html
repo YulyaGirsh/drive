@@ -243,19 +243,34 @@
         
         // Создание платежа через Т-банк API
         async function createTbankPayment() {
+            console.log('Создаем платеж, получаем свежие данные пользователя...');
+            
+            // Получаем СВЕЖИЕ данные пользователя из Telegram WebApp
+            let currentUserData = null;
+            const tg = window.Telegram?.WebApp;
+            
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+                console.log('✅ Получены данные пользователя из Telegram WebApp:', currentUserData);
+            } else {
+                console.log('⚠️ Telegram WebApp не доступен!');
+                alert('Ошибка: не удалось получить данные пользователя. Откройте мини-приложение в Telegram.');
+                return;
+            }
+            
+            if (!currentUserData || !currentUserData.id) {
+                console.error('❌ Нет ID пользователя!');
+                alert('Ошибка: не удалось получить ID пользователя.');
+                return;
+            }
+            
+            console.log('✅ Используем ID пользователя:', currentUserData.id);
+            
+            return createTbankPaymentInternal(currentUserData);
+        }
+        
+        async function createTbankPaymentInternal(currentUserData) {
             try {
-                // Получаем данные пользователя
-                let currentUserData = userData;
-                if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    currentUserData = tg.initDataUnsafe.user;
-                }
-                if (!currentUserData) {
-                    currentUserData = {
-                        id: Date.now(),
-                        first_name: 'Test',
-                        last_name: 'User'
-                    };
-                }
                 
                 // Создаем платеж через наш бэкенд (который вызовет Т-банк API)
                 const paymentData = {
@@ -395,23 +410,29 @@
         async function processCardPayment() {
             console.log('🚀 Запуск оплаты картой');
             
+            console.log('📋 Шаг 1: Получение СВЕЖИХ данных пользователя');
+            // Получаем СВЕЖИЕ данные пользователя из Telegram WebApp
+            let currentUserData = null;
+            const tg = window.Telegram?.WebApp;
+            
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+                console.log('✅ Получены данные пользователя:', currentUserData);
+            } else {
+                console.log('❌ Telegram WebApp не доступен!');
+                alert('Ошибка: не удалось получить данные пользователя. Откройте мини-приложение в Telegram.');
+                return;
+            }
+            
+            if (!currentUserData || !currentUserData.id) {
+                console.log('❌ Нет ID пользователя!');
+                alert('Ошибка: не удалось получить ID пользователя.');
+                return;
+            }
+            
+            console.log('✅ Используем ID пользователя:', currentUserData.id);
+            
             try {
-                console.log('📋 Шаг 1: Получение данных пользователя');
-                // Получаем данные пользователя
-                let currentUserData = userData;
-                
-                if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    currentUserData = tg.initDataUnsafe.user;
-                }
-                
-                if (!currentUserData) {
-                    console.log('⚠️ Данные пользователя не найдены, используем тестовые');
-                    currentUserData = {
-                        id: Date.now(),
-                        first_name: 'Test',
-                        last_name: 'User'
-                    };
-                }
                 
                 console.log('👤 Данные пользователя:', {
                     id: currentUserData.id,
