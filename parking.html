@@ -1345,8 +1345,10 @@
             // ПЕРЕД проверкой доступа - обновляем статус подписки
             if (videoNumber >= FREE_VIDEOS_COUNT) {
                 console.log('🔄 openVideo: Обновляем проверку подписки перед открытием видео');
-                await checkPaidSubscription();
+                const subscriptionCheck = await checkPaidSubscription();
+                console.log('🔍 openVideo: checkPaidSubscription вернула:', subscriptionCheck);
                 console.log('🔍 openVideo: hasPaidSubscription после проверки =', hasPaidSubscription);
+                console.log('🔍 openVideo: userData.id =', userData?.id);
             }
             
             // Проверяем доступ к видео
