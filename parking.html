@@ -340,27 +340,35 @@
         // Проверяем оплаченную подписку из localStorage
         function checkPaidSubscription() {
             if (!userData) {
+                console.log('❌ checkPaidSubscription: Нет данных пользователя');
+                hasPaidSubscription = false;
                 return false;
             }
+            
+            console.log('🔍 checkPaidSubscription: Проверяем подписку для user_id:', userData.id);
             
             try {
                 // Проверяем ту же подписку, что и в videos.html
                 const paidSubKey = `paid_subscription_v9_${userData.id}`;
                 const subscriptionData = localStorage.getItem(paidSubKey);
                 
+                console.log('📦 checkPaidSubscription: Данные из localStorage:', subscriptionData);
+                
                 if (subscriptionData) {
                     const parsed = JSON.parse(subscriptionData);
-                    console.log('Подписка найдена в localStorage:', parsed);
+                    console.log('✅ checkPaidSubscription: Подписка найдена в localStorage:', parsed);
                     hasPaidSubscription = true;
+                    console.log('✅ hasPaidSubscription установлено в:', hasPaidSubscription);
                     return true;
                 } else {
-                    console.log('Подписка не найдена в localStorage');
+                    console.log('❌ checkPaidSubscription: Подписка НЕ найдена в localStorage');
                     hasPaidSubscription = false;
+                    console.log('❌ hasPaidSubscription установлено в:', hasPaidSubscription);
                     return false;
                 }
                 
             } catch (error) {
-                console.error('Ошибка проверки оплаченной подписки:', error);
+                console.error('❌ checkPaidSubscription: Ошибка проверки оплаченной подписки:', error);
                 hasPaidSubscription = false;
                 return false;
             }
@@ -503,16 +511,22 @@
         
         // Обновляем кнопки видео в зависимости от подписки
         function updateVideoButtons() {
+            console.log('🔄 updateVideoButtons: Начинаем обновление кнопок');
+            
             // Проверяем подписку перед обновлением
             checkPaidSubscription();
             
+            console.log('🔄 updateVideoButtons: hasPaidSubscription после проверки =', hasPaidSubscription);
+            
             const videoButtons = document.querySelectorAll('.video-button');
+            console.log('🔄 updateVideoButtons: Найдено кнопок:', videoButtons.length);
             
             videoButtons.forEach((button, index) => {
                 const videoNumber = index;
                 
                 if (videoNumber >= FREE_VIDEOS_COUNT) {
                     if (!hasPaidSubscription) {
+                        console.log(`🔒 updateVideoButtons: Блокируем кнопку ${videoNumber}`);
                         // Блокируем кнопку для неоплативших пользователей
                         button.style.opacity = '0.6';
                         button.style.cursor = 'not-allowed';
@@ -522,9 +536,15 @@
                                 <br><small style="color: #ffcc00;">🔒 Требуется подписка</small>
                             </div>
                         `;
+                    } else {
+                        console.log(`✅ updateVideoButtons: Разблокируем кнопку ${videoNumber}`);
                     }
+                } else {
+                    console.log(`🟢 updateVideoButtons: Кнопка ${videoNumber} - бесплатно`);
                 }
             });
+            
+            console.log('✅ updateVideoButtons: Обновление завершено');
         }
         
         // Показываем модальное окно с предложением оплаты
@@ -1132,7 +1152,10 @@
         ];
 
         function openVideo(videoNumber) {
-            console.log('Открываем видео номер:', videoNumber);
+            console.log('🎬 openVideo: Открываем видео номер:', videoNumber);
+            console.log('🔍 openVideo: FREE_VIDEOS_COUNT =', FREE_VIDEOS_COUNT);
+            console.log('🔍 openVideo: hasPaidSubscription =', hasPaidSubscription);
+            console.log('🔍 openVideo: userData =', userData);
             
             // Простая проверка
             if (videoNumber === undefined || videoNumber === null || videoNumber < 0 || videoNumber >= videos.length) {
@@ -1142,9 +1165,12 @@
             
             // Проверяем доступ к видео
             if (videoNumber >= FREE_VIDEOS_COUNT && !hasPaidSubscription) {
+                console.log('🔒 openVideo: Доступ запрещен! Показываем модальное окно оплаты');
                 showPaymentModal();
                 return;
             }
+            
+            console.log('✅ openVideo: Доступ разрешен, открываем видео');
             
             const video = videos[videoNumber];
             
