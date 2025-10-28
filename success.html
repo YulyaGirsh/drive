@@ -93,12 +93,24 @@
         if (userId) {
             console.log('Оплата успешна для пользователя:', userId);
             
-            // Можно отправить дополнительное уведомление или обновить статус
-            // fetch('/api/confirm-payment', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ user_id: userId, status: 'success' })
-            // });
+            // Активируем подписку через API
+            fetch('/api/confirm-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    user_id: userId, 
+                    amount: 10,
+                    payment_method: 'tbank',
+                    status: 'success' 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Подписка активирована:', data);
+            })
+            .catch(error => {
+                console.error('Ошибка активации подписки:', error);
+            });
         }
     </script>
 </body>

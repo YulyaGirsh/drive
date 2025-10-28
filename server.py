@@ -537,6 +537,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Отправляем ответ клиенту
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps({
                 'success': True, 
@@ -568,6 +569,12 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Активируем подписку
             success = self.activate_user_subscription(user_id, amount, payment_method)
             
+            # Отправляем ответ клиенту
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            
             if success:
                 # Отправляем уведомление админу
                 admin_message = f"""<b>НОВАЯ ОПЛАТА ПОДПИСКИ</b>
@@ -583,16 +590,16 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 
                 print(f"Подписка активирована для пользователя {user_id}")
                 
-                # Отправляем успешный ответ клиенту
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
+                # Отправляем успешный ответ клиенту (заголовки уже отправлены ранее)
                 self.wfile.write(json.dumps({
                     'success': True, 
                     'message': 'Subscription activated successfully'
                 }).encode('utf-8'))
             else:
-                self.send_error(500, "Failed to activate subscription")
+                self.wfile.write(json.dumps({
+                    'success': False, 
+                    'message': 'Failed to activate subscription'
+                }).encode('utf-8'))
                 
         except Exception as e:
             print(f"Ошибка при подтверждении оплаты: {e}")
