@@ -326,8 +326,197 @@
     </div>
 
     <script>
-        function openTickets() {
-            window.location.href = '1.html';
+        async function openTickets() {
+            console.log('Попытка открыть билеты...');
+            const isSubscribed = await checkChannelSubscription();
+            console.log('Статус подписки:', isSubscribed);
+            
+            if (isSubscribed) {
+                window.location.href = '1.html';
+            } else {
+                showSubscriptionModal();
+            }
+        }
+
+        async function checkChannelSubscription() {
+            try {
+                // Получаем Telegram WebApp API
+                const tg = window.Telegram?.WebApp;
+                
+                if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+                    console.log('Telegram WebApp не доступен');
+                    return false;
+                }
+
+                const userData = tg.initDataUnsafe.user;
+                const userId = userData.id;
+                
+                console.log('Проверяем подписку пользователя:', userId);
+                
+                // Проверяем кэш localStorage
+                const cacheKey = `channel_subscription_test_girsh_${userId}`;
+                const cached = localStorage.getItem(cacheKey);
+                
+                if (cached) {
+                    const data = JSON.parse(cached);
+                    const now = Date.now();
+                    const cacheAge = now - data.timestamp;
+                    const cacheMaxAge = 5 * 60 * 1000; // 5 минут
+                    
+                    if (cacheAge < cacheMaxAge) {
+                        console.log('Используем кэшированные данные подписки:', data.subscribed);
+                        return data.subscribed;
+                    }
+                }
+                
+                // Отправляем запрос на сервер
+                const response = await fetch('/api/check-channel-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        channel: 'test_girsh'
+                    })
+                });
+                
+                if (!response.ok) {
+                    console.error('Ошибка проверки подписки:', response.status);
+                    return false;
+                }
+                
+                const result = await response.json();
+                console.log('Результат проверки подписки:', result);
+                
+                // Сохраняем в кэш
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    subscribed: result.subscribed,
+                    timestamp: Date.now()
+                }));
+                
+                return result.subscribed;
+                
+            } catch (error) {
+                console.error('Ошибка при проверке подписки:', error);
+                return false;
+            }
+        }
+
+        function showSubscriptionModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 20px;
+                padding: 30px;
+                max-width: 350px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Подписка на канал';
+            title.style.cssText = `
+                color: #FF6B35;
+                margin-bottom: 20px;
+                font-size: 24px;
+            `;
+            
+            const message = document.createElement('p');
+            message.innerHTML = `
+                Для доступа к билетам необходимо подписаться на канал<br><br>
+                <strong>@test_girsh</strong><br><br>
+                Подпишитесь на канал, чтобы получить доступ!
+            `;
+            message.style.cssText = `
+                color: #333;
+                margin-bottom: 20px;
+                line-height: 1.5;
+            `;
+            
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = `
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+            `;
+            
+            const subscribeBtn = document.createElement('button');
+            subscribeBtn.textContent = 'Подписаться';
+            subscribeBtn.style.cssText = `
+                background: #007bff;
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 25px;
+                font-size: 16px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            `;
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Отмена';
+            cancelBtn.style.cssText = `
+                background: #e0e0e0;
+                color: #333;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 25px;
+                font-size: 16px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            `;
+            
+            // Hover эффекты
+            subscribeBtn.onmouseenter = () => subscribeBtn.style.background = '#0056b3';
+            subscribeBtn.onmouseleave = () => subscribeBtn.style.background = '#007bff';
+            cancelBtn.onmouseenter = () => cancelBtn.style.background = '#d0d0d0';
+            cancelBtn.onmouseleave = () => cancelBtn.style.background = '#e0e0e0';
+            
+            subscribeBtn.onclick = function() {
+                window.open('https://t.me/test_girsh', '_blank');
+                // Закрываем модальное окно через 1 секунду
+                setTimeout(() => {
+                    modal.remove();
+                    // Очищаем кэш для повторной проверки
+                    const tg = window.Telegram?.WebApp;
+                    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        const userId = tg.initDataUnsafe.user.id;
+                        const cacheKey = `channel_subscription_test_girsh_${userId}`;
+                        localStorage.removeItem(cacheKey);
+                    }
+                }, 1000);
+            };
+            
+            cancelBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            buttonContainer.appendChild(subscribeBtn);
+            buttonContainer.appendChild(cancelBtn);
+            content.appendChild(title);
+            content.appendChild(message);
+            content.appendChild(buttonContainer);
+            modal.appendChild(content);
+            document.body.appendChild(modal);
         }
 
         function openVideos() {

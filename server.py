@@ -98,6 +98,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.finish_tbank_authorize()
             elif self.path == '/api/tbank-webhook':
                 self.handle_tbank_webhook()
+            elif self.path == '/api/check-channel-subscription':
+                self.check_channel_subscription()
             elif self.path == '/api/v2/heartbeat':
                 self.handle_heartbeat()
             else:
@@ -1094,6 +1096,133 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             print(f"Ошибка при обработке heartbeat: {e}")
             self.send_error(500, str(e))
+
+    def check_channel_subscription(self):
+        """Проверяет подписку пользователя на канал (новая версия для работы с разными каналами)"""
+        try:
+            # Читаем данные запроса
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            print(f"Проверяем подписку на канал для пользователя: {data}")
+            
+            user_id = data.get('user_id')
+            channel = data.get('channel')  # 'test_girsh' или другой канал
+            
+            if not user_id:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    'subscribed': False,
+                    'error': 'Missing user_id'
+                }).encode('utf-8'))
+                return
+            
+            if not channel:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    'subscribed': False,
+                    'error': 'Missing channel'
+                }).encode('utf-8'))
+                return
+            
+            # Конфигурация бота
+            bot_token = "8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0"
+            
+            # Проверяем подписку через Telegram API
+            telegram_url = f"https://api.telegram.org/bot{bot_token}/getChatMember"
+            telegram_data = {
+                'chat_id': f'@{channel}',
+                'user_id': user_id
+            }
+            
+            print(f"Отправляем запрос проверки подписки на @{channel}: {telegram_url}")
+            print(f"Данные запроса: {telegram_data}")
+            
+            # Отправляем запрос
+            req = urllib.request.Request(
+                telegram_url,
+                data=json.dumps(telegram_data, ensure_ascii=False).encode('utf-8'),
+                headers={'Content-Type': 'application/json; charset=utf-8'}
+            )
+            
+            try:
+                with urllib.request.urlopen(req) as response:
+                    result = response.read().decode('utf-8')
+                    result_data = json.loads(result)
+                    
+                    print(f"Ответ от Telegram API: {result_data}")
+                    
+                    if result_data.get('ok'):
+                        member_data = result_data.get('result', {})
+                        status = member_data.get('status', 'left')
+                        
+                        # Пользователь подписан если статус не 'left' и не 'kicked'
+                        is_subscribed = status not in ['left', 'kicked']
+                        
+                        print(f"Статус подписки на @{channel}: {status}, Подписан: {is_subscribed}")
+                        
+                        # Отправляем ответ клиенту
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.end_headers()
+                        self.wfile.write(json.dumps({
+                            'subscribed': is_subscribed,
+                            'status': status,
+                            'channel': channel
+                        }).encode('utf-8'))
+                    else:
+                        print(f"Ошибка Telegram API: {result_data}")
+                        # Если бот не может проверить подписку, считаем что пользователь не подписан
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.end_headers()
+                        self.wfile.write(json.dumps({
+                            'subscribed': False,
+                            'status': 'unknown',
+                            'channel': channel,
+                            'error': result_data.get('description', 'Cannot check subscription')
+                        }).encode('utf-8'))
+                        
+            except urllib.error.HTTPError as e:
+                error_text = e.read().decode('utf-8')
+                print(f"HTTP ошибка при проверке подписки: {e.code} - {error_text}")
+                
+                # Если ошибка 400, значит бот не может проверить подписку
+                if e.code == 400:
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        'subscribed': False,
+                        'status': 'unknown',
+                        'channel': channel,
+                        'error': 'Bot cannot check subscription - not admin of channel'
+                    }).encode('utf-8'))
+                else:
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        'subscribed': False,
+                        'status': 'unknown',
+                        'channel': channel,
+                        'error': f'HTTP error: {e.code}'
+                    }).encode('utf-8'))
+                
+        except Exception as e:
+            print(f"Ошибка при проверке подписки на канал: {e}")
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                'subscribed': False,
+                'error': str(e)
+            }).encode('utf-8'))
 
 def start_server():
     # Переходим в директорию с файлами
