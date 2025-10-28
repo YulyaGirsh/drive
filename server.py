@@ -970,9 +970,6 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             
             print(f"Получен webhook от Т-банк: {data}")
             
-            # Добавляем отладочную информацию
-            print(f"DEBUG: payment_status={payment_status}, order_id={order_id}, amount={amount}, payment_id={payment_id}")
-            
             # Проверяем подпись (если есть)
             signature = self.headers.get('X-Tbank-Signature', '')
             if signature:
@@ -987,6 +984,9 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             order_id = data.get('OrderId') or data.get('order_id', '')  # Т-банк использует 'OrderId'
             amount = data.get('Amount') or data.get('amount', 0)  # Т-банк использует 'Amount'
             payment_id = data.get('PaymentId') or data.get('payment_id')  # Т-банк использует 'PaymentId'
+            
+            # Добавляем отладочную информацию
+            print(f"DEBUG: payment_status={payment_status}, order_id={order_id}, amount={amount}, payment_id={payment_id}")
             
             # Извлекаем user_id из order_id (формат: easydrive_{user_id}_{timestamp})
             if order_id.startswith('easydrive_'):
