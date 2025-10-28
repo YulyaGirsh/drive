@@ -354,81 +354,66 @@
             return true;
         }
         
-        // Проверяем оплаченную подписку
-        async function checkPaidSubscription() {
-            if (!userData) {
-                return false;
-            }
-            
-            console.log('🔍 Проверяем подписку через сервер для user_id:', userData.id);
-            
+        // Проверяем подписку на канал (заменяем проверку оплаты)
+        async function checkChannelSubscription() {
             try {
-                // Сначала проверяем через сервер
-                const response = await fetch('/api/check-paid-subscription', {
+                console.log('🔍 Начинаем проверку подписки на канал @test_girsh...');
+                
+                // Получаем user_id если доступен
+                let userId = null;
+                if (userData) {
+                    userId = userData.id;
+                    console.log('👤 ID пользователя:', userId);
+                } else {
+                    console.log('⚠️ Нет данных пользователя - продолжаем без user_id');
+                }
+                
+                // ВСЕГДА делаем запрос на сервер БЕЗ кэширования
+                const requestData = {
+                    user_id: userId,
+                    channel: 'test_girsh'
+                };
+                
+                console.log('📤 Отправляем запрос на /api/check-channel-subscription...');
+                console.log('📋 Данные запроса:', requestData);
+                
+                const response = await fetch('/api/check-channel-subscription', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userData.id })
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
                 });
                 
-                if (response.ok) {
-                    const serverData = await response.json();
-                    console.log('📦 Ответ сервера о подписке:', serverData);
-                    
-                    if (serverData.has_paid_subscription) {
-                        console.log('✅ Подписка найдена на сервере');
-                        
-                        // Сохраняем в localStorage
-                        const paidSubKey = `paid_subscription_v11_${userData.id}`;
-                        const subscriptionData = {
-                            user_id: userData.id,
-                            date: new Date().toISOString(),
-                            from_server: true
-                        };
-                        localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
-                        
-                        hasPaidSubscription = true;
-                        return true;
-                    }
-                }
-            } catch (error) {
-                console.error('❌ Ошибка проверки подписки на сервере:', error);
-            }
-            
-            // Если на сервере не нашли, проверяем localStorage
-            const paidSubKey = `paid_subscription_v11_${userData.id}`;
-            const paidSubData = localStorage.getItem(paidSubKey);
-            
-            if (paidSubData) {
-                const data = JSON.parse(paidSubData);
-                console.log('📦 Данные из localStorage:', data);
+                console.log('📥 Ответ от сервера получен');
+                console.log('📊 Статус ответа:', response.status, response.statusText);
                 
-                // Проверяем, не истекла ли подписка (например, через 30 дней)
-                const subscriptionDate = new Date(data.date);
-                const now = new Date();
-                const daysDiff = (now - subscriptionDate) / (1000 * 60 * 60 * 24);
-                
-                if (daysDiff < 30) { // Подписка действует 30 дней
-                    console.log('✅ Подписка активна в localStorage');
-                    hasPaidSubscription = true;
-                    return true;
-                } else {
-                    // Подписка истекла, удаляем из локального хранилища
-                    localStorage.removeItem(paidSubKey);
-                    hasPaidSubscription = false;
+                if (!response.ok) {
+                    console.error('❌ Ошибка проверки подписки:', response.status);
                     return false;
                 }
+                
+                const result = await response.json();
+                console.log('📦 Полный результат от сервера:', JSON.stringify(result));
+                console.log('✅ result.subscribed:', result.subscribed);
+                
+                const finalResult = Boolean(result.subscribed);
+                console.log('🎯 ФИНАЛЬНЫЙ РЕЗУЛЬТАТ ПРОВЕРКИ:', finalResult ? 'ПОДПИСАН ✅' : 'НЕ ПОДПИСАН ❌');
+                
+                hasPaidSubscription = finalResult; // Используем ту же переменную для совместимости
+                return finalResult;
+                
+            } catch (error) {
+                console.error('❌ Ошибка при проверке подписки:', error);
+                hasPaidSubscription = false;
+                return false;
             }
-            
-            console.log('❌ Подписка не найдена');
-            hasPaidSubscription = false;
-            return false;
         }
         
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', async function() {
-            // Проверяем подписку и оплаченную подписку
-            await checkSubscription();
-            await checkPaidSubscription();
+            // Проверяем подписку на канал
+            await checkChannelSubscription();
             
             // Обновляем интерфейс в зависимости от подписки
             updateVideoButtons();
@@ -449,7 +434,7 @@
                         button.innerHTML = `
                             <div class="video-title">
                                 ${button.querySelector('.video-title').textContent}
-                                <br><small style="color: #ffcc00;">🔒 Требуется подписка</small>
+                                <br><small style="color: #ffcc00;">🔒 Требуется подписка на канал</small>
                             </div>
                         `;
                     }
@@ -457,7 +442,7 @@
             });
         }
         
-        // Показываем модальное окно с предложением оплаты
+        // Показываем модальное окно с предложением подписки на канал
         function showPaymentModal() {
             const modal = document.createElement('div');
             modal.style.cssText = `
@@ -507,41 +492,86 @@
             };
             
             const icon = document.createElement('div');
-            icon.innerHTML = '💳';
+            icon.innerHTML = '📺';
             icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
             
             const title = document.createElement('h2');
-            title.textContent = 'Доступ к видеоуроку';
+            title.textContent = 'Подписка на канал';
             title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
             
             const message = document.createElement('p');
             message.innerHTML = `
-                Для просмотра этого видеоурока требуется оплата <strong>${SUBSCRIPTION_PRICE}₽</strong><br><br>
-                Оплата производится картой на тестовом терминале
+                Для просмотра этого видеоурока необходимо подписаться на канал<br><br>
+                <strong>@test_girsh</strong><br><br>
+                Подпишитесь на канал, чтобы получить доступ!
             `;
             message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
             
-            // Кнопка оплаты картой
-            const cardPaymentBtn = document.createElement('button');
-            cardPaymentBtn.innerHTML = `💳 Оплатить картой ${SUBSCRIPTION_PRICE}₽`;
-            cardPaymentBtn.style.cssText = `
-                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = 'display: flex; gap: 10px; margin-top: 20px;';
+            
+            // Кнопка подписаться
+            const subscribeBtn = document.createElement('button');
+            subscribeBtn.innerHTML = 'Подписаться';
+            subscribeBtn.style.cssText = `
+                background: #007bff;
                 color: white;
                 border: none;
-                padding: 15px 25px;
-                border-radius: 25px;
+                padding: 12px 20px;
+                border-radius: 20px;
                 cursor: pointer;
-                font-size: 16px;
+                font-size: 14px;
                 font-weight: 600;
-                margin: 15px 10px 10px 10px;
-                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
                 transition: all 0.3s ease;
-                width: 100%;
+                flex: 1;
             `;
-            cardPaymentBtn.onclick = function() {
-                modal.remove();
-                // Сразу запускаем оплату через Т-Банк
-                processCardPayment();
+            subscribeBtn.onclick = function() {
+                window.open('https://t.me/test_girsh', '_blank');
+            };
+            
+            // Кнопка проверить
+            const checkBtn = document.createElement('button');
+            checkBtn.innerHTML = 'Проверить';
+            checkBtn.style.cssText = `
+                background: #28a745;
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                flex: 1;
+            `;
+            checkBtn.onclick = async function() {
+                console.log('🔘 Кнопка "Проверить" нажата');
+                
+                // Показываем загрузку
+                checkBtn.textContent = 'Проверяем...';
+                checkBtn.disabled = true;
+                
+                // Перепроверяем подписку (БЕЗ кэша, всегда запрос к серверу)
+                console.log('🔄 Запускаем проверку подписки...');
+                const isSubscribed = await checkChannelSubscription();
+                console.log('📊 Результат проверки:', isSubscribed);
+                
+                // Явно приводим к boolean
+                const subscribed = Boolean(isSubscribed);
+                
+                if (subscribed) {
+                    console.log('✅ Подписка подтверждена, обновляем интерфейс');
+                    modal.remove();
+                    // Обновляем кнопки
+                    updateVideoButtons();
+                } else {
+                    console.log('❌ Подписка не подтверждена');
+                    checkBtn.textContent = 'Проверить';
+                    checkBtn.disabled = false;
+                    
+                    // Показываем уведомление
+                    alert('Пожалуйста, подпишитесь на канал @test_girsh и нажмите "Проверить" снова');
+                }
             };
             
             const cancelBtn = document.createElement('button');
@@ -550,23 +580,27 @@
                 background: #f0f0f0;
                 color: #666;
                 border: none;
-                padding: 10px 20px;
+                padding: 12px 20px;
                 border-radius: 20px;
                 cursor: pointer;
                 font-size: 14px;
-                margin-top: 15px;
-                width: 100%;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                flex: 1;
             `;
             cancelBtn.onclick = function() {
                 modal.remove();
             };
             
+            buttonContainer.appendChild(subscribeBtn);
+            buttonContainer.appendChild(checkBtn);
+            buttonContainer.appendChild(cancelBtn);
+            
             content.appendChild(closeBtn);
             content.appendChild(icon);
             content.appendChild(title);
             content.appendChild(message);
-            content.appendChild(cardPaymentBtn);
-            content.appendChild(cancelBtn);
+            content.appendChild(buttonContainer);
             modal.appendChild(content);
             
             document.body.appendChild(modal);
