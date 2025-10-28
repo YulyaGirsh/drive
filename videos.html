@@ -380,13 +380,20 @@
             try {
                 console.log('🔍 Начинаем проверку подписки на канал @test_girsh...');
                 
+                // Получаем Telegram WebApp API (как в index.html)
+                const tg = window.Telegram?.WebApp;
+                
+                console.log('📦 Telegram WebApp:', tg);
+                console.log('📦 initDataUnsafe:', tg?.initDataUnsafe);
+                console.log('📦 user:', tg?.initDataUnsafe?.user);
+                
                 // Получаем user_id если доступен
                 let userId = null;
-                if (userData) {
-                    userId = userData.id;
+                if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    userId = tg.initDataUnsafe.user.id;
                     console.log('👤 ID пользователя:', userId);
                 } else {
-                    console.log('⚠️ Нет данных пользователя - продолжаем без user_id');
+                    console.log('⚠️ Telegram WebApp не доступен - продолжаем без user_id');
                 }
                 
                 // ВСЕГДА делаем запрос на сервер БЕЗ кэширования
