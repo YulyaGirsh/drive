@@ -358,22 +358,23 @@
                 console.log('📦 initDataUnsafe:', tg?.initDataUnsafe);
                 console.log('📦 user:', tg?.initDataUnsafe?.user);
                 
-                if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-                    console.log('❌ Telegram WebApp не доступен - возвращаем false');
-                    return false;
+                // Получаем user_id если доступен
+                let userId = null;
+                if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    userId = tg.initDataUnsafe.user.id;
+                    console.log('👤 ID пользователя:', userId);
+                } else {
+                    console.log('⚠️ Telegram WebApp не доступен - продолжаем без user_id');
                 }
-
-                const userData = tg.initDataUnsafe.user;
-                const userId = userData.id;
-                
-                console.log('👤 ID пользователя:', userId);
-                console.log('📤 Отправляем запрос на /api/check-channel-subscription...');
                 
                 // ВСЕГДА делаем запрос на сервер БЕЗ кэширования
                 const requestData = {
                     user_id: userId,
                     channel: 'test_girsh'
                 };
+                
+                console.log('📤 Отправляем запрос на /api/check-channel-subscription...');
+                console.log('📋 Данные запроса:', requestData);
                 
                 console.log('📡 Отправляем запрос на сервер...');
                 console.log('📤 Данные запроса:', JSON.stringify(requestData));
