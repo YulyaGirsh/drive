@@ -970,6 +970,9 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             
             print(f"Получен webhook от Т-банк: {data}")
             
+            # Добавляем отладочную информацию
+            print(f"DEBUG: payment_status={payment_status}, order_id={order_id}, amount={amount}, payment_id={payment_id}")
+            
             # Проверяем подпись (если есть)
             signature = self.headers.get('X-Tbank-Signature', '')
             if signature:
@@ -980,9 +983,10 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     return
             
             # Обрабатываем статус платежа
-            payment_status = data.get('status')
-            order_id = data.get('order_id', '')
-            amount = data.get('amount', 0)
+            payment_status = data.get('Status') or data.get('status')  # Т-банк использует 'Status'
+            order_id = data.get('OrderId') or data.get('order_id', '')  # Т-банк использует 'OrderId'
+            amount = data.get('Amount') or data.get('amount', 0)  # Т-банк использует 'Amount'
+            payment_id = data.get('PaymentId') or data.get('payment_id')  # Т-банк использует 'PaymentId'
             
             # Извлекаем user_id из order_id (формат: easydrive_{user_id}_{timestamp})
             if order_id.startswith('easydrive_'):
@@ -996,7 +1000,6 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Обрабатываем разные статусы платежа
             if payment_status == 'AUTHORIZED' and user_id:
                 # Платеж авторизован, нужно подтвердить списание
-                payment_id = data.get('payment_id')
                 if payment_id:
                     print(f"Платеж {payment_id} авторизован, подтверждаем списание...")
                     
@@ -1057,7 +1060,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     # Отправляем уведомление админу
                     self.send_telegram_notification(admin_message)
                     
-            elif payment_status == 'success' and user_id:
+            elif payment_status in ['CONFIRMED', 'success'] and user_id:
                 # Платеж успешен (одностадийный)
                 success = self.activate_user_subscription(user_id, amount / 100, 'tbank')
                 
