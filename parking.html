@@ -6,8 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>EasyDrive - Восстановление навыков</title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5">
+    <title>EasyDrive - Восстановление навыков v11</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=11">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -353,7 +353,7 @@
             
             try {
                 // Проверяем ту же подписку, что и в videos.html
-                const paidSubKey = `paid_subscription_v9_${userData.id}`;
+                const paidSubKey = `paid_subscription_v11_${userData.id}`;
                 const subscriptionData = localStorage.getItem(paidSubKey);
                 
                 console.log('📦 checkPaidSubscription: Данные из localStorage:', subscriptionData);
@@ -467,7 +467,7 @@
                     }
                     
                     // Сохраняем подписку в localStorage ДО перехода на страницу оплаты
-                    const paidSubKey = `paid_subscription_v9_${currentUserData.id}`;
+                    const paidSubKey = `paid_subscription_v11_${currentUserData.id}`;
                     const subscriptionData = {
                         user_id: currentUserData.id,
                         date: new Date().toISOString(),
