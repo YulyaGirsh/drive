@@ -1108,6 +1108,11 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             
+            # ДЕБАГ: Проверяем, что мы получили
+            print(f"🔍 Content-Length header: {content_length}")
+            print(f"🔍 Фактическая длина post_data: {len(post_data)}")
+            print(f"🔍 Первые 50 байт в hex: {post_data[:50].hex()}")
+            
             # Декодируем данные
             try:
                 raw_data = post_data.decode('utf-8')
