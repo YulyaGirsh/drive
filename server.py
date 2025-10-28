@@ -1117,7 +1117,9 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             
             print(f"📥 Получены сырые данные: {raw_data[:200]}")
             print(f"📊 Длина данных: {len(raw_data)}")
-            print(f"📋 Байты данных: {post_data[:100]}")
+            print(f"📋 Байты данных (repr): {post_data[:100]}")
+            print(f"📋 Байты данных (hex): {post_data.hex()[:100]}")
+            print(f"📋 Байты данных (raw): {post_data[:100]}")
             
             # Пытаемся распарсить JSON
             try:
