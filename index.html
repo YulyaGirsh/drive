@@ -6,8 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>EasyDrive - Подготовка к экзамену на права v15</title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=15">
+    <title>EasyDrive - Подготовка к экзамену на права v16</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=16">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         // Показываем заставку только при самом первом заходе
@@ -328,13 +328,21 @@
 
     <script>
         async function openTickets() {
-            console.log('Попытка открыть билеты...');
+            console.log('========================================');
+            console.log('🎫 ПОПЫТКА ОТКРЫТЬ БИЛЕТЫ');
+            console.log('========================================');
+            
             const isSubscribed = await checkChannelSubscription();
-            console.log('Статус подписки:', isSubscribed);
+            
+            console.log('========================================');
+            console.log('📊 РЕЗУЛЬТАТ ПРОВЕРКИ:', isSubscribed ? 'ПОДПИСАН ✅' : 'НЕ ПОДПИСАН ❌');
+            console.log('========================================');
             
             if (isSubscribed) {
+                console.log('✅ Открываем билеты...');
                 window.location.href = '1.html';
             } else {
+                console.log('❌ Показываем модальное окно подписки...');
                 showSubscriptionModal();
             }
         }
@@ -357,19 +365,25 @@
                 console.log('👤 ID пользователя:', userId);
                 
                 // ВСЕГДА делаем запрос на сервер БЕЗ кэширования
+                const requestData = {
+                    user_id: userId,
+                    channel: 'test_girsh'
+                };
+                
                 console.log('📡 Отправляем запрос на сервер...');
+                console.log('📤 Данные запроса:', JSON.stringify(requestData));
+                
                 const response = await fetch('/api/check-channel-subscription', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        channel: 'test_girsh'
-                    })
+                    body: JSON.stringify(requestData)
                 });
                 
-                console.log('📥 Ответ от сервера, статус:', response.status, response.statusText);
+                console.log('📥 Ответ от сервера получен');
+                console.log('📊 Статус ответа:', response.status, response.statusText);
+                console.log('📋 Заголовки ответа:', Object.fromEntries(response.headers.entries()));
                 
                 if (!response.ok) {
                     console.error('❌ Ошибка проверки подписки:', response.status);
@@ -379,11 +393,15 @@
                 }
                 
                 const result = await response.json();
-                console.log('📦 Результат от сервера:', result);
+                console.log('📦 Полный результат от сервера:', JSON.stringify(result));
                 console.log('✅ result.subscribed:', result.subscribed);
                 console.log('🔢 Тип result.subscribed:', typeof result.subscribed);
+                console.log('📝 Результат после приведения к boolean:', Boolean(result.subscribed));
                 
-                return result.subscribed;
+                const finalResult = Boolean(result.subscribed);
+                console.log('🎯 ФИНАЛЬНЫЙ РЕЗУЛЬТАТ ПРОВЕРКИ:', finalResult ? 'ПОДПИСАН ✅' : 'НЕ ПОДПИСАН ❌');
+                
+                return finalResult;
                 
             } catch (error) {
                 console.error('❌ Ошибка при проверке подписки:', error);
@@ -524,7 +542,7 @@
                 if (subscribed) {
                     console.log('✅ Подписка подтверждена, открываем билеты');
                     modal.remove();
-                    window.location.href = '1.html';
+            window.location.href = '1.html';
                 } else {
                     console.log('❌ Подписка не подтверждена');
                     checkBtn.textContent = 'Проверить';
