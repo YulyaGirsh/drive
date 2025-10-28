@@ -1352,15 +1352,22 @@
             }
             
             // Проверяем доступ к видео
+            console.log('🔍 openVideo: Проверяем условие доступа:');
+            console.log('   videoNumber =', videoNumber);
+            console.log('   FREE_VIDEOS_COUNT =', FREE_VIDEOS_COUNT);
+            console.log('   videoNumber >= FREE_VIDEOS_COUNT =', videoNumber >= FREE_VIDEOS_COUNT);
+            console.log('   hasPaidSubscription =', hasPaidSubscription);
+            console.log('   !hasPaidSubscription =', !hasPaidSubscription);
+            
             if (videoNumber >= FREE_VIDEOS_COUNT && !hasPaidSubscription) {
-                console.log('🔒 openVideo: Доступ запрещен! Показываем модальное окно оплаты');
+                console.log('🔒 openVideo: УСЛОВИЕ 1: Доступ запрещен! Показываем модальное окно оплаты');
                 showPaymentModal();
                 return;
             }
             
             // Для всех уроков (кроме вводного) после оплаты показываем плашку с каналом
             if (videoNumber >= FREE_VIDEOS_COUNT && hasPaidSubscription) {
-                console.log('📺 Показываем плашку с приглашением в канал');
+                console.log('📺 openVideo: УСЛОВИЕ 2: Показываем плашку с приглашением в канал');
                 showChannelInviteModal();
                 return;
             }
