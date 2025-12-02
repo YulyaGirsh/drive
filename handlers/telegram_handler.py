@@ -12,18 +12,12 @@ class TelegramHandler:
     """Обработчик запросов к Telegram API"""
     
     @staticmethod
-    def send_message(handler, data):
-        """Отправляет сообщение в Telegram"""
+    def _send_telegram_message(bot_token, chat_id, text, parse_mode='HTML'):
+        """
+        Универсальный метод отправки сообщения в Telegram
+        Возвращает (success: bool, result_data: dict)
+        """
         try:
-            bot_token = data.get('bot_token')
-            chat_id = data.get('chat_id')
-            text = data.get('text')
-            parse_mode = data.get('parse_mode', 'HTML')
-            
-            if not all([bot_token, chat_id, text]):
-                send_error_response(handler, 400, "Missing required parameters")
-                return
-            
             telegram_url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
             telegram_data = {
                 'chat_id': chat_id,
@@ -40,17 +34,40 @@ class TelegramHandler:
             with urllib.request.urlopen(req) as response:
                 result = response.read().decode('utf-8')
                 result_data = json.loads(result)
+                return result_data.get('ok', False), result_data
                 
-                if result_data.get('ok'):
-                    send_json_response(handler, {'success': True, 'message': 'Message sent successfully'})
-                else:
-                    error_msg = result_data.get('description', 'Unknown error')
-                    send_error_response(handler, 500, f"Telegram API error: {error_msg}")
-                    
         except urllib.error.HTTPError as e:
-            error_text = e.read().decode('utf-8')
+            try:
+                error_text = e.read().decode('utf-8')
+            except:
+                error_text = str(e)
             print(f"HTTP ошибка при отправке в Telegram: {e.code} - {error_text}")
-            send_error_response(handler, 500, f"HTTP error: {e.code}")
+            return False, {'error': f'HTTP error: {e.code}', 'description': error_text}
+        except Exception as e:
+            print(f"Ошибка при отправке в Telegram: {e}")
+            return False, {'error': str(e)}
+    
+    @staticmethod
+    def send_message(handler, data):
+        """Отправляет сообщение в Telegram"""
+        try:
+            bot_token = data.get('bot_token')
+            chat_id = data.get('chat_id')
+            text = data.get('text')
+            parse_mode = data.get('parse_mode', 'HTML')
+            
+            if not all([bot_token, chat_id, text]):
+                send_error_response(handler, 400, "Missing required parameters")
+                return
+            
+            success, result_data = TelegramHandler._send_telegram_message(bot_token, chat_id, text, parse_mode)
+            
+            if success:
+                send_json_response(handler, {'success': True, 'message': 'Message sent successfully'})
+            else:
+                error_msg = result_data.get('description', 'Unknown error')
+                send_error_response(handler, 500, f"Telegram API error: {error_msg}")
+                    
         except Exception as e:
             print(f"Ошибка при отправке в Telegram: {e}")
             send_error_response(handler, 500, str(e))
@@ -59,42 +76,21 @@ class TelegramHandler:
     def send_notification(message):
         """Отправляет уведомление админу в Telegram"""
         try:
-            telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-            telegram_data = {
-                'chat_id': ADMIN_CHAT_ID,
-                'text': message,
-                'parse_mode': 'HTML'
-            }
+            success, result_data = TelegramHandler._send_telegram_message(BOT_TOKEN, ADMIN_CHAT_ID, message, 'HTML')
             
-            req = urllib.request.Request(
-                telegram_url,
-                data=json.dumps(telegram_data, ensure_ascii=False).encode('utf-8'),
-                headers={'Content-Type': 'application/json; charset=utf-8'}
-            )
-            
-            with urllib.request.urlopen(req) as response:
-                result = response.read().decode('utf-8')
-                result_data = json.loads(result)
-                
-                if result_data.get('ok'):
-                    print('Уведомление админу отправлено')
-                else:
-                    print(f'Ошибка отправки уведомления: {result_data}')
-                    # Fallback без HTML
-                    try:
-                        telegram_data['parse_mode'] = None
-                        telegram_data['text'] = message.replace('**', '').replace('*', '')
-                        req = urllib.request.Request(
-                            telegram_url,
-                            data=json.dumps(telegram_data, ensure_ascii=False).encode('utf-8'),
-                            headers={'Content-Type': 'application/json; charset=utf-8'}
-                        )
-                        with urllib.request.urlopen(req) as fallback_response:
-                            fallback_result = json.loads(fallback_response.read().decode('utf-8'))
-                            if fallback_result.get('ok'):
-                                print('Уведомление админу отправлено (без HTML)')
-                    except Exception as fallback_error:
-                        print(f'Ошибка отправки уведомления (fallback): {fallback_error}')
+            if success:
+                print('Уведомление админу отправлено')
+            else:
+                print(f'Ошибка отправки уведомления: {result_data}')
+                # Fallback без HTML
+                try:
+                    # Убираем HTML разметку и пробуем снова
+                    plain_text = message.replace('**', '').replace('*', '').replace('<b>', '').replace('</b>', '')
+                    success, fallback_result = TelegramHandler._send_telegram_message(BOT_TOKEN, ADMIN_CHAT_ID, plain_text, None)
+                    if success:
+                        print('Уведомление админу отправлено (без HTML)')
+                except Exception as fallback_error:
+                    print(f'Ошибка отправки уведомления (fallback): {fallback_error}')
                         
         except Exception as e:
             print(f'Ошибка при отправке уведомления: {e}')

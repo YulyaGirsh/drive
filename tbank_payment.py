@@ -241,16 +241,18 @@ class TbankPayment:
         
         return signature
     
-    def _create_init_token(self, data):
+    def _create_token(self, data, token_fields=None):
         """
-        Создает токен для API /v2/Init
+        Универсальный метод создания токена для Т-банк API
         """
-        # Поля для создания токена (без самого токена)
-        token_fields = [
-            "TerminalKey", "Amount", "OrderId", "Description", 
-            "CustomerKey", "Recurrent", "PayType", "Language",
-            "NotificationURL", "SuccessURL", "FailURL", "DATA"
-        ]
+        if token_fields is None:
+            # По умолчанию используем все поля кроме Token и вложенных объектов
+            excluded_keys = {'Token', 'DATA', 'Receipt'}
+            token_fields = [k for k in data.keys() 
+                          if k not in excluded_keys 
+                          and not isinstance(data[k], dict) 
+                          and not isinstance(data[k], list)
+                          and data[k] is not None]
         
         # Создаем строку для токена
         token_string = ""
@@ -273,14 +275,22 @@ class TbankPayment:
         
         return token
     
-    def _send_init_request(self, data):
+    def _create_init_token(self, data):
         """
-        Отправляет запрос инициализации платежа в Т-банк API /v2/Init
+        Создает токен для API /v2/Init
+        """
+        token_fields = [
+            "TerminalKey", "Amount", "OrderId", "Description", 
+            "CustomerKey", "Recurrent", "PayType", "Language",
+            "NotificationURL", "SuccessURL", "FailURL", "DATA"
+        ]
+        return self._create_token(data, token_fields)
+    
+    def _send_tbank_api_request(self, url, data, response_fields=None):
+        """
+        Универсальный метод отправки запроса в Т-банк API
         """
         try:
-            # URL для инициализации платежа
-            url = "https://securepay.tinkoff.ru/v2/Init"
-            
             # Подготавливаем данные
             json_data = json.dumps(data, ensure_ascii=False).encode('utf-8')
             
@@ -299,18 +309,25 @@ class TbankPayment:
                 result = response.read().decode('utf-8')
                 result_data = json.loads(result)
                 
-                print(f"Ответ от Т-банк /v2/Init: {result_data}")
+                print(f"Ответ от Т-банк {url}: {result_data}")
                 
                 # Проверяем успешность ответа
                 if result_data.get('Success'):
-                    return {
-                        'success': True,
+                    response_dict = {'success': True}
+                    # Всегда добавляем стандартные поля
+                    response_dict.update({
                         'payment_id': result_data.get('PaymentId'),
-                        'payment_url': result_data.get('PaymentURL'),
-                        'order_id': data.get('OrderId'),
-                        'amount': data.get('Amount'),
-                        'status': result_data.get('Status')
-                    }
+                        'order_id': result_data.get('OrderId') or data.get('OrderId'),
+                        'status': result_data.get('Status'),
+                        'amount': result_data.get('Amount') or data.get('Amount')
+                    })
+                    # Добавляем дополнительные поля, если указаны
+                    if response_fields:
+                        for field in response_fields:
+                            # Преобразуем snake_case в PascalCase для API полей
+                            api_field = ''.join(word.capitalize() for word in field.split('_'))
+                            response_dict[field] = result_data.get(api_field) or result_data.get(field)
+                    return response_dict
                 else:
                     return {
                         'success': False,
@@ -320,18 +337,29 @@ class TbankPayment:
                 
         except urllib.error.HTTPError as e:
             error_response = e.read().decode('utf-8')
-            print(f"HTTP ошибка при инициализации платежа: {e.code} - {error_response}")
+            print(f"HTTP ошибка при запросе к {url}: {e.code} - {error_response}")
             return {
                 'success': False,
                 'error': f'HTTP ошибка: {e.code}',
                 'details': error_response
             }
         except Exception as e:
-            print(f"Ошибка при инициализации платежа: {e}")
+            print(f"Ошибка при запросе к {url}: {e}")
             return {
                 'success': False,
                 'error': str(e)
             }
+    
+    def _send_init_request(self, data):
+        """
+        Отправляет запрос инициализации платежа в Т-банк API /v2/Init
+        """
+        url = "https://securepay.tinkoff.ru/v2/Init"
+        result = self._send_tbank_api_request(url, data, ['PaymentURL'])
+        if result.get('success'):
+            # Добавляем специфичные поля для Init из ответа API
+            result['payment_url'] = result.get('PaymentURL')
+        return result
     
     def confirm_payment(self, payment_id, amount=None, ip_address=None):
         """
@@ -366,83 +394,15 @@ class TbankPayment:
         """
         Создает токен для API /v2/Confirm
         """
-        # Поля для создания токена (без самого токена)
-        token_fields = [
-            "TerminalKey", "PaymentId", "IP", "Amount"
-        ]
-        
-        # Создаем строку для токена
-        token_string = ""
-        for field in token_fields:
-            if field in data and data[field] is not None:
-                token_string += str(data[field])
-        
-        # Добавляем секретный ключ
-        token_string += self.secret_key
-        
-        # Создаем SHA-256 хеш
-        token = hashlib.sha256(token_string.encode('utf-8')).hexdigest()
-        
-        return token
+        token_fields = ["TerminalKey", "PaymentId", "IP", "Amount"]
+        return self._create_token(data, token_fields)
     
     def _send_confirm_request(self, data):
         """
         Отправляет запрос подтверждения платежа в Т-банк API /v2/Confirm
         """
-        try:
-            # URL для подтверждения платежа
-            url = "https://securepay.tinkoff.ru/v2/Confirm"
-            
-            # Подготавливаем данные
-            json_data = json.dumps(data, ensure_ascii=False).encode('utf-8')
-            
-            # Создаем запрос
-            req = urllib.request.Request(
-                url,
-                data=json_data,
-                headers={
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            )
-            
-            # Отправляем запрос
-            with urllib.request.urlopen(req) as response:
-                result = response.read().decode('utf-8')
-                result_data = json.loads(result)
-                
-                print(f"Ответ от Т-банк /v2/Confirm: {result_data}")
-                
-                # Проверяем успешность ответа
-                if result_data.get('Success'):
-                    return {
-                        'success': True,
-                        'payment_id': result_data.get('PaymentId'),
-                        'order_id': result_data.get('OrderId'),
-                        'status': result_data.get('Status'),
-                        'amount': result_data.get('Amount')
-                    }
-                else:
-                    return {
-                        'success': False,
-                        'error': result_data.get('Message', 'Неизвестная ошибка'),
-                        'details': result_data.get('Details', '')
-                    }
-                
-        except urllib.error.HTTPError as e:
-            error_response = e.read().decode('utf-8')
-            print(f"HTTP ошибка при подтверждении платежа: {e.code} - {error_response}")
-            return {
-                'success': False,
-                'error': f'HTTP ошибка: {e.code}',
-                'details': error_response
-            }
-        except Exception as e:
-            print(f"Ошибка при подтверждении платежа: {e}")
-            return {
-                'success': False,
-                'error': str(e)
-            }
+        url = "https://securepay.tinkoff.ru/v2/Confirm"
+        return self._send_tbank_api_request(url, data)
     
     def finish_authorize(self, payment_id, ip_address=None, send_email=False, source="cards", 
                         card_data=None, encrypted_payment_data=None, amount=None, 
@@ -499,87 +459,18 @@ class TbankPayment:
         """
         Создает токен для API /v2/FinishAuthorize
         """
-        # Поля для создания токена (без самого токена)
         token_fields = [
             "TerminalKey", "PaymentId", "IP", "SendEmail", "Source", 
             "Amount", "deviceChannel", "Route", "InfoEmail"
         ]
-        
-        # Создаем строку для токена
-        token_string = ""
-        for field in token_fields:
-            if field in data and data[field] is not None:
-                token_string += str(data[field])
-        
-        # Добавляем секретный ключ
-        token_string += self.secret_key
-        
-        # Создаем SHA-256 хеш
-        token = hashlib.sha256(token_string.encode('utf-8')).hexdigest()
-        
-        return token
+        return self._create_token(data, token_fields)
     
     def _send_finish_authorize_request(self, data):
         """
         Отправляет запрос завершения авторизации в Т-банк API /v2/FinishAuthorize
         """
-        try:
-            # URL для завершения авторизации
-            url = "https://securepay.tinkoff.ru/v2/FinishAuthorize"
-            
-            # Подготавливаем данные
-            json_data = json.dumps(data, ensure_ascii=False).encode('utf-8')
-            
-            # Создаем запрос
-            req = urllib.request.Request(
-                url,
-                data=json_data,
-                headers={
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            )
-            
-            # Отправляем запрос
-            with urllib.request.urlopen(req) as response:
-                result = response.read().decode('utf-8')
-                result_data = json.loads(result)
-                
-                print(f"Ответ от Т-банк /v2/FinishAuthorize: {result_data}")
-                
-                # Проверяем успешность ответа
-                if result_data.get('Success'):
-                    return {
-                        'success': True,
-                        'payment_id': result_data.get('PaymentId'),
-                        'order_id': result_data.get('OrderId'),
-                        'status': result_data.get('Status'),
-                        'amount': result_data.get('Amount'),
-                        'acs_url': result_data.get('ACSUrl'),
-                        'pa_req': result_data.get('PaReq'),
-                        'md': result_data.get('MD')
-                    }
-                else:
-                    return {
-                        'success': False,
-                        'error': result_data.get('Message', 'Неизвестная ошибка'),
-                        'details': result_data.get('Details', '')
-                    }
-                
-        except urllib.error.HTTPError as e:
-            error_response = e.read().decode('utf-8')
-            print(f"HTTP ошибка при завершении авторизации: {e.code} - {error_response}")
-            return {
-                'success': False,
-                'error': f'HTTP ошибка: {e.code}',
-                'details': error_response
-            }
-        except Exception as e:
-            print(f"Ошибка при завершении авторизации: {e}")
-            return {
-                'success': False,
-                'error': str(e)
-            }
+        url = "https://securepay.tinkoff.ru/v2/FinishAuthorize"
+        return self._send_tbank_api_request(url, data, ['payment_id', 'order_id', 'status', 'amount', 'acs_url', 'pa_req', 'md'])
     
     def _send_request(self, data):
         """

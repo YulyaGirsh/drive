@@ -3,16 +3,10 @@
 
 # Данные Т-банк из config.env файла
 import os
-from pathlib import Path
+from dotenv import load_dotenv
 
 # Загружаем переменные из config.env файла
-config_file = Path('config.env')
-if config_file.exists():
-    with open(config_file, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip() and not line.startswith('#'):
-                key, value = line.strip().split('=', 1)
-                os.environ[key] = value
+load_dotenv('config.env')
 
 TBANK_MERCHANT_ID = os.getenv('TBANK_MERCHANT_ID', '')  # Обязательно установите в config.env
 TBANK_API_KEY = os.getenv('TBANK_API_KEY', '')  # Обязательно установите в config.env
