@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  easydrive-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: easydrive-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Монтируем config.env для конфигурации
+      - ./config.env:/app/config.env:ro
+      # Монтируем данные (подписки, трансляции)
+      - ./paid_subscriptions.json:/app/paid_subscriptions.json
+      - ./translation_data.json:/app/translation_data.json
+      # Монтируем статические файлы (HTML, изображения, конспекты)
+      - ./images:/app/images:ro
+      - ./conspects:/app/conspects:ro
+      # Монтируем данные вопросов
+      - ./data.json:/app/data.json:ro
+      - ./questions_categorized.json:/app/questions_categorized.json:ro
+      - ./questions_categorized_40.json:/app/questions_categorized_40.json:ro
+      - ./questions_categorized_40_final.json:/app/questions_categorized_40_final.json:ro
+      - ./questions_categorized_final.json:/app/questions_categorized_final.json:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8000
+      - DOCKER_CONTAINER=true
+    networks:
+      - easydrive-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v2/heartbeat')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  easydrive-network:
+    driver: bridge
+

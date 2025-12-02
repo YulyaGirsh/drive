@@ -1,0 +1,96 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables (не копируем в образ, используем через volumes)
+config.env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Документация
+*.md
+!README.md
+
+# Скрипты деплоя (не нужны в контейнере)
+*.bat
+*.ps1
+*.sh
+deploy*.py
+auto_deploy*.py
+check_*.py
+create_*.py
+fix_*.py
+merge_*.py
+verify_*.py
+full_scraper.py
+scraper.py
+setup_*.sh
+update_*.sh
+install_*.sh
+restart_*.sh
+start_*.sh
+start_*.py
+
+# Временные файлы
+*.tmp
+*.temp
+
+# Excel файлы (если не нужны)
+*.xlsx
+
+# Локальные SSH скрипты
+check_server.py
+check_server.ps1
+connect_to_server.py
+

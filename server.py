@@ -80,12 +80,16 @@ def start_server():
         allow_reuse_address = True
     
     with ReuseAddrTCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
-        print(f"Сервер запущен на http://localhost:{PORT}")
+        print(f"Сервер запущен на http://0.0.0.0:{PORT}")
         print(f"Откройте приложение в браузере: http://localhost:{PORT}")
         print("Для остановки нажмите Ctrl+C")
         
-        # Автоматически открываем браузер
-        webbrowser.open(f'http://localhost:{PORT}')
+        # Автоматически открываем браузер только если не в Docker
+        if os.getenv('DOCKER_CONTAINER') != 'true':
+            try:
+                webbrowser.open(f'http://localhost:{PORT}')
+            except Exception:
+                pass  # Игнорируем ошибки открытия браузера
         
         try:
             httpd.serve_forever()
