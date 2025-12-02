@@ -2,7 +2,6 @@
 Обработчик для работы с подписками
 """
 from utils import read_request_data, send_json_response, send_error_response, load_json_file, save_json_file, get_current_timestamp
-from .telegram_handler import TelegramHandler
 
 
 class SubscriptionHandler:
