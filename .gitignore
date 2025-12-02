@@ -65,6 +65,10 @@ check_server_simple.bat
 paid_subscriptions.json
 
 # PostgreSQL данные (не должны быть в Git)
-*.sql
+# Исключаем load_data.sql и database_schema.sql (это скрипты, не данные)
+!load_data.sql
+!database_schema.sql
 postgres_data/
 pgdata/
+*.dump
+*.backup
