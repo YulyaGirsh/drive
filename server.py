@@ -6,9 +6,18 @@ import http.server
 import socketserver
 import webbrowser
 import os
+import logging
 from pathlib import Path
 from routes import Router
 from config import PORT
+import database
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -75,6 +84,18 @@ def start_server():
     """Запускает HTTP сервер"""
     # Переходим в директорию с файлами
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    
+    # Инициализируем БД
+    logger.info("Инициализация подключения к БД...")
+    if not database.init_db_pool():
+        logger.error("Не удалось инициализировать пул соединений с БД")
+        return
+    
+    if not database.init_database():
+        logger.error("Не удалось инициализировать структуру БД")
+        return
+    
+    logger.info("БД успешно инициализирована")
     
     class ReuseAddrTCPServer(socketserver.TCPServer):
         allow_reuse_address = True

@@ -1,7 +1,8 @@
 """
 Обработчик для работы с подписками
 """
-from utils import read_request_data, send_json_response, send_error_response, load_json_file, save_json_file, get_current_timestamp
+from utils import read_request_data, send_json_response, send_error_response, get_current_timestamp
+import database
 
 
 class SubscriptionHandler:
@@ -61,8 +62,7 @@ class SubscriptionHandler:
     def _check_user_paid_subscription(user_id):
         """Проверяет, есть ли у пользователя оплаченная подписка"""
         try:
-            subscriptions = load_json_file('paid_subscriptions.json', default={})
-            return str(user_id) in subscriptions
+            return database.check_user_subscription(user_id)
         except Exception as e:
             print(f"Ошибка при проверке подписки пользователя: {e}")
             return False
@@ -71,16 +71,7 @@ class SubscriptionHandler:
     def _activate_user_subscription(user_id, amount, payment_method):
         """Активирует подписку для пользователя"""
         try:
-            subscriptions = load_json_file('paid_subscriptions.json', default={})
-            
-            subscriptions[str(user_id)] = {
-                'activated_at': get_current_timestamp(),
-                'amount': amount,
-                'payment_method': payment_method,
-                'status': 'active'
-            }
-            
-            return save_json_file('paid_subscriptions.json', subscriptions)
+            return database.activate_subscription(user_id, amount, payment_method)
         except Exception as e:
             print(f"Ошибка при активации подписки: {e}")
             return False

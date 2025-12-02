@@ -28,6 +28,9 @@ ENV PYTHONUNBUFFERED=1
 ENV PORT=8000
 ENV DOCKER_CONTAINER=true
 
+# Скрипт инициализации (опционально запускает миграцию)
+COPY migrate_to_db.py .
+
 # Команда запуска
 CMD ["python", "server.py"]
 

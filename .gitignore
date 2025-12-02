@@ -61,5 +61,10 @@ check_server.ps1
 connect_to_server.py
 check_server_simple.bat
 
-# Paid subscriptions data file
+# Paid subscriptions data file (теперь используется PostgreSQL)
 paid_subscriptions.json
+
+# PostgreSQL данные (не должны быть в Git)
+*.sql
+postgres_data/
+pgdata/

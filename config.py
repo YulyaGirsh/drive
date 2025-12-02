@@ -18,3 +18,12 @@ ADMIN_CHAT_ID = int(os.getenv('RECIPIENT_ID', os.getenv('ADMIN_CHAT_ID', '529269
 # Порт сервера
 PORT = 8000
 
+# Конфигурация PostgreSQL
+DB_CONFIG = {
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'port': int(os.getenv('DB_PORT', '5432')),
+    'database': os.getenv('DB_NAME', 'easydrive'),
+    'user': os.getenv('DB_USER', 'easydrive_user'),
+    'password': os.getenv('DB_PASSWORD', 'easydrive_password')
+}
+
