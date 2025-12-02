@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>EasyDrive - Восстановление навыков V_34</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=34">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            margin-top: 40px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: inline-block;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        .videos-container {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .video-button {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.2);
+            min-height: 60px;
+        }
+
+        .video-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
+        }
+
+        .video-button:active {
+            transform: translateY(0);
+        }
+
+        .video-title {
+            flex: 1;
+            line-height: 1.3;
+            font-size: 13px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+                margin-top: 35px;
+            }
+            
+            .back-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                top: 12px;
+                left: 12px;
+            }
+            
+            .video-button {
+                padding: 14px 16px;
+                font-size: 12px;
+                min-height: 55px;
+            }
+            
+            .video-title {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Назад к разделам</a>
+            
+            <h1>🚗 Восстановление навыков</h1>
+        </div>
+        
+        <div class="videos-container">
+            <button class="video-button" onclick="openVideo(0)">
+                <div class="video-title">Вводный урок</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(1)">
+                <div class="video-title">Урок 1. Откуда берется страх?</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(2)">
+                <div class="video-title">Урок 2. Практика</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(3)">
+                <div class="video-title">Урок 3. Парковка</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(4)">
+                <div class="video-title">Урок 4. Ночная езда</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(5)">
+                <div class="video-title">Урок 5. Как ездить в потоке?</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(6)">
+                <div class="video-title">Урок 6. Езда вне города</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(7)">
+                <div class="video-title">Заключение</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(8)">
+                <div class="video-title">Бонус 1. Дополнительные техники</div>
+            </button>
+            
+            <button class="video-button" onclick="openVideo(9)">
+                <div class="video-title">Бонус 2. Продвинутые методы</div>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://integrationjs.tbank.ru/integration.js" onload="onPaymentIntegrationLoad()" async></script>
+    <script>
+        // Telegram WebApp API
+        const tg = window.Telegram?.WebApp;
+        
+        // Конфигурация
+        const CHANNEL_USERNAME = '+w4RmUNIUdKFlMDBi';
+        const FREE_VIDEOS_COUNT = 1; // Только вводный урок доступен бесплатно
+        const SUBSCRIPTION_PRICE = 2990; // Цена подписки в рублях
+        
+        // Конфигурация Т-банка
+        const TBANK_TERMINAL_KEY = '1761136519204'; // Рабочий терминал
+        const TBANK_API_URL = 'https://securepay.tinkoff.ru/v2'; // Рабочий хост
+        const BACKEND_API_URL = '/api/tbank-init-payment'; // Эндпоинт бэкенда
+        
+        // Базовый URL для API запросов (используем Telegram API)
+        const API_BASE_URL = 'https://api.telegram.org/bot' + 'YOUR_BOT_TOKEN';
+        
+        // Глобальная переменная для интеграции Т-банка
+        let tbankIntegration = null;
+        
+        // Инициализация Т-банка
+        const initConfig = {
+            terminalKey: TBANK_TERMINAL_KEY,
+            product: 'eacq',
+            features: {
+                payment: {} // Кнопки быстрой оплаты
+            }
+        };
+        
+        function onPaymentIntegrationLoad() {
+            PaymentIntegration.init(initConfig)
+                .then(async (integration) => {
+                    console.log('Т-банк интеграция инициализирована:', integration);
+                    tbankIntegration = integration;
+                    
+                    // Настраиваем callback для создания платежей
+                    await integration.payments.setPaymentStartCallback(async (paymentType) => {
+                        console.log('Начинаем платеж, тип:', paymentType);
+                        return await createTbankPayment();
+                    });
+                    
+                    console.log('Т-банк готов к работе');
+                })
+                .catch((error) => {
+                    console.error('Ошибка инициализации Т-банка:', error);
+                });
+        }
+        
+        // Создание платежа через Т-банк API
+        async function createTbankPayment() {
+            console.log('Создаем платеж, получаем свежие данные пользователя...');
+            console.log('📦 Глобальная tg:', tg);
+            console.log('📦 window.Telegram:', window.Telegram);
+            
+            // Получаем СВЕЖИЕ данные пользователя из Telegram WebApp
+            let currentUserData = null;
+            
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+                console.log('✅ Получены данные пользователя из Telegram WebApp:', currentUserData);
+            } else {
+                console.log('⚠️ Telegram WebApp не доступен!');
+                console.log('tg =', tg);
+                console.log('tg.initDataUnsafe =', tg?.initDataUnsafe);
+                alert('Ошибка: не удалось получить данные пользователя. Откройте мини-приложение в Telegram.');
+                return;
+            }
+            
+            if (!currentUserData || !currentUserData.id) {
+                console.error('❌ Нет ID пользователя!');
+                alert('Ошибка: не удалось получить ID пользователя.');
+                return;
+            }
+            
+            console.log('✅ Используем ID пользователя:', currentUserData.id);
+            
+            return createTbankPaymentInternal(currentUserData);
+        }
+        
+        async function createTbankPaymentInternal(currentUserData) {
+            try {
+                
+                // Создаем платеж через наш бэкенд (который вызовет Т-банк API)
+                const paymentData = {
+                    user_id: currentUserData.id,
+                    amount: SUBSCRIPTION_PRICE,
+                    description: 'Подписка на восстановление навыков EasyDrive',
+                    terminal_key: TBANK_TERMINAL_KEY
+                };
+                
+                console.log('Отправляем запрос на создание платежа:', paymentData);
+                
+                // Используем встроенный helper от Т-банка для запросов
+                const response = await new PaymentIntegration.Helpers().request(
+                    '/api/tbank-create-payment', 
+                    'POST', 
+                    paymentData
+                );
+                
+                console.log('Ответ от бэкенда:', response);
+                
+                if (response && response.paymentUrl) {
+                    return response.paymentUrl;
+                } else {
+                    throw new Error('Не получен paymentUrl от бэкенда');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка создания платежа:', error);
+                throw error;
+            }
+        }
+        
+        let userData = null;
+        let isSubscribed = false; // Проверяем подписку
+        let hasPaidSubscription = false; // Проверяем оплаченную подписку
+        
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userData = tg.initDataUnsafe.user;
+            console.log('Данные пользователя загружены:', userData);
+        } else {
+            console.log('Telegram WebApp не доступен, используем тестовые данные');
+            // Для тестирования в браузере создаем тестового пользователя
+            userData = {
+                id: 123456789,
+                first_name: 'Test',
+                last_name: 'User',
+                username: 'testuser'
+            };
+        }
+        
+        // Проверяем подписку на канал
+        async function checkSubscription() {
+            if (!tg || !userData) {
+                console.log('Не в Telegram Mini App или нет данных пользователя');
+                return false;
+            }
+            
+            try {
+                // Отправляем запрос на сервер для проверки подписки
+                const response = await fetch('/api/check-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userData.id,
+                        channel_username: CHANNEL_USERNAME
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    isSubscribed = result.is_subscribed;
+                    return isSubscribed;
+                } else {
+                    console.error('Ошибка проверки подписки:', response.status);
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('Ошибка проверки подписки:', error);
+                return false;
+            }
+        }
+        
+        // Проверяем оплаченную подписку из localStorage
+        async function checkPaidSubscription() {
+            // Получаем СВЕЖИЕ данные пользователя из Telegram WebApp
+            let currentUserData = userData;
+            if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+                console.log('✅ Получены свежие данные пользователя из Telegram:', currentUserData);
+            }
+            
+            if (!currentUserData) {
+                console.log('❌ checkPaidSubscription: Нет данных пользователя');
+                hasPaidSubscription = false;
+                return false;
+            }
+            
+            console.log('🔍 checkPaidSubscription: Проверяем подписку через сервер для user_id:', currentUserData.id);
+            
+            try {
+                // Сначала проверяем через сервер
+                const response = await fetch('/api/check-paid-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUserData.id })
+                });
+                
+                if (response.ok) {
+                    const serverData = await response.json();
+                    console.log('📦 Ответ сервера о подписке:', serverData);
+                    
+                    if (serverData.has_paid_subscription) {
+                        console.log('✅ Подписка найдена на сервере');
+                        
+                        // Сохраняем в localStorage
+                        const paidSubKey = `paid_subscription_v11_${currentUserData.id}`;
+                        const subscriptionData = {
+                            user_id: currentUserData.id,
+                            date: new Date().toISOString(),
+                            from_server: true
+                        };
+                        localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
+                        
+                        hasPaidSubscription = true;
+                        console.log('✅ hasPaidSubscription установлено в:', hasPaidSubscription);
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Ошибка проверки подписки на сервере:', error);
+            }
+            
+            // НЕ проверяем localStorage - только сервер
+            console.log('❌ checkPaidSubscription: Подписка НЕ найдена на сервере');
+            hasPaidSubscription = false;
+            console.log('❌ hasPaidSubscription установлено в:', hasPaidSubscription);
+            return false;
+        }
+        
+        // Функция обработки оплаты картой (как в videos.html)
+        async function processCardPayment() {
+            console.log('🚀 Запуск оплаты картой');
+            
+            console.log('📋 Шаг 1: Получение СВЕЖИХ данных пользователя');
+            console.log('📦 Глобальная tg:', tg);
+            
+            // Получаем СВЕЖИЕ данные пользователя из Telegram WebApp
+            let currentUserData = null;
+            
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+                console.log('✅ Получены данные пользователя:', currentUserData);
+            } else {
+                console.log('❌ Telegram WebApp не доступен!');
+                console.log('tg =', tg);
+                console.log('tg.initDataUnsafe =', tg?.initDataUnsafe);
+                alert('Ошибка: не удалось получить данные пользователя. Откройте мини-приложение в Telegram.');
+                return;
+            }
+            
+            if (!currentUserData || !currentUserData.id) {
+                console.log('❌ Нет ID пользователя!');
+                alert('Ошибка: не удалось получить ID пользователя.');
+                return;
+            }
+            
+            console.log('✅ Используем ID пользователя:', currentUserData.id);
+            
+            try {
+                
+                console.log('👤 Данные пользователя:', {
+                    id: currentUserData.id,
+                    name: currentUserData.first_name,
+                    last_name: currentUserData.last_name || '(нет)'
+                });
+                
+                console.log('📋 Шаг 2: Пропускаем получение данных карты - оплата через форму Т-Банка');
+                
+                console.log('📋 Шаг 3: Отправка запроса через БЭКЕНД');
+                console.log('🎯 Используем РАБОЧИЙ терминал 1761136519204');
+                
+                // Всегда отправляем РЕАЛЬНЫЙ запрос в Т-банк API (не демо!)
+                const orderId = `easydrive_${currentUserData.id}_${Date.now()}`;
+                const amount = SUBSCRIPTION_PRICE * 100;
+                    
+                const tokenData = {
+                    TerminalKey: TBANK_TERMINAL_KEY,
+                    Amount: amount,
+                    OrderId: orderId,
+                    Description: 'Подписка на восстановление навыков EasyDrive',
+                    SuccessURL: 'https://securepay.tinkoff.ru/html/payForm/success.html',
+                    FailURL: 'https://securepay.tinkoff.ru/html/payForm/fail.html'
+                };
+                
+                // Отправляем на БЭКЕНД - токен генерируется там!
+                const backendData = {
+                    ...tokenData,
+                    Language: 'ru',
+                    CustomerKey: currentUserData.id.toString()
+                };
+                
+                console.log('📤 Отправляем запрос на БЭКЕНД...');
+                console.log('URL:', BACKEND_API_URL);
+                
+                const response = await fetch(BACKEND_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(backendData)
+                });
+                
+                console.log('📥 Получен ответ от БЭКЕНДА');
+                
+                if (!response.ok) {
+                    throw new Error(`Backend error: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('📦 Полный ответ от бэкенда:', JSON.stringify(result, null, 2));
+                
+                if (result.Success) {
+                    console.log('✅ Платеж успешно инициализирован в Т-банк!');
+                    console.log('💳 Payment ID:', result.PaymentId);
+                    console.log('🔗 Payment URL:', result.PaymentURL);
+                    
+                    if (result.PaymentId) {
+                        console.log('✅ Платеж создан в Т-банк и будет виден в личном кабинете');
+                        
+                        // Для тестовых карт Т-банк может вернуть PaymentURL
+                        if (result.PaymentURL) {
+                            console.log('📋 Перенаправляем на страницу оплаты Т-банка');
+                            // Открываем страницу оплаты в текущей вкладке
+                            window.location.href = result.PaymentURL;
+                            return true;
+                        }
+                    }
+                    
+                    // Сохраняем подписку в localStorage ДО перехода на страницу оплаты
+                    const paidSubKey = `paid_subscription_v11_${currentUserData.id}`;
+                    const subscriptionData = {
+                        user_id: currentUserData.id,
+                        date: new Date().toISOString(),
+                        amount: SUBSCRIPTION_PRICE,
+                        payment_method: 'card',
+                        terminal_key: TBANK_TERMINAL_KEY,
+                        payment_id: result.PaymentId
+                    };
+                    localStorage.setItem(paidSubKey, JSON.stringify(subscriptionData));
+                    console.log('✅ Подписка сохранена в localStorage');
+                    
+                    // НЕ показываем alert, т.к. сразу открывается страница оплаты
+                    return true;
+                } else {
+                    console.error('❌ Т-банк вернул ошибку:', result);
+                    const errorMsg = result.Message || result.Details || 'Неизвестная ошибка';
+                    console.error('Сообщение:', errorMsg);
+                    
+                    // Обработка ошибки от Т-банка
+                    alert('❌ Платеж не прошел: ' + errorMsg + '\n\nПроверьте настройки терминала в личном кабинете Т-банка');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('='.repeat(60));
+                console.error('❌ КРИТИЧЕСКАЯ ОШИБКА ПРИ ОПЛАТЕ');
+                console.error('='.repeat(60));
+                console.error('Тип ошибки:', error.name);
+                console.error('Сообщение:', error.message);
+                console.error('Стек:', error.stack);
+                alert('❌ Ошибка при обработке оплаты картой. Попробуйте еще раз.');
+                return false; // Возвращаем false при ошибке
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Проверяем подписку и оплаченную подписку
+            await checkSubscription();
+            checkPaidSubscription(); // Теперь синхронная функция
+            
+            // Обновляем интерфейс в зависимости от подписки
+            updateVideoButtons();
+        });
+        
+        // Обновляем кнопки видео в зависимости от подписки
+        function updateVideoButtons() {
+            console.log('🔄 updateVideoButtons: Начинаем обновление кнопок');
+            
+            // Проверяем подписку перед обновлением
+            checkPaidSubscription();
+            
+            console.log('🔄 updateVideoButtons: hasPaidSubscription после проверки =', hasPaidSubscription);
+            
+            const videoButtons = document.querySelectorAll('.video-button');
+            console.log('🔄 updateVideoButtons: Найдено кнопок:', videoButtons.length);
+            
+            videoButtons.forEach((button, index) => {
+                const videoNumber = index;
+                
+                if (videoNumber >= FREE_VIDEOS_COUNT) {
+                    if (!hasPaidSubscription) {
+                        console.log(`🔒 updateVideoButtons: Блокируем кнопку ${videoNumber}`);
+                        // Блокируем кнопку для неоплативших пользователей
+                        button.style.opacity = '0.6';
+                        button.style.cursor = 'not-allowed';
+                        button.innerHTML = `
+                            <div class="video-title">
+                                ${button.querySelector('.video-title').textContent}
+                                <br><small style="color: #ffcc00;">🔒 Требуется подписка</small>
+                            </div>
+                        `;
+                    } else {
+                        console.log(`✅ updateVideoButtons: Разблокируем кнопку ${videoNumber}`);
+                        // Разблокируем кнопку для оплативших пользователей
+                        button.style.opacity = '1';
+                        button.style.cursor = 'pointer';
+                        // Восстанавливаем оригинальный текст
+                        const titleElement = button.querySelector('.video-title');
+                        if (titleElement) {
+                            const originalText = button.getAttribute('data-original-title') || titleElement.textContent.replace(/🔒 Требуется подписка/g, '').replace(/\s+/g, ' ').trim();
+                            button.setAttribute('data-original-title', originalText);
+                            button.innerHTML = `
+                                <div class="video-title">
+                                    ${originalText}
+                                </div>
+                            `;
+                        }
+                    }
+                } else {
+                    console.log(`🟢 updateVideoButtons: Кнопка ${videoNumber} - бесплатно`);
+                }
+            });
+            
+            console.log('✅ updateVideoButtons: Обновление завершено');
+        }
+        
+        // Показываем модальное окно с предложением оплаты
+        // Показываем модальное окно с предложением оплаты
+        function showPaymentModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 500px;
+                width: 100%;
+                text-align: center;
+                position: relative;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const icon = document.createElement('div');
+            icon.innerHTML = '💳';
+            icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Доступ к видеоуроку';
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const message = document.createElement('p');
+            message.innerHTML = `
+                Для просмотра этого видеоурока требуется оплата <strong>${SUBSCRIPTION_PRICE}₽</strong>
+            `;
+            message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
+            
+            // Кнопка оплаты картой
+            const cardPaymentBtn = document.createElement('button');
+            cardPaymentBtn.innerHTML = `💳 Оплатить картой ${SUBSCRIPTION_PRICE}₽`;
+            cardPaymentBtn.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin: 15px 10px 10px 10px;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+                transition: all 0.3s ease;
+                width: 100%;
+            `;
+            cardPaymentBtn.onclick = function() {
+                modal.remove();
+                // Сразу запускаем оплату через Т-Банк
+                processCardPayment();
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerHTML = 'Отмена';
+            cancelBtn.style.cssText = `
+                background: #f0f0f0;
+                color: #666;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 14px;
+                margin-top: 15px;
+            `;
+            cancelBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            content.appendChild(closeBtn);
+            content.appendChild(icon);
+            content.appendChild(title);
+            content.appendChild(message);
+            content.appendChild(cardPaymentBtn);
+            content.appendChild(cancelBtn);
+            modal.appendChild(content);
+            
+            document.body.appendChild(modal);
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        // Инициирование платежа через T-Pay
+        async function initiateTpayPayment() {
+            try {
+                // Получаем данные пользователя
+                let currentUserData = userData;
+                if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    currentUserData = tg.initDataUnsafe.user;
+                }
+                if (!currentUserData) {
+                    currentUserData = {
+                        id: Date.now(),
+                        first_name: 'Test',
+                        last_name: 'User'
+                    };
+                }
+                
+                console.log('Инициируем платеж T-Pay для пользователя:', currentUserData);
+                
+                // Отправляем запрос на инициализацию платежа
+                const response = await fetch('/api/tbank-init-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUserData.id,
+                        amount: SUBSCRIPTION_PRICE,
+                        description: 'Подписка на восстановление навыков EasyDrive',
+                        payment_method: 'tpay'
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Ответ от бэкенда:', result);
+                
+                if (result.success && result.payment_url) {
+                    // Перенаправляем на страницу оплаты T-Pay
+                    window.open(result.payment_url, '_blank');
+                } else {
+                    alert('Ошибка инициализации платежа: ' + (result.error || 'Неизвестная ошибка'));
+                }
+                
+            } catch (error) {
+                console.error('Ошибка при инициировании платежа T-Pay:', error);
+                alert('Ошибка при инициировании платежа. Попробуйте еще раз.');
+            }
+        }
+        
+        // Инициализация кнопок Т-банка
+        async function initTbankPaymentButtons(container) {
+            if (!tbankIntegration) {
+                console.error('Т-банк интеграция не инициализирована');
+                container.innerHTML = '<p style="color: #ff6b6b;">Ошибка инициализации платежной системы</p>';
+                return;
+            }
+            
+            try {
+                // Создаем кнопки быстрой оплаты
+                const paymentIntegration = await tbankIntegration.payments.create('main-payment', {
+                    container: container,
+                    amount: SUBSCRIPTION_PRICE * 100, // Сумма в копейках
+                    currency: 'RUB',
+                    description: 'Подписка на восстановление навыков EasyDrive',
+                    orderId: `easydrive_parking_${Date.now()}`,
+                    // Включаем все доступные способы оплаты
+                    widgets: ['sbp', 'tpay', 'card'] // СБП, T-Pay, карты
+                });
+                
+                console.log('Кнопки Т-банка созданы:', paymentIntegration);
+                
+            } catch (error) {
+                console.error('Ошибка создания кнопок Т-банка:', error);
+                container.innerHTML = '<p style="color: #ff6b6b;">Ошибка загрузки платежных кнопок</p>';
+            }
+        }
+        
+        // Обработка оплаты
+        async function processPayment() {
+            // Получаем данные пользователя из Telegram или создаем тестовые
+            let currentUserData = userData;
+            
+            if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+            }
+            
+            if (!currentUserData) {
+                // Для тестирования создаем тестового пользователя
+                currentUserData = {
+                    id: Date.now(), // Используем timestamp как ID
+                    first_name: 'Test',
+                    last_name: 'User'
+                };
+                console.log('Используем тестового пользователя:', currentUserData);
+            }
+            
+            try {
+                // Упрощенная логика - сразу показываем реквизиты для оплаты
+                console.log('Создаем платеж для пользователя:', currentUserData.id);
+                
+                // Показываем информацию о платеже
+                const paymentInfo = `
+💳 <b>Информация для оплаты</b>
+
+🏦 <b>Банк:</b> Т-банк
+💳 <b>Номер кошелька:</b> 1761136519162DEMO
+💰 <b>Сумма:</b> ${SUBSCRIPTION_PRICE}₽
+📝 <b>Комментарий:</b> ${currentUserData.id}
+
+После оплаты нажмите кнопку "Подтвердить оплату"
+                `;
+                
+                const confirmModal = document.createElement('div');
+                        confirmModal.style.cssText = `
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(0, 0, 0, 0.8);
+                            z-index: 1001;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            padding: 20px;
+                        `;
+                        
+                        const confirmContent = document.createElement('div');
+                        confirmContent.style.cssText = `
+                            background: white;
+                            border-radius: 15px;
+                            padding: 30px;
+                            max-width: 500px;
+                            width: 100%;
+                            text-align: center;
+                            position: relative;
+                            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                        `;
+                        
+                        const closeConfirmBtn = document.createElement('button');
+                        closeConfirmBtn.innerHTML = '×';
+                        closeConfirmBtn.style.cssText = `
+                            position: absolute;
+                            top: 15px;
+                            right: 20px;
+                            background: #ff6b6b;
+                            color: white;
+                            border: none;
+                            border-radius: 50%;
+                            width: 30px;
+                            height: 30px;
+                            cursor: pointer;
+                            font-size: 18px;
+                            font-weight: bold;
+                        `;
+                        closeConfirmBtn.onclick = function() {
+                            confirmModal.remove();
+                        };
+                        
+                        const paymentText = document.createElement('div');
+                        paymentText.innerHTML = paymentInfo.replace(/\n/g, '<br>');
+                        paymentText.style.cssText = 'color: #333; margin-bottom: 25px; text-align: left; font-family: monospace; background: #f5f5f5; padding: 15px; border-radius: 8px;';
+                        
+                        const confirmBtn = document.createElement('button');
+                        confirmBtn.innerHTML = '✅ Подтвердить оплату';
+                        confirmBtn.style.cssText = `
+                            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                            color: white;
+                            border: none;
+                            padding: 15px 25px;
+                            border-radius: 25px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            font-weight: 600;
+                            margin-bottom: 15px;
+                            width: 100%;
+                            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+                        `;
+                        confirmBtn.onclick = async function() {
+                            await confirmPayment();
+                            confirmModal.remove();
+                        };
+                        
+                        const cancelConfirmBtn = document.createElement('button');
+                        cancelConfirmBtn.innerHTML = 'Отмена';
+                        cancelConfirmBtn.style.cssText = `
+                            background: #f0f0f0;
+                            color: #666;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 20px;
+                            cursor: pointer;
+                            font-size: 14px;
+                        `;
+                        cancelConfirmBtn.onclick = function() {
+                            confirmModal.remove();
+                        };
+                        
+                        confirmContent.appendChild(closeConfirmBtn);
+                        confirmContent.appendChild(paymentText);
+                        confirmContent.appendChild(confirmBtn);
+                        confirmContent.appendChild(cancelConfirmBtn);
+                        confirmModal.appendChild(confirmContent);
+                        
+                document.body.appendChild(confirmModal);
+                
+            } catch (error) {
+                console.error('Ошибка при обработке платежа:', error);
+                alert('❌ Ошибка при обработке платежа. Попробуйте еще раз.');
+            }
+        }
+        
+        // Подтверждение оплаты
+        async function confirmPayment() {
+            // Получаем данные пользователя
+            let currentUserData = userData;
+            
+            if (!currentUserData && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+            }
+            
+            if (!currentUserData) {
+                currentUserData = {
+                    id: Date.now(),
+                    first_name: 'Test',
+                    last_name: 'User'
+                };
+            }
+            
+            try {
+                const response = await fetch('/api/tbank-create-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUserData.id,
+                        amount: SUBSCRIPTION_PRICE,
+                        payment_method: 'tbank'
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        hasPaidSubscription = true;
+                        updateVideoButtons();
+                        alert('✅ Оплата подтверждена! Теперь у вас есть доступ ко всем урокам восстановления навыков!');
+                    } else {
+                        alert('❌ Ошибка подтверждения оплаты: ' + (result.message || 'Неизвестная ошибка'));
+                    }
+                } else {
+                    alert('❌ Ошибка сервера при подтверждении оплаты');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка подтверждения оплаты:', error);
+                alert('❌ Ошибка при подтверждении оплаты. Попробуйте еще раз.');
+            }
+        }
+        
+        // Показываем модальное окно с предложением подписки
+        function showSubscriptionModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 400px;
+                width: 100%;
+                text-align: center;
+                position: relative;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const icon = document.createElement('div');
+            icon.innerHTML = '🔒';
+            icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Доступ ограничен';
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const message = document.createElement('p');
+            message.innerHTML = `
+                Это видео доступно только подписчикам канала<br><br>
+                Подпишитесь на канал, чтобы получить доступ ко всем урокам восстановления навыков!
+            `;
+            message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
+            
+            const subscribeBtn = document.createElement('button');
+            subscribeBtn.innerHTML = '🚗 Подписаться на канал';
+            subscribeBtn.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 15px;
+                width: 100%;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+            `;
+            subscribeBtn.onclick = function() {
+                window.open(`https://t.me/${CHANNEL_USERNAME}`, '_blank');
+                modal.remove();
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerHTML = 'Отмена';
+            cancelBtn.style.cssText = `
+                background: #f0f0f0;
+                color: #666;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 14px;
+            `;
+            cancelBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            content.appendChild(closeBtn);
+            content.appendChild(icon);
+            content.appendChild(title);
+            content.appendChild(message);
+            content.appendChild(subscribeBtn);
+            content.appendChild(cancelBtn);
+            modal.appendChild(content);
+            
+            document.body.appendChild(modal);
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        // Показываем модальное окно с приглашением в канал
+        function showChannelInviteModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 400px;
+                width: 100%;
+                text-align: center;
+                position: relative;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const icon = document.createElement('div');
+            icon.innerHTML = '🎬';
+            icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Видеоурок в закрытом канале';
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const videoBtn = document.createElement('button');
+            videoBtn.innerHTML = '🎥 Перейти к видеоуроку';
+            videoBtn.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 15px;
+                width: 100%;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+            `;
+            videoBtn.onclick = function() {
+                window.open('https://t.me/c/3080687109/2', '_blank');
+                modal.remove();
+            };
+            
+            const subtitle = document.createElement('p');
+            subtitle.innerHTML = 'Чтобы просматривать уроки, необходимо сначала подписаться на канал';
+            subtitle.style.cssText = 'color: #666; margin-bottom: 15px; font-size: 14px; line-height: 1.4;';
+            
+            const channelBtn = document.createElement('button');
+            channelBtn.innerHTML = '📺 Подписаться на канал';
+            channelBtn.style.cssText = `
+                background: #0088cc;
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 10px;
+                width: 100%;
+                box-shadow: 0 3px 10px rgba(0, 136, 204, 0.3);
+            `;
+            channelBtn.onclick = function() {
+                window.open('https://t.me/+b-zEFmopibszZDUy', '_blank');
+                modal.remove();
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerHTML = 'Отмена';
+            cancelBtn.style.cssText = `
+                background: #f0f0f0;
+                color: #666;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 14px;
+                width: 100%;
+            `;
+            cancelBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            content.appendChild(closeBtn);
+            content.appendChild(icon);
+            content.appendChild(title);
+            content.appendChild(videoBtn);
+            content.appendChild(subtitle);
+            content.appendChild(channelBtn);
+            content.appendChild(cancelBtn);
+            modal.appendChild(content);
+            
+            document.body.appendChild(modal);
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // Массив с данными о видеоуроках по парковке
+        const videos = [
+            {
+                title: "Вводный урок",
+                description: "Знакомство с курсом по парковке. Основные принципы и техники.",
+                duration: "12:30",
+                videoId: "2f4f5a601b39b7414ef52a565701b644",
+                embedUrl: "https://rutube.ru/play/embed/2f4f5a601b39b7414ef52a565701b644/?p=IBIbcPACQXF_fxj9V1D68A",
+                rutubeId: "2f4f5a601b39b7414ef52a565701b644",
+                host: "rutube",
+                isPrivate: false,
+                directUrl: "https://rutube.ru/video/private/2f4f5a601b39b7414ef52a565701b644/?p=IBIbcPACQXF_fxj9V1D68A"
+            },
+            {
+                title: "Урок 1. Откуда берется страх?",
+                description: "Разбираем психологические причины страха вождения и способы их преодоления.",
+                duration: "18:45",
+                videoId: "23558ebdf428f27f544b1836e48cc4ad",
+                embedUrl: "https://rutube.ru/play/embed/23558ebdf428f27f544b1836e48cc4ad/?p=mKBavPixKV7mX7BqZOIzhg",
+                rutubeId: "23558ebdf428f27f544b1836e48cc4ad",
+                host: "rutube",
+                isPrivate: false
+            },
+            {
+                title: "Урок 2. Практика",
+                description: "Практические упражнения для восстановления навыков вождения.",
+                duration: "22:15",
+                videoId: "f473513aaaa1152e36f89334ac9eb0e2",
+                embedUrl: "https://rutube.ru/play/embed/f473513aaaa1152e36f89334ac9eb0e2/?p=6WKFn7KDBvy0T24Gjd8PXw",
+                rutubeId: "f473513aaaa1152e36f89334ac9eb0e2",
+                host: "rutube",
+                isPrivate: false
+            },
+            {
+                title: "Урок 3. Парковка",
+                description: "Восстанавливаем навыки парковки в различных условиях.",
+                duration: "19:30",
+                videoId: "d4a54ef82b06ead19c73e7d93483b2d2",
+                embedUrl: "https://rutube.ru/play/embed/d4a54ef82b06ead19c73e7d93483b2d2/?p=UUQQzJMA8S4-bBTfnUYejw",
+                rutubeId: "d4a54ef82b06ead19c73e7d93483b2d2",
+                host: "rutube",
+                isPrivate: false
+            },
+            {
+                title: "Урок 4. Ночная езда",
+                description: "Особенности вождения в темное время суток и восстановление навыков.",
+                duration: "16:20",
+                videoId: "66ca30c44e17a2573aa32a8ed326381b",
+                embedUrl: "https://rutube.ru/play/embed/66ca30c44e17a2573aa32a8ed326381b/?p=pOKrXWpWU_Z-F_9TZU-1YA",
+                rutubeId: "66ca30c44e17a2573aa32a8ed326381b",
+                host: "rutube",
+                isPrivate: false
+            },
+            {
+                title: "Урок 5. Как ездить в потоке?",
+                description: "Восстановление навыков езды в плотном городском потоке.",
+                duration: "24:10",
+                videoId: "155e4e369f1aab32b63676eaec205947",
+                embedUrl: "https://rutube.ru/play/embed/155e4e369f1aab32b63676eaec205947/?p=0jnyG5Q_OyrrCTyOFm_rhg",
+                rutubeId: "155e4e369f1aab32b63676eaec205947",
+                host: "rutube",
+                isPrivate: false
+            },
+            {
+                title: "Урок 6. Езда вне города",
+                description: "Восстановление навыков вождения за городом и на трассах.",
+                duration: "21:45",
+                videoId: "b1888e7e9711955a377a7dea78b1140f",
+                embedUrl: "https://rutube.ru/play/embed/b1888e7e9711955a377a7dea78b1140f/?p=eOIoc0d-gegneV89eFv4mA",
+                rutubeId: "b1888e7e9711955a377a7dea78b1140f",
+                host: "rutube",
+                isPrivate: false
+            },
+            {
+                title: "Заключение",
+                description: "Подводим итоги курса и закрепляем полученные знания.",
+                duration: "15:30",
+                videoId: "f174f3bdf89d73104f54be8a568cadd3",
+                embedUrl: "https://rutube.ru/play/embed/f174f3bdf89d73104f54be8a568cadd3/?p=pGnM2BQTBhhsXQDuI92UUw",
+                rutubeId: "f174f3bdf89d73104f54be8a568cadd3",
+                host: "rutube",
+                isPrivate: false
+            },
+            {
+                title: "Бонус 1. Дополнительные техники",
+                description: "Дополнительные техники и секреты успешной парковки.",
+                duration: "17:25",
+                videoId: "93330d56c01fa51c336698fefc770bb9",
+                embedUrl: "https://rutube.ru/play/embed/93330d56c01fa51c336698fefc770bb9/?p=ePDHI8QlK--n0r0RKVl3vg",
+                rutubeId: "93330d56c01fa51c336698fefc770bb9",
+                host: "rutube",
+                isPrivate: false
+            },
+            {
+                title: "Бонус 2. Продвинутые методы",
+                description: "Продвинутые методы парковки для опытных водителей.",
+                duration: "20:15",
+                videoId: "ff39d9de0ad3b43ab6b6e8ca8519aee0",
+                embedUrl: "https://rutube.ru/play/embed/ff39d9de0ad3b43ab6b6e8ca8519aee0/?p=lifZNgO0-eLjZWJ71_n3rA",
+                rutubeId: "ff39d9de0ad3b43ab6b6e8ca8519aee0",
+                host: "rutube",
+                isPrivate: false
+            }
+        ];
+
+        async function openVideo(videoNumber) {
+            console.log('🎬 openVideo: Открываем видео номер:', videoNumber);
+            console.log('🔍 openVideo: FREE_VIDEOS_COUNT =', FREE_VIDEOS_COUNT);
+            console.log('🔍 openVideo: userData =', userData);
+            
+            // Простая проверка
+            if (videoNumber === undefined || videoNumber === null || videoNumber < 0 || videoNumber >= videos.length) {
+                alert('Неверный номер видео!');
+                return;
+            }
+            
+            // ПЕРЕД проверкой доступа - обновляем статус подписки
+            if (videoNumber >= FREE_VIDEOS_COUNT) {
+                console.log('🔄 openVideo: Обновляем проверку подписки перед открытием видео');
+                const subscriptionCheck = await checkPaidSubscription();
+                console.log('🔍 openVideo: checkPaidSubscription вернула:', subscriptionCheck);
+                console.log('🔍 openVideo: hasPaidSubscription после проверки =', hasPaidSubscription);
+                console.log('🔍 openVideo: userData.id =', userData?.id);
+            }
+            
+            // Проверяем доступ к видео
+            console.log('🔍 openVideo: Проверяем условие доступа:');
+            console.log('   videoNumber =', videoNumber);
+            console.log('   FREE_VIDEOS_COUNT =', FREE_VIDEOS_COUNT);
+            console.log('   videoNumber >= FREE_VIDEOS_COUNT =', videoNumber >= FREE_VIDEOS_COUNT);
+            console.log('   hasPaidSubscription =', hasPaidSubscription);
+            console.log('   !hasPaidSubscription =', !hasPaidSubscription);
+            
+            if (videoNumber >= FREE_VIDEOS_COUNT && !hasPaidSubscription) {
+                console.log('🔒 openVideo: УСЛОВИЕ 1: Доступ запрещен! Показываем модальное окно оплаты');
+                showPaymentModal();
+                return;
+            }
+            
+            // Для всех уроков (кроме вводного) после оплаты показываем плашку с каналом
+            if (videoNumber >= FREE_VIDEOS_COUNT && hasPaidSubscription) {
+                console.log('📺 openVideo: УСЛОВИЕ 2: Показываем плашку с приглашением в канал');
+                showChannelInviteModal();
+                return;
+            }
+            
+            console.log('✅ openVideo: Доступ разрешен, открываем видео');
+            
+            const video = videos[videoNumber];
+            
+            if (!video) {
+                console.error('Видео не найдено для номера:', videoNumber);
+                alert('Видео не найдено!');
+                return;
+            }
+            
+            console.log('Видео найдено:', video.title);
+            
+            // Проверяем, является ли видео приватным
+            if (video.isPrivate) {
+                // Для приватных видео показываем сообщение с прямой ссылкой
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.9);
+                    z-index: 1000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 20px;
+                `;
+                
+                const content = document.createElement('div');
+                content.style.cssText = `
+                    background: white;
+                    border-radius: 15px;
+                    padding: 30px;
+                    max-width: 500px;
+                    width: 100%;
+                    text-align: center;
+                    position: relative;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                `;
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '×';
+                closeBtn.style.cssText = `
+                    position: absolute;
+                    top: 15px;
+                    right: 20px;
+                    background: #ff6b6b;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    cursor: pointer;
+                    font-size: 18px;
+                    font-weight: bold;
+                `;
+                closeBtn.onclick = function() {
+                    modal.remove();
+                };
+                
+                const icon = document.createElement('div');
+                icon.innerHTML = '🔒';
+                icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+                
+                const title = document.createElement('h2');
+                title.textContent = video.title;
+                title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+                
+                const message = document.createElement('p');
+                message.innerHTML = `
+                    Это приватное видео. Для просмотра перейдите по прямой ссылке:<br><br>
+                    <a href="${video.directUrl || video.embedUrl}" target="_blank" style="color: #ff8c00; text-decoration: underline; word-break: break-all;">
+                        ${video.directUrl || video.embedUrl}
+                    </a>
+                `;
+                message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
+                
+                const openBtn = document.createElement('button');
+                openBtn.innerHTML = '🚗 Открыть видео';
+                openBtn.style.cssText = `
+                    background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                    color: white;
+                    border: none;
+                    padding: 15px 25px;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                    width: 100%;
+                    box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+                `;
+                openBtn.onclick = function() {
+                    window.open(video.directUrl || video.embedUrl, '_blank');
+                };
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.innerHTML = 'Закрыть';
+                cancelBtn.style.cssText = `
+                    background: #f0f0f0;
+                    color: #666;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 14px;
+                `;
+                cancelBtn.onclick = function() {
+                    modal.remove();
+                };
+                
+                content.appendChild(closeBtn);
+                content.appendChild(icon);
+                content.appendChild(title);
+                content.appendChild(message);
+                content.appendChild(openBtn);
+                content.appendChild(cancelBtn);
+                modal.appendChild(content);
+                
+                document.body.appendChild(modal);
+                
+                // Закрытие по клику на фон
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+                
+                return;
+            }
+            
+            // Используем RuTube embed URL для публичных видео
+            const embedUrl = video.embedUrl;
+            console.log('Используем RuTube:', embedUrl);
+            
+            // Создаем простое модальное окно
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                max-width: 800px;
+                width: 100%;
+                text-align: center;
+                position: relative;
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const title = document.createElement('h2');
+            title.textContent = video.title;
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const description = document.createElement('p');
+            description.textContent = video.description;
+            description.style.cssText = 'color: #666; margin-bottom: 15px; font-size: 14px;';
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = embedUrl;
+            iframe.width = '100%';
+            iframe.height = '400';
+            iframe.frameBorder = '0';
+            iframe.allowFullscreen = true;
+            iframe.style.cssText = 'border-radius: 8px; margin-bottom: 15px;';
+            
+            // Обработка ошибок загрузки iframe
+            iframe.onerror = function() {
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    background: #ffebee;
+                    color: #c62828;
+                    padding: 20px;
+                    border-radius: 8px;
+                    text-align: center;
+                    margin-bottom: 15px;
+                    border: 1px solid #ffcdd2;
+                `;
+                errorDiv.innerHTML = `
+                    <strong>❌ Ошибка загрузки видео</strong><br>
+                    Видео не удалось загрузить. Возможно, оно недоступно или заблокировано.<br><br>
+                    <a href="${video.directUrl || embedUrl}" target="_blank" style="color: #ff8c00; text-decoration: underline;">
+                        Попробовать открыть напрямую
+                    </a>
+                `;
+                iframe.parentNode.replaceChild(errorDiv, iframe);
+            };
+            
+            content.appendChild(closeBtn);
+            content.appendChild(title);
+            content.appendChild(description);
+            content.appendChild(iframe);
+            modal.appendChild(content);
+            
+            // Добавляем модальное окно в DOM
+            console.log('Добавляем модальное окно в DOM...');
+            document.body.appendChild(modal);
+            console.log('Модальное окно добавлено в DOM');
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Закрытие по Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                }
+            });
+        }
+    </script>
+    
+    <!-- Индикатор версии в правом нижнем углу -->
+    <div id="version-indicator" style="position: fixed; bottom: 5px; right: 5px; color: rgba(128, 128, 128, 0.4); font-size: 10px; font-family: monospace; z-index: 9999; pointer-events: none;">V_34</div>
+</body>
+</html>

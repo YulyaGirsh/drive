@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>EasyDrive - Подготовка к экзамену на права v25</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=20">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Показываем заставку только при самом первом заходе
+        // Проверяем сразу, до отображения содержимого
+        if (!sessionStorage.getItem('splashShown')) {
+            sessionStorage.setItem('splashShown', 'true');
+            window.location.href = 'splash.html';
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Показываем содержимое по умолчанию */
+        body {
+            visibility: visible;
+        }
+
+        /* Скрываем любые возможные точки загрузки */
+        body::before,
+        body::after,
+        *::before,
+        *::after {
+            content: none !important;
+        }
+
+        /* Скрываем элементы с белыми точками */
+        [class*="dot"],
+        [class*="particle"],
+        [class*="loading"],
+        [class*="indicator"] {
+            display: none !important;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #ffffff;
+            color: #ff8c00;
+            padding: 20px;
+            text-align: left;
+            position: relative;
+            min-height: 100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        /* Скрываем любые точки в области заголовка, кроме логотипа */
+        .header *:not(.header-logo) {
+            background-image: none !important;
+        }
+
+        .header::before,
+        .header::after {
+            display: none !important;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header-logo {
+            width: 100px;
+            height: 100px;
+            background-image: url('logo2.png?v=3') !important;
+            background-size: contain !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            flex-shrink: 0;
+            display: block !important;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255, 140, 0, 0.3);
+            margin: 0;
+            color: #ff8c00;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(255, 140, 0, 0.2);
+            margin: 0;
+            color: #ff8c00;
+        }
+
+        .sections {
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .section-row {
+            display: flex;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .section-row:last-child {
+            justify-content: flex-start;
+            gap: 20px;
+        }
+
+        .section-row:last-child .section-block {
+            flex: 0 0 calc(50% - 10px);
+        }
+
+        .section-block {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 0;
+            border: 2px solid #ff8c00;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            text-align: center;
+            aspect-ratio: 1;
+            position: relative;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .section-block:hover {
+            border-color: #ff6b35;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.25);
+        }
+
+        .section-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-icon {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 18px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin: 8px;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .header {
+                padding: 15px;
+                min-height: 80px;
+                flex-direction: row;
+                text-align: left;
+                background: #ffffff;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .header-content {
+                flex: 1;
+            }
+            
+            .header-logo {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .header p {
+                font-size: 14px;
+            }
+            
+            .sections {
+                padding: 20px 12px;
+                gap: 25px;
+            }
+
+            .section-row {
+                gap: 15px;
+            }
+
+            .section-row:last-child .section-block {
+                flex: 0 0 calc(50% - 7.5px);
+            }
+            
+            .section-block {
+                aspect-ratio: 1;
+                padding: 0;
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+                justify-content: flex-end;
+            }
+            
+            .section-icon {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            
+            .section-title {
+                font-size: 14px;
+                margin: 6px;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Разделы</h1>
+                <p>Выберите раздел для изучения</p>
+            </div>
+            <div class="header-logo"></div>
+        </div>
+        
+        <div class="sections">
+            <div class="section-row">
+                <div class="section-block" onclick="openTickets()">
+                    <div class="section-icon" style="background-image: url('images/icons/1.jpg');"></div>
+                    <div class="section-title">Билеты</div>
+                </div>
+                
+                <div class="section-block" onclick="openVideos()">
+                    <div class="section-icon" style="background-image: url('images/icons/2.jpg');"></div>
+                    <div class="section-title">Видеоуроки</div>
+                </div>
+            </div>
+
+            <div class="section-row">
+                <div class="section-block" onclick="openTeacher()">
+                    <div class="section-icon" style="background-image: url('images/icons/3.jpg');"></div>
+                    <div class="section-title">Преподаватель ПДД</div>
+                </div>
+
+                <div class="section-block" onclick="openLawyer()">
+                    <div class="section-icon" style="background-image: url('images/icons/4.jpg');"></div>
+                    <div class="section-title">Автоюрист</div>
+                </div>
+            </div>
+
+            <div class="section-row">
+                <div class="section-block" onclick="openPsychologist()">
+                    <div class="section-icon" style="background-image: url('images/icons/5.jpg');"></div>
+                    <div class="section-title">Автопсихолог</div>
+                </div>
+
+                <div class="section-block" onclick="openParking()">
+                    <div class="section-icon" style="background-image: url('images/icons/6.jpg');"></div>
+                    <div class="section-title">Восстановление навыков</div>
+                </div>
+            </div>
+
+            <div class="section-row">
+                <div class="section-block" onclick="openTranslations()">
+                    <div class="section-icon" style="background-image: url('images/icons/7.jpg');"></div>
+                    <div class="section-title">Трансляции</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function openTickets() {
+            console.log('========================================');
+            console.log('🎫 ПОПЫТКА ОТКРЫТЬ БИЛЕТЫ');
+            console.log('========================================');
+            
+            const isSubscribed = await checkChannelSubscription();
+            
+            console.log('========================================');
+            console.log('📊 РЕЗУЛЬТАТ ПРОВЕРКИ:', isSubscribed ? 'ПОДПИСАН ✅' : 'НЕ ПОДПИСАН ❌');
+            console.log('========================================');
+            
+            if (isSubscribed) {
+                console.log('✅ Открываем билеты...');
+                window.location.href = '1.html';
+            } else {
+                console.log('❌ Показываем модальное окно подписки...');
+                showSubscriptionModal();
+            }
+        }
+
+        async function checkChannelSubscription() {
+            try {
+                console.log('🔍 Начинаем проверку подписки на канал @avtoshkolavtelefone...');
+                
+                // Получаем Telegram WebApp API
+                const tg = window.Telegram?.WebApp;
+                
+                console.log('📦 Telegram WebApp:', tg);
+                console.log('📦 initDataUnsafe:', tg?.initDataUnsafe);
+                console.log('📦 user:', tg?.initDataUnsafe?.user);
+                
+                // Получаем user_id если доступен
+                let userId = null;
+                if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    userId = tg.initDataUnsafe.user.id;
+                    console.log('👤 ID пользователя:', userId);
+                } else {
+                    console.log('⚠️ Telegram WebApp не доступен - продолжаем без user_id');
+                }
+                
+                // ВСЕГДА делаем запрос на сервер БЕЗ кэширования
+                const requestData = {
+                    user_id: userId,
+                    channel: 'avtoshkolavtelefone'
+                };
+                
+                console.log('📤 Отправляем запрос на /api/check-channel-subscription...');
+                console.log('📋 Данные запроса:', requestData);
+                
+                console.log('📡 Отправляем запрос на сервер...');
+                console.log('📤 Данные запроса:', JSON.stringify(requestData));
+                
+                const response = await fetch('/api/check-channel-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('📥 Ответ от сервера получен');
+                console.log('📊 Статус ответа:', response.status, response.statusText);
+                console.log('📋 Заголовки ответа:', Object.fromEntries(response.headers.entries()));
+                
+                if (!response.ok) {
+                    console.error('❌ Ошибка проверки подписки:', response.status);
+                    const errorText = await response.text();
+                    console.error('Текст ошибки:', errorText);
+                    return false;
+                }
+                
+                const result = await response.json();
+                console.log('📦 Полный результат от сервера:', JSON.stringify(result));
+                console.log('✅ result.subscribed:', result.subscribed);
+                console.log('🔢 Тип result.subscribed:', typeof result.subscribed);
+                console.log('📝 Результат после приведения к boolean:', Boolean(result.subscribed));
+                
+                const finalResult = Boolean(result.subscribed);
+                console.log('🎯 ФИНАЛЬНЫЙ РЕЗУЛЬТАТ ПРОВЕРКИ:', finalResult ? 'ПОДПИСАН ✅' : 'НЕ ПОДПИСАН ❌');
+                
+                return finalResult;
+                
+            } catch (error) {
+                console.error('❌ Ошибка при проверке подписки:', error);
+                return false;
+            }
+        }
+
+        function showSubscriptionModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 20px;
+                padding: 30px;
+                max-width: 350px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Подписка на канал';
+            title.style.cssText = `
+                color: #FF6B35;
+                margin-bottom: 20px;
+                font-size: 24px;
+            `;
+            
+            const message = document.createElement('p');
+            message.innerHTML = `
+                Для доступа к билетам необходимо подписаться на канал<br><br>
+                <strong>@avtoshkolavtelefone</strong><br><br>
+                Подпишитесь на канал, чтобы получить доступ!
+            `;
+            message.style.cssText = `
+                color: #333;
+                margin-bottom: 20px;
+                line-height: 1.5;
+            `;
+            
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = `
+                display: flex;
+                gap: 8px;
+                justify-content: center;
+                margin-bottom: 10px;
+            `;
+            
+            const subscribeBtn = document.createElement('button');
+            subscribeBtn.textContent = 'Подписаться';
+            subscribeBtn.style.cssText = `
+                background: #007bff;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                min-width: 0;
+                flex: 1;
+            `;
+            
+            const checkBtn = document.createElement('button');
+            checkBtn.textContent = 'Проверить';
+            checkBtn.style.cssText = `
+                background: #28a745;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                min-width: 0;
+                flex: 1;
+            `;
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Отмена';
+            cancelBtn.style.cssText = `
+                background: #e0e0e0;
+                color: #333;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                width: 100%;
+                margin-top: 10px;
+            `;
+            
+            // Hover эффекты
+            subscribeBtn.onmouseenter = () => subscribeBtn.style.background = '#0056b3';
+            subscribeBtn.onmouseleave = () => subscribeBtn.style.background = '#007bff';
+            checkBtn.onmouseenter = () => checkBtn.style.background = '#218838';
+            checkBtn.onmouseleave = () => checkBtn.style.background = '#28a745';
+            cancelBtn.onmouseenter = () => cancelBtn.style.background = '#d0d0d0';
+            cancelBtn.onmouseleave = () => cancelBtn.style.background = '#e0e0e0';
+            
+            subscribeBtn.onclick = function() {
+                window.open('https://t.me/avtoshkolavtelefone', '_blank');
+            };
+            
+                checkBtn.onclick = async function() {
+                console.log('🔘 Кнопка "Проверить" нажата');
+                
+                // Показываем загрузку
+                checkBtn.textContent = 'Проверяем...';
+                checkBtn.disabled = true;
+                
+                // Перепроверяем подписку (БЕЗ кэша, всегда запрос к серверу)
+                console.log('🔄 Запускаем проверку подписки...');
+                const isSubscribed = await checkChannelSubscription();
+                console.log('📊 Результат проверки:', isSubscribed);
+                
+                // Явно приводим к boolean
+                const subscribed = Boolean(isSubscribed);
+                
+                if (subscribed) {
+                    console.log('✅ Подписка подтверждена, открываем билеты');
+                    modal.remove();
+            window.location.href = '1.html';
+                } else {
+                    console.log('❌ Подписка не подтверждена');
+                    checkBtn.textContent = 'Проверить';
+                    checkBtn.disabled = false;
+                    alert('Пожалуйста, подпишитесь на канал @avtoshkolavtelefone и нажмите "Проверить" снова');
+                }
+            };
+            
+            cancelBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            buttonContainer.appendChild(subscribeBtn);
+            buttonContainer.appendChild(checkBtn);
+            content.appendChild(title);
+            content.appendChild(message);
+            content.appendChild(buttonContainer);
+            content.appendChild(cancelBtn);
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+
+        function openVideos() {
+            window.location.href = 'videos.html';
+        }
+
+        function openParking() {
+            window.location.href = 'parking.html';
+        }
+
+        // Глобальная переменная для оплаченной подписки
+        let hasPaidSubscription = false;
+        const SUBSCRIPTION_PRICE = 2990; // Цена подписки в рублях
+
+        // Проверяем оплаченную подписку (как в parking.html)
+        async function checkPaidSubscription() {
+            console.log('🔍 checkPaidSubscription: Начинаем проверку оплаты');
+            
+            const tg = window.Telegram?.WebApp;
+            console.log('📦 Telegram WebApp:', tg);
+            
+            let currentUserData = null;
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUserData = tg.initDataUnsafe.user;
+                console.log('✅ Получены данные пользователя:', currentUserData);
+            } else {
+                console.log('⚠️ Telegram WebApp не доступен');
+                hasPaidSubscription = false;
+                return false;
+            }
+            
+            if (!currentUserData) {
+                console.log('❌ checkPaidSubscription: Нет данных пользователя');
+                hasPaidSubscription = false;
+                return false;
+            }
+            
+            console.log('🔍 checkPaidSubscription: Проверяем подписку через сервер для user_id:', currentUserData.id);
+            
+            try {
+                const response = await fetch('/api/check-paid-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUserData.id })
+                });
+                
+                if (response.ok) {
+                    const serverData = await response.json();
+                    console.log('📦 Ответ сервера о подписке:', serverData);
+                    
+                    if (serverData.has_paid_subscription) {
+                        console.log('✅ Подписка найдена на сервере');
+                        hasPaidSubscription = true;
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Ошибка проверки подписки на сервере:', error);
+            }
+            
+            console.log('❌ checkPaidSubscription: Подписка НЕ найдена на сервере');
+            hasPaidSubscription = false;
+            return false;
+        }
+
+        // Модальное окно оплаты
+        function showPaymentModal(targetUrl) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 500px;
+                width: 100%;
+                text-align: center;
+                position: relative;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            const icon = document.createElement('div');
+            icon.innerHTML = '💳';
+            icon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Доступ к разделу';
+            title.style.cssText = 'color: #333; margin-bottom: 15px; font-family: Arial, sans-serif;';
+            
+            const message = document.createElement('p');
+            message.innerHTML = `
+                Для доступа к этому разделу требуется оплата <strong>${SUBSCRIPTION_PRICE}₽</strong>
+            `;
+            message.style.cssText = 'color: #666; margin-bottom: 25px; line-height: 1.5;';
+            
+            // Кнопка оплаты - перенаправляем на parking.html
+            const cardPaymentBtn = document.createElement('button');
+            cardPaymentBtn.innerHTML = `💳 Оплатить ${SUBSCRIPTION_PRICE}₽`;
+            cardPaymentBtn.style.cssText = `
+                background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                margin: 15px 10px 10px 10px;
+                box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+                transition: all 0.3s ease;
+                width: 100%;
+            `;
+            cardPaymentBtn.onclick = function() {
+                modal.remove();
+                window.location.href = 'parking.html';
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerHTML = 'Отмена';
+            cancelBtn.style.cssText = `
+                background: #f0f0f0;
+                color: #666;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 14px;
+                margin-top: 10px;
+                width: 100%;
+            `;
+            cancelBtn.onclick = function() {
+                modal.remove();
+            };
+            
+            content.appendChild(closeBtn);
+            content.appendChild(icon);
+            content.appendChild(title);
+            content.appendChild(message);
+            content.appendChild(cardPaymentBtn);
+            content.appendChild(cancelBtn);
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+
+        // Обновленные функции для разделов с оплатой
+        async function openTeacher() {
+            console.log('🔍 Проверяем подписку для Преподавателя ПДД');
+            const hasPaid = await checkPaidSubscription();
+            if (hasPaid) {
+                window.open('https://t.me/EasyDrivePDD', '_blank');
+            } else {
+                showPaymentModal();
+            }
+        }
+
+        async function openLawyer() {
+            console.log('🔍 Проверяем подписку для Автоюриста');
+            const hasPaid = await checkPaidSubscription();
+            if (hasPaid) {
+                window.location.href = 'lawyer.html';
+            } else {
+                showPaymentModal();
+            }
+        }
+
+        async function openPsychologist() {
+            console.log('🔍 Проверяем подписку для Автопсихолога');
+            const hasPaid = await checkPaidSubscription();
+            if (hasPaid) {
+                window.location.href = 'psychologist.html';
+            } else {
+                showPaymentModal();
+            }
+        }
+
+        async function openTranslations() {
+            console.log('🔍 Проверяем подписку для Трансляций');
+            const hasPaid = await checkPaidSubscription();
+            if (hasPaid) {
+            window.location.href = 'translations.html';
+            } else {
+                showPaymentModal();
+            }
+        }
+
+        // Показываем содержимое после загрузки страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.visibility = 'visible';
+        });
+    </script>
+    <!-- Индикатор версии в правом нижнем углу -->
+    <div id="version-indicator" style="position: fixed; bottom: 5px; right: 5px; color: rgba(128, 128, 128, 0.3); font-size: 10px; font-family: monospace; z-index: 9999; pointer-events: none;">v26</div>
+</body>
+</html>

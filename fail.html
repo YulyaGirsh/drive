@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ошибка оплаты - EasyDrive</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .error-icon {
+            font-size: 80px;
+            color: #f44336;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #d32f2f;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .contact-info {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-icon">❌</div>
+        <h1>Ошибка при оплате</h1>
+        <p>К сожалению, произошла ошибка при обработке платежа. Ваша карта не была списана.</p>
+        <p>Возможные причины:</p>
+        <ul style="text-align: left; color: #666;">
+            <li>Недостаточно средств на карте</li>
+            <li>Неправильные данные карты</li>
+            <li>Проблемы с банком</li>
+            <li>Технические неполадки</li>
+        </ul>
+        
+        <div class="contact-info">
+            <p><strong>Нужна помощь?</strong></p>
+            <p>Обратитесь в поддержку через Telegram: @EasyDrivePDD</p>
+        </div>
+        
+        <a href="videos.html" class="btn">Попробовать снова</a>
+        <a href="index.html" class="btn btn-secondary">На главную</a>
+    </div>
+
+    <script>
+        // Получаем user_id из URL параметров
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('user_id');
+        
+        if (userId) {
+            console.log('Ошибка оплаты для пользователя:', userId);
+        }
+    </script>
+</body>
+</html>

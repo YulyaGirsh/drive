@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Билеты ПДД - EasyDrive</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    background: #f4f4f4;
+    font-family: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+  .page {
+    width: 100%;                 /* полная ширина страницы */
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    overflow: hidden;
+    position: relative;
+    padding-bottom: 0px;        /* убираем отступ для плашки */
+  }
+  .road-wrap {
+    position: relative;
+    width: 100%;
+    line-height: 0;
+    user-select: none;
+    margin-top: 10px;
+  }
+  .road-wrap img {
+    display: block;
+    width: 100%;                  /* изображение на всю ширину */
+    height: auto;
+  }
+
+  /* Вариант 2: круглые кнопки при высоте 34px */
+  .node {
+    position: absolute;
+    transform: translate(-50%, -50%); /* центр по координате */
+    width: 34px;                      /* фиксируем круглый размер */
+    height: 34px;
+    padding: 0;                        /* убираем горизонтальные отступы */
+    border-radius: 50%;                /* круг */
+    border: 1px solid #b85a00;
+    background: linear-gradient(#ffa733, #ff7f0e);
+    box-shadow: 0 2px 0 #b85a00, 0 6px 14px rgba(0,0,0,.18);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;                   /* чуть меньше для двузначных чисел */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .node:active {
+    transform: translate(-50%, -50%) translateY(1px);
+    box-shadow: 0 1px 0 #b85a00, 0 3px 10px rgba(0,0,0,.20);
+  }
+
+
+
+
+
+  .back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255,140,0,.9);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    text-decoration: none;
+    z-index: 1001;
+    transition: background .25s;
+    align-self: flex-start;
+  }
+  .back-btn:hover {
+    background: rgba(255,140,0,1);
+  }
+
+  .random-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+    z-index: 1000;
+    transition: all .25s;
+    width: 400px;
+    max-width: 400px;
+    min-width: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    align-self: flex-start;
+  }
+
+  .btn-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .btn-line {
+    display: block;
+    line-height: 1.2;
+  }
+
+  /* Серая плашка с информацией */
+  .info-panel {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    background: rgb(212, 212, 212);
+    padding: 20px;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    margin-top: 0;
+  }
+
+  .info-panel h3 {
+    color: #6b7280;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    text-align: center;
+  }
+
+  .themes-link {
+    color: #6b7280;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .themes-link:hover {
+    color: #ff8c00;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  }
+
+  .info-features {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    gap: 10px;
+  }
+
+  .info-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+  }
+
+  .info-feature-icon {
+    width: 24px;
+    height: 24px;
+    background: #9ca3af;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+  }
+
+  .info-feature-text {
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .info-description {
+    color: #9ca3af;
+    font-size: 14px;
+    text-align: center;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Мобильные стили для плашки */
+  @media (max-width: 480px) {
+    .page {
+      padding-bottom: 0px;      /* убираем наслоение полностью для мобильных */
+    }
+
+    .info-panel {
+      padding: 15px;
+      border-radius: 15px 15px 0 0;
+    }
+
+    .info-panel h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .info-features {
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .info-feature-icon {
+      width: 20px;
+      height: 20px;
+      font-size: 10px;
+      margin-bottom: 6px;
+    }
+
+    .info-feature-text {
+      font-size: 11px;
+    }
+
+    .info-description {
+      font-size: 13px;
+    }
+  }
+  .random-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+  }
+
+  /* Вертикальный режим (высота больше ширины) */
+  @media (max-height: 900px) and (orientation: portrait) {
+    .random-btn {
+      position: fixed !important;
+      top: 20px !important;
+      right: 20px !important;
+      left: auto !important;
+      bottom: auto !important;
+      transform: none !important;
+      width: 200px !important;
+      max-width: 200px !important;
+      min-width: 200px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0;
+      margin: 0 !important;
+      padding: 10px 15px !important;
+      box-sizing: border-box !important;
+    }
+  }
+
+  /* Мобильные стили */
+  @media (max-width: 768px) {
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    
+    .page {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+    }
+    
+    .road-wrap {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .road-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+      align-self: flex-start;
+    }
+    
+    .random-btn {
+      position: fixed !important;
+      top: 20px !important;
+      right: 20px !important;
+      align-self: flex-start;
+      z-index: 1001;
+      width: 200px !important;
+      max-width: 200px !important;
+      min-width: 200px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0;
+      margin: 0 !important;
+      padding: 10px 15px !important;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .back-btn {
+      padding: 8px 12px;
+      font-size: 14px;
+      top: 20px;
+      left: 20px;
+      align-self: flex-start;
+    }
+    
+    .random-btn {
+      position: fixed !important;
+      top: 20px !important;
+      right: 20px !important;
+      left: auto !important;
+      bottom: auto !important;
+      align-self: flex-start;
+      transform: none !important;
+      padding: 8px 12px !important;
+      font-size: 14px;
+      width: 160px !important;
+      max-width: 160px !important;
+      min-width: 160px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 !important;
+      box-sizing: border-box !important;
+    }
+  }
+
+  /* Дополнительный медиа-запрос для очень маленьких экранов в вертикальном режиме */
+  @media (max-height: 600px) and (orientation: portrait) {
+    .random-btn {
+      position: fixed !important;
+      top: 10px !important;
+      right: 10px !important;
+      left: auto !important;
+      bottom: auto !important;
+      transform: none !important;
+      padding: 6px 10px !important;
+      font-size: 12px;
+      width: 140px !important;
+      max-width: 140px !important;
+      min-width: 140px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 !important;
+      box-sizing: border-box !important;
+    }
+  }
+
+  /* Дополнительный медиа-запрос для мобильных устройств с маленькой высотой */
+  @media (max-width: 480px) and (max-height: 800px) {
+    .page {
+      padding-bottom: 0px;      /* убираем наслоение полностью для маленьких экранов */
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="road-wrap" id="road">
+      <!-- Изображение дороги с билетами -->
+      <img id="roadImg" src="1.png" alt="Дорога с билетами ПДД" width="832" height="4584" />
+    </div>
+  </div>
+
+  <a href="index.html" class="back-btn">← Назад</a>
+  <a href="#" class="random-btn" onclick="openRandomTicket()">
+    <span class="btn-text">
+      <span class="btn-line">🎲 Случайный</span>
+      <span class="btn-line">вопрос</span>
+    </span>
+  </a>
+
+  <!-- Серая плашка с информацией -->
+  <div class="info-panel">
+    <h3><a href="2.html" class="themes-link">Тесты по темам</a></h3>
+    <div class="info-features">
+      <div class="info-feature">
+        <div class="info-feature-icon">📋</div>
+        <div class="info-feature-text">Есть подсказки<br>и разборы</div>
+      </div>
+             <div class="info-feature">
+               <div class="info-feature-icon">✓</div>
+               <div class="info-feature-text">Допускается<br>до 2 ошибок</div>
+             </div>
+             <div class="info-feature">
+               <div class="info-feature-icon">⏰</div>
+               <div class="info-feature-text">20 минут на<br>прохождение билета</div>
+             </div>
+    </div>
+    <p class="info-description">Подходит для обучения и подготовки к экзамену</p>
+  </div>
+
+<script>
+  // Основано на вашем вводе.
+  // Оригинальный размер изображения:
+  const ORIGINAL = { w: 832, h: 4584 };
+
+  // Базовые позиции цикла из 4 кнопок (X фиксирован, Y базовый):
+  // 1: x=549, y=4441 (исправлено)
+  // 2: x=411, y=4328
+  // 3: x=299, y=4227
+  // 4: x=411, y=4121
+  const BASE = [
+    { x: 549, y: 4441 }, // тип 1: 1,5,9,13,17,21,25,29,33,37
+    { x: 411, y: 4328 }, // тип 2: 2,6,10,14,18,22,26,30,34,38
+    { x: 299, y: 4227 }, // тип 3: 3,7,11,15,19,23,27,31,35,39
+    { x: 411, y: 4121 }  // тип 4: 4,8,12,16,20,24,28,32,36,40
+  ];
+
+  // Шаг по Y между повторениями типа:
+  const STEP_Y = 438;     // уменьшение Y на 455 (по вашему требованию)
+  const TOTAL  = 40;      // всего кнопок
+
+  // Строим координаты 1–40 по правилу цикла
+  const coords = [];
+  for (let n = 1; n <= TOTAL; n++) {
+    const idx = (n - 1) % 4;               // тип 0..3 (соответствует 1..4)
+    const k   = Math.floor((n - 1) / 4);   // номер «этажа» (0..9)
+    const x   = BASE[idx].x;
+    const y   = BASE[idx].y - STEP_Y * k;  // Y уменьшается на 455*k
+    coords.push({ n, x, y });
+  }
+
+  const roadEl = document.getElementById('road');
+  const imgEl  = document.getElementById('roadImg');
+
+  // Функция для открытия случайного билета
+  function openRandomTicket() {
+    const randomTicket = Math.floor(Math.random() * 40) + 1;
+    window.location.href = 'exam.html?ticket=' + randomTicket;
+  }
+
+  function renderNodes() {
+    // очистка
+    roadEl.querySelectorAll('.node').forEach(el => el.remove());
+
+    // масштаб под 380px
+    const scale = roadEl.clientWidth / ORIGINAL.w;
+    roadEl.style.height = (ORIGINAL.h * scale) + 'px';
+
+    // снизу-вверх: больше Y — ниже
+    const sorted = [...coords].sort((a, b) => b.y - a.y);
+
+    for (const { n, x, y } of sorted) {
+      const a = document.createElement('a');
+      a.className = 'node';
+      a.textContent = String(n);
+      a.href = '#node-' + n;
+      a.style.left = (x * scale) + 'px';
+      a.style.top  = (y * scale) + 'px';
+      a.setAttribute('aria-label', 'Кнопка ' + n);
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'exam.html?ticket=' + n;
+      });
+      roadEl.appendChild(a);
+    }
+  }
+
+
+  if (imgEl.complete) renderNodes();
+  else imgEl.addEventListener('load', renderNodes);
+  window.addEventListener('resize', renderNodes);
+
+  // Автоматическая прокрутка к первому билету при загрузке страницы
+  function scrollToFirstTicket() {
+    // Ждем немного, чтобы страница полностью загрузилась
+    setTimeout(() => {
+      // Находим первый билет (элемент с классом .node)
+      const firstTicket = document.querySelector('.node');
+      if (firstTicket) {
+        // Прокручиваем к первому билету с небольшим отступом сверху
+        firstTicket.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start',
+          inline: 'nearest'
+        });
+      }
+    }, 500); // Задержка 500мс для полной загрузки
+  }
+
+  // Запускаем прокрутку при загрузке страницы
+  document.addEventListener('DOMContentLoaded', scrollToFirstTicket);
+  
+  // Также запускаем после рендеринга узлов
+  const originalRenderNodes = window.renderNodes;
+  window.renderNodes = function() {
+    originalRenderNodes();
+    scrollToFirstTicket();
+  };
+</script>
+</body>
+</html>
