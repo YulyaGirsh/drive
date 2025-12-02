@@ -396,6 +396,15 @@
                     console.error('❌ Ошибка проверки подписки:', response.status);
                     const errorText = await response.text();
                     console.error('Текст ошибки:', errorText);
+                    // Даже при ошибке пытаемся получить JSON ответ
+                    try {
+                        const errorResult = JSON.parse(errorText);
+                        if (errorResult.subscribed !== undefined) {
+                            return Boolean(errorResult.subscribed);
+                        }
+                    } catch (e) {
+                        console.error('Не удалось распарсить ошибку как JSON');
+                    }
                     return false;
                 }
                 
@@ -403,10 +412,22 @@
                 console.log('📦 Полный результат от сервера:', JSON.stringify(result));
                 console.log('✅ result.subscribed:', result.subscribed);
                 console.log('🔢 Тип result.subscribed:', typeof result.subscribed);
-                console.log('📝 Результат после приведения к boolean:', Boolean(result.subscribed));
+                
+                // Проверяем наличие поля subscribed
+                if (result.subscribed === undefined) {
+                    console.error('❌ В ответе отсутствует поле subscribed');
+                    console.error('Полный ответ:', result);
+                    return false;
+                }
                 
                 const finalResult = Boolean(result.subscribed);
+                console.log('📝 Результат после приведения к boolean:', finalResult);
                 console.log('🎯 ФИНАЛЬНЫЙ РЕЗУЛЬТАТ ПРОВЕРКИ:', finalResult ? 'ПОДПИСАН ✅' : 'НЕ ПОДПИСАН ❌');
+                
+                // Если есть ошибка, логируем её
+                if (result.error) {
+                    console.warn('⚠️ Ошибка при проверке подписки:', result.error);
+                }
                 
                 return finalResult;
                 

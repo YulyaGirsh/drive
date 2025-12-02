@@ -103,17 +103,25 @@ class TelegramHandler:
     def check_channel_subscription(handler, user_id, channel):
         """Проверяет подписку пользователя на канал"""
         try:
+            print(f"🔍 Проверяем подписку: user_id={user_id}, channel=@{channel}")
+            
             telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/getChatMember"
             full_url = f"{telegram_url}?chat_id=@{channel}&user_id={user_id}"
             
-            with urllib.request.urlopen(full_url) as response:
+            print(f"📡 URL запроса: {full_url}")
+            
+            with urllib.request.urlopen(full_url, timeout=10) as response:
                 result = response.read().decode('utf-8')
                 result_data = json.loads(result)
+                
+                print(f"📥 Ответ от Telegram API: {result_data}")
                 
                 if result_data.get('ok'):
                     member_data = result_data.get('result', {})
                     status = member_data.get('status', 'left')
                     is_subscribed = status not in ['left', 'kicked']
+                    
+                    print(f"✅ Статус подписки: {status}, Подписан: {is_subscribed}")
                     
                     return {
                         'subscribed': is_subscribed,
@@ -121,19 +129,42 @@ class TelegramHandler:
                         'channel': channel
                     }
                 else:
+                    error_msg = result_data.get('description', 'Cannot check subscription')
+                    print(f"❌ Ошибка Telegram API: {error_msg}")
                     return {
                         'subscribed': False,
                         'status': 'unknown',
                         'channel': channel,
-                        'error': result_data.get('description', 'Cannot check subscription')
+                        'error': error_msg
                     }
         except urllib.error.HTTPError as e:
+            try:
+                error_text = e.read().decode('utf-8')
+                error_data = json.loads(error_text)
+                print(f"❌ HTTP ошибка {e.code}: {error_data}")
+            except:
+                error_text = str(e)
+                print(f"❌ HTTP ошибка {e.code}: {error_text}")
+            
             if e.code == 400:
+                # Бот не может проверить подписку (не админ канала или канал не существует)
+                # Это критическая ошибка - бот должен быть администратором канала!
+                print(f"⚠️ ВНИМАНИЕ: Бот не может проверить подписку на канал @{channel}")
+                print(f"⚠️ Убедитесь, что бот является администратором канала @{channel}")
                 return {
                     'subscribed': False,
                     'status': 'unknown',
                     'channel': channel,
-                    'error': 'Bot cannot check subscription - not admin of channel'
+                    'error': 'Bot cannot check subscription - not admin of channel or channel not found'
+                }
+            elif e.code == 403:
+                # Запрещено - бот заблокирован или нет прав
+                print(f"⚠️ Ошибка 403: Бот не имеет доступа к каналу @{channel}")
+                return {
+                    'subscribed': False,
+                    'status': 'unknown',
+                    'channel': channel,
+                    'error': 'Bot does not have access to channel'
                 }
             else:
                 return {
@@ -143,9 +174,13 @@ class TelegramHandler:
                     'error': f'HTTP error: {e.code}'
                 }
         except Exception as e:
-            print(f"Ошибка при проверке подписки: {e}")
+            print(f"❌ Ошибка при проверке подписки: {e}")
+            import traceback
+            traceback.print_exc()
             return {
                 'subscribed': False,
+                'status': 'unknown',
+                'channel': channel,
                 'error': str(e)
             }
 

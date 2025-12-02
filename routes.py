@@ -87,19 +87,33 @@ class Router:
             
             elif path == '/api/check-channel-subscription':
                 data = read_request_data(handler.headers, handler.rfile)
-                if data:
-                    user_id = data.get('user_id')
-                    channel = data.get('channel')
-                    if not user_id:
-                        send_error_response(handler, 400, "Missing user_id")
-                        return
-                    if not channel:
-                        send_error_response(handler, 400, "Missing channel")
-                        return
-                    result = TelegramHandler.check_channel_subscription(handler, user_id, channel)
-                    send_json_response(handler, result)
-                else:
+                if not data:
                     send_error_response(handler, 400, "Invalid request data")
+                    return
+                
+                user_id = data.get('user_id')
+                channel = data.get('channel', 'avtoshkolavtelefone')  # Значение по умолчанию
+                
+                # Логируем запрос
+                print(f"🔍 Проверка подписки: user_id={user_id}, channel={channel}")
+                
+                if not user_id:
+                    print("⚠️ user_id отсутствует, возвращаем False")
+                    send_json_response(handler, {
+                        'subscribed': False,
+                        'status': 'unknown',
+                        'channel': channel,
+                        'error': 'User ID not available'
+                    })
+                    return
+                
+                if not channel:
+                    send_error_response(handler, 400, "Missing channel")
+                    return
+                
+                result = TelegramHandler.check_channel_subscription(handler, user_id, channel)
+                print(f"📊 Результат проверки подписки: {result}")
+                send_json_response(handler, result)
             
             elif path == '/api/v2/heartbeat':
                 send_json_response(handler, {
