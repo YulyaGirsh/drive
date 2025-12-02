@@ -317,15 +317,9 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def send_telegram_notification(self, message):
         """Отправляет уведомление в Telegram"""
         try:
-<<<<<<< HEAD
             # Конфигурация бота из переменных окружения
             bot_token = BOT_TOKEN
             chat_id = ADMIN_CHAT_ID
-=======
-            # Конфигурация бота
-            bot_token = "8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0"
-            chat_id = 5292692434
->>>>>>> 949453bf38d78a03b3d3b4a98278cc00fb0da639
             
             # Формируем запрос к Telegram API
             telegram_url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
@@ -386,13 +380,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(400, "Missing user_id")
                 return
             
-<<<<<<< HEAD
             # Конфигурация бота из переменных окружения
             bot_token = BOT_TOKEN
-=======
-            # Конфигурация бота
-            bot_token = "8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0"
->>>>>>> 949453bf38d78a03b3d3b4a98278cc00fb0da639
             
             # Проверяем подписку через Telegram API
             telegram_url = f"https://api.telegram.org/bot{bot_token}/getChatMember"
@@ -1216,15 +1205,10 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     'subscribed': False,
                     'error': 'Missing channel'
                 }).encode('utf-8'))
-                    
+                return
             
-<<<<<<< HEAD
             # Конфигурация бота из переменных окружения
             bot_token = BOT_TOKEN
-=======
-            # Конфигурация бота
-            bot_token = "8263208579:AAHbgB-KSmyqZwMf7FtxBbUzjWNIugUtKu0"
->>>>>>> 949453bf38d78a03b3d3b4a98278cc00fb0da639
             
             # Проверяем подписку через Telegram API
             telegram_url = f"https://api.telegram.org/bot{bot_token}/getChatMember"
